@@ -1,3 +1,5 @@
+'use client';
+
 import { Suspense } from 'react';
 import SigninForm from './SigninForm';
 
@@ -8,3 +10,5 @@ export default function SigninPage() {
     </Suspense>
   );
 }
+
+export const dynamic = "force-dynamic";
