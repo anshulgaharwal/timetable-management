@@ -1,9 +1,9 @@
-'use client';
-import DashboardLayout from '../../../components/DashboardLayout';
-import { useSession } from 'next-auth/react';
+"use client"
+import DashboardLayout from "../../components/DashboardLayout"
+import { useSession } from "next-auth/react"
 
-export default function ProfessorDashboard() {
-  const { data: session } = useSession();
+export default function ProfessorPage() {
+  const { data: session } = useSession()
 
   return (
     <DashboardLayout>
@@ -15,5 +15,5 @@ export default function ProfessorDashboard() {
         <li>🧾 Upload Grades</li>
       </ul>
     </DashboardLayout>
-  );
+  )
 }
