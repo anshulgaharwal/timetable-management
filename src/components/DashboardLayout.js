@@ -11,7 +11,9 @@ export default function DashboardLayout({ children, sidebarTabs, pageTitle, acti
   return (
     <div className="dashboard-container">
       <div className="sidebar">
-        <div className="sidebar-logo">🎓 MyApp</div>
+        <div className="sidebar-logo">
+          <span>TMS</span>
+        </div>
 
         <div className="sidebar-tabs">
           {sidebarTabs &&
@@ -25,7 +27,7 @@ export default function DashboardLayout({ children, sidebarTabs, pageTitle, acti
         <div className="sidebar-user">
           <span className="user-name">{session?.user?.name}</span>
           <span className="user-role">{session?.user?.role}</span>
-          <button onClick={() => signOut()}>Logout</button>
+          <button onClick={() => signOut()}>Sign out</button>
         </div>
       </div>
 

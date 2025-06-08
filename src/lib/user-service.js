@@ -3,11 +3,6 @@ import bcrypt from "bcrypt"
 
 const prisma = new PrismaClient()
 
-/**
- * Finds a user by their email address.
- * @param {string} email - The user's email.
- * @returns {Promise<User|null>} The user object or null if not found.
- */
 export async function getUserByEmail(email) {
   try {
     return await prisma.user.findUnique({ where: { email } })
@@ -17,15 +12,6 @@ export async function getUserByEmail(email) {
   }
 }
 
-/**
- * Creates a new user in the database.
- * @param {object} userData - The user's data.
- * @param {string} userData.name - The user's name.
- * @param {string} userData.email - The user's email.
- * @param {string} userData.password - The user's plain text password.
- * @param {string} userData.role - The user's role.
- * @returns {Promise<User>} The created user object.
- */
 export async function createUser(userData) {
   const { name, email, password, role } = userData
 
@@ -41,7 +27,6 @@ export async function createUser(userData) {
     })
   } catch (error) {
     console.error("Database error in createUser:", error)
-    // Re-throw a more generic error to avoid leaking implementation details
     throw new Error("Failed to create user.")
   }
 }
