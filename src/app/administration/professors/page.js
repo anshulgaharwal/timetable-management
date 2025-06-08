@@ -1,5 +1,5 @@
 "use client"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import DashboardLayout from "../../../components/DashboardLayout"
 import { useSession } from "next-auth/react"
 import "../../../styles/professors.css"
@@ -20,10 +20,25 @@ export default function ProfessorsPage() {
 
   const sidebarTabs = [
     { label: "Dashboard", href: "/administration" },
-    { label: "Manage Users", href: "/administration/users" },
+    // { label: "Manage Users", href: "/administration/users" },
     { label: "Professors", href: "/administration/professors" },
-    { label: "System Settings", href: "/administration/settings" },
+    // { label: "System Settings", href: "/administration/settings" },
   ]
+
+  // Use useMemo to recreate actionButtons when showAddForm changes
+  const actionButtons = useMemo(
+    () => [
+      {
+        label: showAddForm ? "Cancel" : "Add New Professor",
+        onClick: () => {
+          setShowAddForm(!showAddForm)
+          setShowEditForm(false)
+          setFormData({ name: "", email: "", password: "" })
+        },
+      },
+    ],
+    [showAddForm]
+  )
 
   // Fetch professors
   useEffect(() => {
@@ -144,24 +159,11 @@ export default function ProfessorsPage() {
   }
 
   return (
-    <DashboardLayout sidebarTabs={sidebarTabs}>
+    <DashboardLayout sidebarTabs={sidebarTabs} pageTitle="Manage Professors" actionButtons={actionButtons}>
       <div className="professors-container">
         <h1>Manage Professors</h1>
 
         {error && <div className="error-message">{error}</div>}
-
-        <div className="actions">
-          <button
-            className="add-button"
-            onClick={() => {
-              setShowAddForm(!showAddForm)
-              setShowEditForm(false)
-              setFormData({ name: "", email: "", password: "" })
-            }}
-          >
-            {showAddForm ? "Cancel" : "Add New Professor"}
-          </button>
-        </div>
 
         {showAddForm && (
           <div className="form-container">

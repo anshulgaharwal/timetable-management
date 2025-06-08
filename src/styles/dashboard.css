@@ -5,25 +5,27 @@
   --text-primary: #2c3e50;
   --text-secondary: #5a7391;
   --accent-color: rgba(100, 180, 255, 0.4);
+
+  --dashboard-padding: 20px;
+  --dashboard-gap: 20px;
+  --sidebar-width: 220px;
+  --navbar-height: 60px;
 }
 
-body {
-  margin: 0;
-  padding: 0;
-  font-family: "Inter", "Segoe UI", sans-serif;
+.dashboard-container {
   background: linear-gradient(135deg, #e0f7fa, #bbdefb);
   color: var(--text-primary);
-  min-height: 100vh;
+  height: 100vh;
   overflow: hidden;
+  display: flex;
+  padding: var(--dashboard-padding);
+  gap: var(--dashboard-gap);
 }
 
 /* Main layout structure */
 .sidebar {
-  position: fixed;
-  left: 20px;
-  top: 20px;
-  bottom: 20px;
-  width: 220px;
+  width: var(--sidebar-width);
+  height: calc(100vh - var(--dashboard-padding) * 2);
   background: var(--glass-bg);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
@@ -37,12 +39,66 @@ body {
   overflow-y: auto;
 }
 
-.main {
-  margin-left: 260px;
-  padding: 20px;
+.sidebar-logo {
+  font-size: 24px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #1976d2;
+  padding: 0 16px 16px;
+  margin-bottom: 16px;
+  border-bottom: 1px solid rgba(100, 180, 255, 0.2);
+}
+
+.sidebar-tabs {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.sidebar-user {
+  margin-top: auto;
+  padding: 16px;
+  border-top: 1px solid rgba(100, 180, 255, 0.2);
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
+  gap: 8px;
+}
+
+.user-name {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.user-role {
+  font-size: 0.9em;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+}
+
+.sidebar-user button {
+  background: rgba(100, 180, 255, 0.2);
+  border: 1px solid rgba(100, 180, 255, 0.4);
+  color: #1976d2;
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 500;
+  width: 100%;
+  margin-top: 8px;
+}
+
+.sidebar-user button:hover {
+  background: rgba(100, 180, 255, 0.3);
+}
+
+.main {
+  width: calc(100% - var(--sidebar-width) - var(--dashboard-gap));
+  display: flex;
+  flex-direction: column;
+  gap: var(--dashboard-gap);
+  height: calc(100vh - var(--dashboard-padding) * 2);
 }
 
 .navbar {
@@ -53,13 +109,40 @@ body {
   border: 1px solid var(--glass-border);
   box-shadow: var(--glass-shadow);
   padding: 16px 24px;
-  margin-bottom: 20px;
+  height: var(--navbar-height);
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
+.page-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: #1976d2;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 12px;
+}
+
+.action-buttons button {
+  background: rgba(100, 180, 255, 0.2);
+  border: 1px solid rgba(100, 180, 255, 0.4);
+  color: #1976d2;
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 500;
+}
+
+.action-buttons button:hover {
+  background: rgba(100, 180, 255, 0.3);
+}
+
 .content {
+  height: calc(100vh - var(--navbar-height) - var(--dashboard-padding) * 2);
   background: var(--glass-bg);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
@@ -68,10 +151,11 @@ body {
   box-shadow: var(--glass-shadow);
   padding: 24px;
   flex: 1;
+  overflow-y: auto;
 }
 
 /* Sidebar links */
-.sidebar a {
+.sidebar-tabs a {
   display: block;
   text-decoration: none;
   color: var(--text-secondary);
@@ -82,51 +166,15 @@ body {
   font-weight: 500;
 }
 
-.sidebar a:hover {
+.sidebar-tabs a:hover {
   background: rgba(100, 180, 255, 0.2);
   color: var(--text-primary);
 }
 
-.sidebar a.active {
+.sidebar-tabs a.active {
   background: var(--accent-color);
   color: var(--text-primary);
   font-weight: 600;
-}
-
-/* Logo and user info */
-.logo {
-  font-size: 24px;
-  font-weight: 700;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  color: #1976d2;
-}
-
-.user-info {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.user-info span {
-  font-weight: 500;
-}
-
-.user-info button {
-  background: rgba(100, 180, 255, 0.2);
-  border: 1px solid rgba(100, 180, 255, 0.4);
-  color: #1976d2;
-  padding: 8px 16px;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  margin-left: 10px;
-  font-weight: 500;
-}
-
-.user-info button:hover {
-  background: rgba(100, 180, 255, 0.3);
 }
 
 /* Content styling */
