@@ -19,10 +19,10 @@ export default function ProfessorsPage() {
   })
 
   const sidebarTabs = [
-    { label: "Dashboard", href: "/administration" },
-    // { label: "Manage Users", href: "/administration/users" },
-    { label: "Professors", href: "/administration/professors" },
-    // { label: "System Settings", href: "/administration/settings" },
+    { label: "Dashboard", href: "/admin" },
+    // { label: "Manage Users", href: "/admin/users" },
+    { label: "Professors", href: "/admin/professors" },
+    // { label: "System Settings", href: "/admin/settings" },
   ]
 
   // Use useMemo to recreate actionButtons when showAddForm changes

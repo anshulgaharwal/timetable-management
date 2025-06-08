@@ -3,21 +3,21 @@ import DashboardLayout from "../../components/DashboardLayout"
 import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
 
-export default function AdministrationPage() {
+export default function AdminPage() {
   const { data: session } = useSession()
   const router = useRouter()
 
   const sidebarTabs = [
-    { label: "Dashboard", href: "/administration" },
-    // { label: "Manage Users", href: "/administration/users" },
-    { label: "Professors", href: "/administration/professors" },
-    // { label: "System Settings", href: "/administration/settings" },
+    { label: "Dashboard", href: "/admin" },
+    // { label: "Manage Users", href: "/admin/users" },
+    { label: "Professors", href: "/admin/professors" },
+    // { label: "System Settings", href: "/admin/settings" },
   ]
 
   const actionButtons = [
     {
       label: "Add User",
-      onClick: () => router.push("/administration/users/add"),
+      onClick: () => router.push("/admin/users/add"),
     },
     {
       label: "System Status",
@@ -26,7 +26,7 @@ export default function AdministrationPage() {
   ]
 
   return (
-    <DashboardLayout sidebarTabs={sidebarTabs} pageTitle="Administration Dashboard" actionButtons={actionButtons}>
+    <DashboardLayout sidebarTabs={sidebarTabs} pageTitle="Admin Dashboard" actionButtons={actionButtons}>
       <h1>Welcome Administrator!</h1>
       <p>Hi {session?.user?.name}, manage the system.</p>
       <ul>

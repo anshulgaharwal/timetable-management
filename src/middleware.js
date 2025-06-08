@@ -16,13 +16,13 @@ export async function middleware(req) {
       return NextResponse.redirect(new URL(userDashboard, req.url))
     }
     // If they are trying to access a dashboard other than their own, redirect them
-    if ((pathname.startsWith("/student") && role !== "student") || (pathname.startsWith("/professor") && role !== "professor") || (pathname.startsWith("/administration") && role !== "administration")) {
+    if ((pathname.startsWith("/student") && role !== "student") || (pathname.startsWith("/professor") && role !== "professor") || (pathname.startsWith("/admin") && role !== "admin")) {
       return NextResponse.redirect(new URL(userDashboard, req.url))
     }
   }
   // If a user is not logged in and tries to access a protected page
   else {
-    const protectedPaths = ["/student", "/professor", "/administration"]
+    const protectedPaths = ["/student", "/professor", "/admin"]
     if (protectedPaths.some((path) => pathname.startsWith(path))) {
       return NextResponse.redirect(new URL("/signin", req.url))
     }

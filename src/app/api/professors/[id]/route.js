@@ -12,7 +12,7 @@ export async function GET(req, { params }) {
     const session = await getServerSession(authOptions)
 
     // Check if user is authenticated and is an admin
-    if (!session || session.user.role !== "administration") {
+    if (!session || session.user.role !== "admin") {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 })
     }
 
@@ -46,7 +46,7 @@ export async function PUT(req, { params }) {
     const session = await getServerSession(authOptions)
 
     // Check if user is authenticated and is an admin
-    if (!session || session.user.role !== "administration") {
+    if (!session || session.user.role !== "admin") {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 })
     }
 
@@ -96,7 +96,7 @@ export async function DELETE(req, { params }) {
     const session = await getServerSession(authOptions)
 
     // Check if user is authenticated and is an admin
-    if (!session || session.user.role !== "administration") {
+    if (!session || session.user.role !== "admin") {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 })
     }
 

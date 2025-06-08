@@ -57,7 +57,7 @@ export default function SignupPage() {
         <select name="role" value={form.role} onChange={handleChange}>
           <option value="student">Student</option>
           <option value="professor">Professor</option>
-          <option value="administration">Administration</option>
+          <option value="admin">Admin</option>
         </select>
         <button type="submit" disabled={loading}>
           {loading ? "Signing up..." : "Sign Up"}

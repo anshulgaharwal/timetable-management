@@ -12,7 +12,7 @@ export async function GET() {
     const session = await getServerSession(authOptions)
 
     // Check if user is authenticated and is an admin
-    if (!session || session.user.role !== "administration") {
+    if (!session || session.user.role !== "admin") {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 })
     }
 
@@ -40,7 +40,7 @@ export async function POST(req) {
     const session = await getServerSession(authOptions)
 
     // Check if user is authenticated and is an admin
-    if (!session || session.user.role !== "administration") {
+    if (!session || session.user.role !== "admin") {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 })
     }
 
