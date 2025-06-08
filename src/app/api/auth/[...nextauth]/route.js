@@ -3,11 +3,8 @@ import GoogleProvider from "next-auth/providers/google"
 import CredentialsProvider from "next-auth/providers/credentials"
 import bcrypt from "bcrypt"
 import { getUserByEmail } from "../../../../lib/user-service"
-import { PrismaClient } from "@prisma/client"
 
-const prisma = new PrismaClient()
-
-const handler = NextAuth({
+export const authOptions = {
   providers: [
     CredentialsProvider({
       name: "Credentials",
@@ -61,8 +58,10 @@ const handler = NextAuth({
         // The user object passed here is the one returned from 'authorize' or the Google profile.
         // We can safely transfer the id and role to the token.
         const dbUser = await getUserByEmail(user.email)
-        token.id = dbUser.id
-        token.role = dbUser.role
+        if (dbUser) {
+          token.id = dbUser.id
+          token.role = dbUser.role
+        }
       }
       return token
     },
@@ -73,6 +72,8 @@ const handler = NextAuth({
     signOut: "/signout",
   },
   secret: process.env.NEXTAUTH_SECRET,
-})
+}
+
+const handler = NextAuth(authOptions)
 
 export { handler as GET, handler as POST }
