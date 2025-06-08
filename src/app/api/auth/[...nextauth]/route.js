@@ -22,7 +22,16 @@ export const authOptions = {
 
           const isValid = await bcrypt.compare(credentials.password, user.password)
 
-          return isValid ? user : null
+          // Return user with role and id included directly
+          return isValid
+            ? {
+                id: user.id,
+                name: user.name,
+                email: user.email,
+                role: user.role,
+                image: user.image,
+              }
+            : null
         } catch (error) {
           // Log the error for debugging
           console.error("Authorize error:", error)
@@ -45,6 +54,7 @@ export const authOptions = {
     },
 
     async session({ session, token }) {
+      // Transfer data from token to session without additional DB queries
       if (token) {
         session.user.id = token.id
         session.user.role = token.role
@@ -53,15 +63,11 @@ export const authOptions = {
     },
 
     async jwt({ token, user }) {
+      // Only set these values when the user first signs in
       if (user) {
-        // This is the initial sign-in.
-        // The user object passed here is the one returned from 'authorize' or the Google profile.
-        // We can safely transfer the id and role to the token.
-        const dbUser = await getUserByEmail(user.email)
-        if (dbUser) {
-          token.id = dbUser.id
-          token.role = dbUser.role
-        }
+        // No need to query the database again, user object already has what we need
+        token.id = user.id
+        token.role = user.role
       }
       return token
     },

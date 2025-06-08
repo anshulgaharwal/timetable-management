@@ -7,9 +7,10 @@ import "../../styles/auth.css"
 
 export default function SigninForm() {
   const router = useRouter()
-  const { data: session } = useSession()
+  const { data: session, status } = useSession()
   const searchParams = useSearchParams()
   const [error, setError] = useState("")
+  const [isLoading, setIsLoading] = useState(false)
   const [form, setForm] = useState({ email: "", password: "" })
 
   useEffect(() => {
@@ -36,16 +37,26 @@ export default function SigninForm() {
   const handleSubmit = async (e) => {
     e.preventDefault()
 
-    const res = await signIn("credentials", {
-      redirect: false,
-      email: form.email,
-      password: form.password,
-    })
+    try {
+      setError("")
+      setIsLoading(true)
 
-    if (!res?.ok) {
-      setError("Invalid email or password")
+      const res = await signIn("credentials", {
+        redirect: false,
+        email: form.email,
+        password: form.password,
+      })
+
+      if (!res?.ok) {
+        setError("Invalid email or password")
+      }
+      // No need to manually redirect here as the useEffect will handle it
+    } catch (err) {
+      console.error("Sign in error:", err)
+      setError("An error occurred during sign in")
+    } finally {
+      setIsLoading(false)
     }
-    // No need to manually redirect here as the useEffect will handle it
   }
 
   return (
@@ -53,13 +64,16 @@ export default function SigninForm() {
       <form onSubmit={handleSubmit}>
         <h2>Sign In</h2>
         {error && <p className="text-red-500">{error}</p>}
-        <input type="email" placeholder="Email" required value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
-        <input type="password" placeholder="Password" required value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} />
-        <button type="submit">Sign In</button>
+        {status === "loading" && <p>Loading session...</p>}
+        <input type="email" placeholder="Email" required value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} disabled={isLoading} />
+        <input type="password" placeholder="Password" required value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} disabled={isLoading} />
+        <button type="submit" disabled={isLoading}>
+          {isLoading ? "Signing in..." : "Sign In"}
+        </button>
         <p>
           Don't have an account? <a href="/signup">Sign Up</a>
         </p>
-        <button type="button" className="google-btn" onClick={() => signIn("google")}>
+        <button type="button" className="google-btn" onClick={() => signIn("google")} disabled={isLoading}>
           <img src="/google-logo.png" alt="Google" /> Sign in with Google
         </button>
       </form>
