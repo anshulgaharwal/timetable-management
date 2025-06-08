@@ -47,7 +47,7 @@ export default function Signin() {
           onChange={(e) => setForm({ ...form, password: e.target.value })}
         />
         <button type="submit">Sign In</button>
-        <p>Don't have an account? <a href="/signup">Sign Up</a></p>
+        <p>Create account <a href="/signup">Sign Up</a></p>
         <button type="button" className="google-btn" onClick={() => signIn("google")}>
           <img src="/google-logo.png" alt="Google" /> Sign in with Google
         </button>
