@@ -1,13 +1,4 @@
-:root {
-  --glass-bg: rgba(255, 255, 255, 0.65);
-  --glass-border: rgba(255, 255, 255, 0.3);
-  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
-  --text-primary: #333333;
-  --text-secondary: #666666;
-  --accent-primary: #4876b2;
-  --accent-hover: #3a5f8e;
-  --border-radius: 12px;
-}
+/* Variables now defined in globals.css */
 
 body {
   background: linear-gradient(135deg, #e8f1ff, #d9e8ff);

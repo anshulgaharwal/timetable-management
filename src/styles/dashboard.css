@@ -1,23 +1,10 @@
-:root {
-  --glass-bg: rgba(255, 255, 255, 0.65);
-  --glass-border: rgba(255, 255, 255, 0.3);
-  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
-  --text-primary: #333333;
-  --text-secondary: #666666;
-  --accent-color: rgba(72, 118, 178, 0.15);
-  --accent-primary: #4876b2;
-
-  --dashboard-padding: 24px;
-  --dashboard-gap: 24px;
-  --sidebar-width: 240px;
-  --navbar-height: 70px;
-  --border-radius: 12px;
-}
+/* Variables now defined in globals.css */
 
 .dashboard-container {
   background: linear-gradient(135deg, #e8f1ff, #d9e8ff);
   color: var(--text-primary);
   height: 100vh;
+  width: 100vw;
   overflow: hidden;
   display: flex;
   padding: var(--dashboard-padding);

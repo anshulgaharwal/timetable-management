@@ -12,7 +12,14 @@
   --text-secondary: #666666;
   --accent-primary: #4876b2;
   --accent-hover: #3a5f8e;
+  --accent-color: rgba(72, 118, 178, 0.15);
   --border-radius: 12px;
+
+  /* Dashboard specific variables */
+  --dashboard-padding: 24px;
+  --dashboard-gap: 24px;
+  --sidebar-width: 240px;
+  --navbar-height: 70px;
 }
 
 html,
