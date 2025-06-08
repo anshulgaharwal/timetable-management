@@ -11,8 +11,8 @@ export async function middleware(req) {
 
   // If a user is logged in, handle redirects
   if (token) {
-    // If they are on the root, signin, or signup page, redirect to their dashboard
-    if (pathname === "/" || pathname === "/signin" || pathname === "/signup") {
+    // If they are on the signin, or signup page, redirect to their dashboard
+    if (pathname === "/signin" || pathname === "/signup") {
       return NextResponse.redirect(new URL(userDashboard, req.url))
     }
     // If they are trying to access a dashboard other than their own, redirect them

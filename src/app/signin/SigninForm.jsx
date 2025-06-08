@@ -2,11 +2,12 @@
 
 import { useSearchParams, useRouter } from "next/navigation"
 import { useState, useEffect } from "react"
-import { signIn } from "next-auth/react"
+import { signIn, useSession } from "next-auth/react"
 import "../../styles/auth.css"
 
 export default function SigninForm() {
   const router = useRouter()
+  const { data: session } = useSession()
   const searchParams = useSearchParams()
   const [error, setError] = useState("")
   const [form, setForm] = useState({ email: "", password: "" })
@@ -15,6 +16,22 @@ export default function SigninForm() {
     const errorParam = searchParams.get("error")
     if (errorParam) setError("Invalid email or password")
   }, [searchParams])
+
+  // Redirect based on role when session changes
+  useEffect(() => {
+    if (session?.user) {
+      if (session.user.role === "admin") {
+        router.push("/admin")
+      } else if (session.user.role === "professor") {
+        router.push("/professor")
+      } else if (session.user.role === "student") {
+        router.push("/student")
+      } else {
+        // Default redirect for other roles or if role is not set
+        router.push("/")
+      }
+    }
+  }, [session, router])
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -25,12 +42,10 @@ export default function SigninForm() {
       password: form.password,
     })
 
-    if (res?.ok) {
-      router.refresh()
-      router.push("/")
-    } else {
+    if (!res?.ok) {
       setError("Invalid email or password")
     }
+    // No need to manually redirect here as the useEffect will handle it
   }
 
   return (
