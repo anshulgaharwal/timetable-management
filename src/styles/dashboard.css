@@ -219,13 +219,13 @@
 }
 
 .sidebar-tabs a:hover {
-  background: rgba(255, 255, 255, 0.4);
-  color: var(--text-primary);
+  background: rgba(72, 118, 178, 0.8);
+  color: white;
 }
 
 .sidebar-tabs a.active {
-  background: rgba(255, 255, 255, 0.5);
-  color: var(--accent-primary);
+  background: var(--accent-primary);
+  color: white;
   font-weight: 600;
 }
 
