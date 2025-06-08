@@ -3,6 +3,7 @@
 import { useSearchParams, useRouter } from "next/navigation"
 import { useState, useEffect } from "react"
 import { signIn, useSession } from "next-auth/react"
+import Link from "next/link"
 import "../../styles/auth.css"
 
 export default function SigninForm() {
@@ -71,7 +72,7 @@ export default function SigninForm() {
           {isLoading ? "Signing in..." : "Sign In"}
         </button>
         <p>
-          Don't have an account? <a href="/signup">Sign Up</a>
+          Don't have an account? <Link href="/signup">Sign Up</Link>
         </p>
         <button type="button" className="google-btn" onClick={() => signIn("google")} disabled={isLoading}>
           <img src="/google-logo.png" alt="Google" /> Sign in with Google

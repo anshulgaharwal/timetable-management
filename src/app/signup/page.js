@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import "../../styles/auth.css"
+import Link from "next/link"
 
 export default function SignupPage() {
   const router = useRouter()
@@ -63,7 +64,7 @@ export default function SignupPage() {
           {loading ? "Signing up..." : "Sign Up"}
         </button>
         <p>
-          Already have an account? <a href="/signin">Sign In</a>
+          Already have an account? <Link href="/signin">Sign In</Link>
         </p>
       </form>
     </div>

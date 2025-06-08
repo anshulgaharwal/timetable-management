@@ -1,12 +1,18 @@
 "use client"
 import { useSession, signOut } from "next-auth/react"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import "../styles/dashboard.css"
 import Link from "next/link"
 
 export default function DashboardLayout({ children, sidebarTabs, pageTitle, actionButtons }) {
   const { data: session } = useSession()
   const path = usePathname()
+  const router = useRouter()
+
+  const handleSignOut = async () => {
+    await signOut({ redirect: false })
+    router.push("/")
+  }
 
   return (
     <div className="dashboard-container">
@@ -27,7 +33,7 @@ export default function DashboardLayout({ children, sidebarTabs, pageTitle, acti
         <div className="sidebar-user">
           <span className="user-name">{session?.user?.name}</span>
           <span className="user-role">{session?.user?.role}</span>
-          <button onClick={() => signOut()}>Sign out</button>
+          <button onClick={handleSignOut}>Sign out</button>
         </div>
       </div>
 
