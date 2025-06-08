@@ -8,7 +8,7 @@ export default function ProfessorDashboard() {
   return (
     <DashboardLayout>
       <h1>Welcome Professor!</h1>
-      <p>Hi {session?.user?.name}, here's your teaching panel.</p>
+      <p>Hi {session?.user?.name}, here is your teaching panel.</p>
       <ul>
         <li>📚 Manage Classes</li>
         <li>🧑‍🎓 Students List</li>
