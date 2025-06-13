@@ -16,3 +16,30 @@ model User {
   image     String?
   createdAt DateTime @default(now())
 }
+
+model Poll {
+  id          String    @id @default(cuid())
+  title       String
+  question    String
+  options     Option[]
+  responses   Response[]
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+}
+
+model Option {
+  id        String   @id @default(cuid())
+  text      String
+  poll      Poll     @relation(fields: [pollId], references: [id])
+  pollId    String
+  responses Response[]
+}
+
+model Response {
+  id        String   @id @default(cuid())
+  poll      Poll     @relation(fields: [pollId], references: [id])
+  pollId    String
+  option    Option   @relation(fields: [optionId], references: [id])
+  optionId  String
+  createdAt DateTime @default(now())
+}
