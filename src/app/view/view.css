@@ -1,0 +1,87 @@
+/* view.css */
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #eef3fb;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+.container {
+  max-width: 900px;
+  margin: 50px auto;
+  padding: 20px;
+}
+
+h1 {
+  text-align: center;
+  font-size: 2rem;
+  color: #1f2937;
+  margin-bottom: 30px;
+}
+
+.poll-card {
+  background-color: #ffffff;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  border-left: 6px solid #4876b2;
+}
+
+.poll-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+}
+
+.poll-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.poll-card-header h3 {
+  margin: 0;
+  font-size: 1.3rem;
+  color: #111827;
+}
+
+.status-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  margin-left: 8px;
+}
+
+.status-active {
+  background-color: limegreen;
+}
+
+.status-inactive {
+  background-color: red;
+}
+
+.poll-card p {
+  margin: 8px 0;
+  font-size: 1rem;
+  color: #374151;
+}
+
+button {
+  background-color: #4876b2;
+  color: white;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 500;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+button:hover {
+  background-color: #3a5f8e;
+  transform: scale(1.02);
+}
