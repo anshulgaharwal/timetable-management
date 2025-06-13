@@ -23,6 +23,13 @@ export default function AdminPage() {
       label: "System Status",
       onClick: () => alert("System is running normally"),
     },
+    {
+      label: "Create Poll",
+      onClick: () => router.push('/create'),
+    },
+    {
+      label: "Poll Results",
+      onClick: () => onClick={() => router.push('/result'),
   ]
 
   return (
