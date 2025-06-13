@@ -10,9 +10,10 @@ export default function ProfessorPage() {
     { label: "Manage Classes", href: "/professor/classes" },
     { label: "Students List", href: "/professor/students" },
     { label: "Upload Grades", href: "/professor/grades" },
+    { label: "Create Poll", href: "/create" },
+    { label: "Poll Results", href: "/result" },
     { label: "Profile", href: "/professor/profile" },
     { label: "Settings", href: "/professor/settings" },
-    { label: "Create Poll", href: "/create" },
   ]
 
   return (
