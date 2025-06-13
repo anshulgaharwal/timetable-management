@@ -25,11 +25,12 @@ export default function AdminPage() {
     },
     {
       label: "Create Poll",
-      onClick: () => router.push('/create'),
+      onClick: () => router.push("/create"),
     },
     {
       label: "Poll Results",
-      onClick: () => onClick={() => router.push('/result'),
+      onClick: () => router.push("/result"),
+    },
   ]
 
   return (
