@@ -12,6 +12,7 @@ export default function ProfessorPage() {
     { label: "Upload Grades", href: "/professor/grades" },
     { label: "Profile", href: "/professor/profile" },
     { label: "Settings", href: "/professor/settings" },
+    { label: "Create Poll", href: "/create" },
   ]
 
   return (
