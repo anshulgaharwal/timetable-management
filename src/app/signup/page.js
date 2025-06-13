@@ -66,6 +66,9 @@ export default function SignupPage() {
         <p>
           Already have an account? <Link href="/signin">Sign In</Link>
         </p>
+        <button type="button" className="google-btn" onClick={() => signIn("google")} disabled={isLoading}>
+          <img src="/google-logo.png" alt="Google" /> Sign up with Google
+        </button>
       </form>
     </div>
   )
