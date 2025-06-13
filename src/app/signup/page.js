@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import "../../styles/auth.css"
 import Link from "next/link"
 import Image from "next/image"
+import { signIn } from "next-auth/react"
 
 export default function SignupPage() {
   const router = useRouter()
@@ -67,7 +68,7 @@ export default function SignupPage() {
         <p>
           Already have an account? <Link href="/signin">Sign In</Link>
         </p>
-        <button type="button" className="google-btn" onClick={() => signIn("google")} disabled={isLoading}>
+        <button type="button" className="google-btn" onClick={() => signIn("google")} disabled={loading}>
           <Image src="/google-logo.png" alt="Google" width={20} height={20} /> Sign up with Google
         </button>
       </form>
