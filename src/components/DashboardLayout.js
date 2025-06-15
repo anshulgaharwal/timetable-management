@@ -3,11 +3,15 @@ import { useSession, signOut } from "next-auth/react"
 import { usePathname, useRouter } from "next/navigation"
 import "../styles/dashboard.css"
 import Link from "next/link"
+import { useAdmin } from "../contexts/AdminContext"
 
-export default function DashboardLayout({ children, sidebarTabs, pageTitle, actionButtons }) {
+export default function DashboardLayout({ children, sidebarTabs, pageTitle, actionButtons: propsActionButtons }) {
   const { data: session } = useSession()
   const path = usePathname()
   const router = useRouter()
+  // Try to get action buttons from context, fall back to props
+  const adminContext = useAdmin ? useAdmin() : null
+  const actionButtons = adminContext?.actionButtons || propsActionButtons || []
 
   const handleSignOut = async () => {
     await signOut({ redirect: false })

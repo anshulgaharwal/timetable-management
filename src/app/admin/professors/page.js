@@ -1,7 +1,7 @@
 "use client"
-import { useState, useEffect, useMemo } from "react"
-import DashboardLayout from "../../../components/DashboardLayout"
+import { useState, useEffect } from "react"
 import { useSession } from "next-auth/react"
+import { useAdmin } from "../../../contexts/AdminContext"
 import "../../../styles/professors.css"
 
 export default function ProfessorsPage() {
@@ -18,16 +18,11 @@ export default function ProfessorsPage() {
     password: "",
   })
 
-  const sidebarTabs = [
-    { label: "Dashboard", href: "/admin" },
-    // { label: "Manage Users", href: "/admin/users" },
-    { label: "Professors", href: "/admin/professors" },
-    // { label: "System Settings", href: "/admin/settings" },
-  ]
+  const { setActionButtons } = useAdmin()
 
-  // Use useMemo to recreate actionButtons when showAddForm changes
-  const actionButtons = useMemo(
-    () => [
+  // Set up action buttons
+  useEffect(() => {
+    setActionButtons([
       {
         label: showAddForm ? "Cancel" : "Add New Professor",
         onClick: () => {
@@ -36,9 +31,11 @@ export default function ProfessorsPage() {
           setFormData({ name: "", email: "", password: "" })
         },
       },
-    ],
-    [showAddForm]
-  )
+    ])
+
+    // Clean up when unmounting
+    return () => setActionButtons([])
+  }, [setActionButtons, showAddForm])
 
   // Fetch professors
   useEffect(() => {
@@ -159,105 +156,103 @@ export default function ProfessorsPage() {
   }
 
   return (
-    <DashboardLayout sidebarTabs={sidebarTabs} pageTitle="Manage Professors" actionButtons={actionButtons}>
-      <div className="professors-container">
-        <h1>Manage Professors</h1>
+    <div className="professors-container">
+      <h1>Manage Professors</h1>
 
-        {error && <div className="error-message">{error}</div>}
+      {error && <div className="error-message">{error}</div>}
 
-        {showAddForm && (
-          <div className="form-container">
-            <h2>Add New Professor</h2>
-            <form onSubmit={handleAddProfessor}>
-              <div className="form-group">
-                <label>Name</label>
-                <input type="text" name="name" value={formData.name} onChange={handleInputChange} required />
-              </div>
-              <div className="form-group">
-                <label>Email</label>
-                <input type="email" name="email" value={formData.email} onChange={handleInputChange} required />
-              </div>
-              <div className="form-group">
-                <label>Password</label>
-                <input type="password" name="password" value={formData.password} onChange={handleInputChange} required />
-              </div>
-              <button type="submit" className="submit-button">
-                Add Professor
-              </button>
-            </form>
-          </div>
-        )}
+      {showAddForm && (
+        <div className="form-container">
+          <h2>Add New Professor</h2>
+          <form onSubmit={handleAddProfessor}>
+            <div className="form-group">
+              <label>Name</label>
+              <input type="text" name="name" value={formData.name} onChange={handleInputChange} required />
+            </div>
+            <div className="form-group">
+              <label>Email</label>
+              <input type="email" name="email" value={formData.email} onChange={handleInputChange} required />
+            </div>
+            <div className="form-group">
+              <label>Password</label>
+              <input type="password" name="password" value={formData.password} onChange={handleInputChange} required />
+            </div>
+            <button type="submit" className="submit-button">
+              Add Professor
+            </button>
+          </form>
+        </div>
+      )}
 
-        {showEditForm && (
-          <div className="form-container">
-            <h2>Edit Professor</h2>
-            <form onSubmit={handleEditProfessor}>
-              <div className="form-group">
-                <label>Name</label>
-                <input type="text" name="name" value={formData.name} onChange={handleInputChange} required />
-              </div>
-              <div className="form-group">
-                <label>Email</label>
-                <input type="email" name="email" value={formData.email} onChange={handleInputChange} required />
-              </div>
-              <div className="form-group">
-                <label>Password (Leave blank to keep current)</label>
-                <input type="password" name="password" value={formData.password} onChange={handleInputChange} />
-              </div>
-              <button type="submit" className="submit-button">
-                Update Professor
-              </button>
-              <button
-                type="button"
-                className="cancel-button"
-                onClick={() => {
-                  setShowEditForm(false)
-                  setCurrentProfessor(null)
-                }}
-              >
-                Cancel
-              </button>
-            </form>
-          </div>
-        )}
+      {showEditForm && (
+        <div className="form-container">
+          <h2>Edit Professor</h2>
+          <form onSubmit={handleEditProfessor}>
+            <div className="form-group">
+              <label>Name</label>
+              <input type="text" name="name" value={formData.name} onChange={handleInputChange} required />
+            </div>
+            <div className="form-group">
+              <label>Email</label>
+              <input type="email" name="email" value={formData.email} onChange={handleInputChange} required />
+            </div>
+            <div className="form-group">
+              <label>Password (Leave blank to keep current)</label>
+              <input type="password" name="password" value={formData.password} onChange={handleInputChange} />
+            </div>
+            <button type="submit" className="submit-button">
+              Update Professor
+            </button>
+            <button
+              type="button"
+              className="cancel-button"
+              onClick={() => {
+                setShowEditForm(false)
+                setCurrentProfessor(null)
+              }}
+            >
+              Cancel
+            </button>
+          </form>
+        </div>
+      )}
 
-        {isLoading ? (
-          <p>Loading professors...</p>
-        ) : (
-          <div className="professors-list">
-            <h2>All Professors</h2>
-            {professors.length === 0 ? (
-              <p>No professors found.</p>
-            ) : (
-              <table>
-                <thead>
-                  <tr>
-                    <th>Name</th>
-                    <th>Email</th>
-                    <th>Actions</th>
+      {isLoading ? (
+        <p>Loading professors...</p>
+      ) : (
+        <div className="professors-list">
+          <h2>All Professors</h2>
+          {professors.length === 0 ? (
+            <p>No professors found.</p>
+          ) : (
+            <table>
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {professors.map((professor) => (
+                  <tr key={professor.id}>
+                    <td>{professor.name}</td>
+                    <td>{professor.email}</td>
+                    <td className="actions-cell">
+                      <button className="edit-button" onClick={() => openEditForm(professor)}>
+                        Edit
+                      </button>
+                      <button className="delete-button" onClick={() => handleDeleteProfessor(professor.id)}>
+                        Delete
+                      </button>
+                    </td>
                   </tr>
-                </thead>
-                <tbody>
-                  {professors.map((professor) => (
-                    <tr key={professor.id}>
-                      <td>{professor.name}</td>
-                      <td>{professor.email}</td>
-                      <td className="actions-cell">
-                        <button className="edit-button" onClick={() => openEditForm(professor)}>
-                          Edit
-                        </button>
-                        <button className="delete-button" onClick={() => handleDeleteProfessor(professor.id)}>
-                          Delete
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            )}
-          </div>
-        )}
-      </div>
-    </DashboardLayout>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
+      )}
+    </div>
   )
 }
