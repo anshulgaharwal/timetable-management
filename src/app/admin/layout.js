@@ -7,6 +7,7 @@ import { AdminProvider } from "../../contexts/AdminContext"
 const adminSidebarTabs = [
   { label: "Dashboard", href: "/admin" },
   { label: "Professors", href: "/admin/professors" },
+  { label: "Polls", href: "/admin/polls" },
 ]
 
 export default function AdminLayout({ children }) {
@@ -16,6 +17,7 @@ export default function AdminLayout({ children }) {
   const getPageTitle = () => {
     if (pathname === "/admin") return "Admin Dashboard"
     if (pathname === "/admin/professors") return "Manage Professors"
+    if (pathname === "/admin/polls") return "Manage Polls"
     return "Admin"
   }
 
