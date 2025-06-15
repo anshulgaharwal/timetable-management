@@ -9,7 +9,37 @@
   display: flex;
   padding: var(--dashboard-padding);
   gap: var(--dashboard-gap);
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", sans-serif;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", sans-serif;
+  position: relative;
+}
+
+/* Mobile menu toggle */
+.mobile-menu-toggle {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  z-index: 100;
+  background: var(--accent-primary);
+  border: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  display: none;
+}
+
+.mobile-menu-toggle span {
+  display: block;
+  width: 22px;
+  height: 2px;
+  background: white;
+  transition: all 0.3s ease;
 }
 
 /* Main layout structure */
@@ -17,8 +47,8 @@
   width: var(--sidebar-width);
   height: calc(100vh - var(--dashboard-padding) * 2);
   background: var(--glass-bg);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
   border-radius: var(--border-radius);
   border: 1px solid var(--glass-border);
   box-shadow: var(--glass-shadow);
@@ -28,6 +58,7 @@
   z-index: 10;
   overflow-y: auto;
   position: relative;
+  transition: box-shadow 0.3s ease;
 }
 
 .sidebar::before {
@@ -37,16 +68,20 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(255, 255, 255, 0.15);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.1));
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
   border-radius: var(--border-radius);
   z-index: -1;
 }
 
+.sidebar:hover {
+  box-shadow: var(--glass-shadow);
+}
+
 .sidebar-logo {
-  font-size: 22px;
-  font-weight: 600;
+  font-size: 24px;
+  font-weight: 700;
   display: flex;
   align-items: center;
   gap: 10px;
@@ -54,12 +89,14 @@
   padding: 0 12px 20px;
   margin-bottom: 16px;
   border-bottom: 1px solid var(--glass-border);
+  letter-spacing: -0.5px;
 }
 
 .sidebar-tabs {
   flex: 1;
   overflow-y: auto;
   margin: 8px 0;
+  padding-right: 4px;
 }
 
 .sidebar-user {
@@ -74,6 +111,7 @@
 .user-name {
   font-weight: 600;
   color: var(--text-primary);
+  font-size: 15px;
 }
 
 .user-role {
@@ -97,6 +135,11 @@
 
 .sidebar-user button:hover {
   background: rgba(72, 118, 178, 0.25);
+  transform: translateY(-1px);
+}
+
+.sidebar-user button:active {
+  transform: translateY(0);
 }
 
 .main {
@@ -109,8 +152,8 @@
 
 .navbar {
   background: var(--glass-bg);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
   border-radius: var(--border-radius);
   border: 1px solid var(--glass-border);
   box-shadow: var(--glass-shadow);
@@ -120,6 +163,11 @@
   justify-content: space-between;
   align-items: center;
   position: relative;
+  transition: box-shadow 0.3s ease;
+}
+
+.navbar:hover {
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
 }
 
 .navbar::before {
@@ -129,7 +177,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(255, 255, 255, 0.15);
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.1));
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
   border-radius: var(--border-radius);
@@ -156,17 +204,31 @@
   cursor: pointer;
   transition: all 0.2s ease;
   font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .action-buttons button:hover {
   background: rgba(72, 118, 178, 0.25);
+  transform: translateY(-1px);
+}
+
+.action-buttons button:active {
+  transform: translateY(0);
+}
+
+.action-buttons button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
 }
 
 .content {
   height: calc(100vh - var(--navbar-height) - var(--dashboard-padding) * 2 - var(--dashboard-gap));
   background: var(--glass-bg);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
   border-radius: var(--border-radius);
   border: 1px solid var(--glass-border);
   box-shadow: var(--glass-shadow);
@@ -174,6 +236,11 @@
   flex: 1;
   overflow-y: auto;
   position: relative;
+  transition: box-shadow 0.3s ease;
+}
+
+.content:hover {
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
 }
 
 .content::before {
@@ -183,7 +250,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(255, 255, 255, 0.15);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.1));
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
   border-radius: var(--border-radius);
@@ -192,11 +259,12 @@
 
 /* Sidebar links */
 .sidebar-tabs a {
-  display: block;
+  display: flex;
+  align-items: center;
   text-decoration: none;
   color: var(--text-secondary);
   padding: 12px 16px;
-  margin: 6px 0;
+  margin: 8px 0;
   border-radius: 8px;
   transition: all 0.2s ease;
   font-weight: 500;
@@ -205,15 +273,55 @@
   z-index: 1;
 }
 
+.tab-icon {
+  margin-right: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.button-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .sidebar-tabs a:hover {
-  background: rgba(72, 118, 178, 0.8);
-  color: white;
+  background: rgba(72, 118, 178, 0.15);
+  color: var(--accent-primary);
+  transform: translateX(2px);
 }
 
 .sidebar-tabs a.active {
   background: var(--accent-primary);
   color: white;
   font-weight: 600;
+  box-shadow: 0 4px 12px rgba(72, 118, 178, 0.25);
+}
+
+.sidebar-tabs a.active:hover {
+  transform: translateX(0);
+}
+
+/* Mobile sidebar overlay */
+.sidebar-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 5;
+  animation: fadeIn 0.3s ease forwards;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 /* Content styling */
@@ -225,10 +333,92 @@ h3 {
   font-weight: 600;
 }
 
+h1 {
+  font-size: 24px;
+  margin-bottom: 20px;
+}
+
+h2 {
+  font-size: 20px;
+  margin-bottom: 16px;
+}
+
+h3 {
+  font-size: 18px;
+  margin-bottom: 14px;
+}
+
 ul {
   padding-left: 20px;
+  list-style-type: circle;
 }
 
 li {
   margin: 10px 0;
+  line-height: 1.5;
+}
+
+/* Responsive adjustments */
+@media (max-width: 992px) {
+  :root {
+    --sidebar-width: 220px;
+    --dashboard-padding: 16px;
+    --dashboard-gap: 16px;
+  }
+}
+
+@media (max-width: 768px) {
+  .dashboard-container {
+    flex-direction: column;
+    height: auto;
+    min-height: 100vh;
+    padding: 10px;
+  }
+
+  .mobile-menu-toggle {
+    display: flex;
+  }
+
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 280px;
+    height: 100vh;
+    z-index: 50;
+    border-radius: 0;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+    padding-top: 70px;
+  }
+
+  .sidebar.mobile-open {
+    transform: translateX(0);
+  }
+
+  .main {
+    width: 100%;
+    height: auto;
+    padding-top: 60px;
+  }
+
+  .content {
+    height: auto;
+    min-height: 500px;
+    padding: 20px;
+  }
+
+  .navbar {
+    padding: 0 20px;
+    height: 60px;
+  }
+
+  .action-buttons {
+    gap: 8px;
+  }
+
+  .action-buttons button {
+    padding: 8px 12px;
+    font-size: 0.9em;
+  }
 }
