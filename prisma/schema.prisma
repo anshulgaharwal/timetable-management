@@ -43,3 +43,21 @@ model Response {
   optionId  String
   createdAt DateTime @default(now())
 }
+
+model Batch {
+  id        Int       @id @default(autoincrement())
+  degree    String
+  course    String
+  startYear Int
+  endYear   Int
+  students  Student[]
+}
+
+model Student {
+  id        Int    @id @default(autoincrement())
+  name      String
+  rollNo    Int
+  email     String
+  batchId   Int
+  batch     Batch  @relation(fields: [batchId], references: [id])
+}
