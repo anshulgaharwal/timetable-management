@@ -27,6 +27,14 @@ export default function AdminPage() {
         label: "Poll Results",
         onClick: () => router.push("/result"),
       },
+      {
+        label: "PCreate Batch",
+        onClick: () => router.push("/create-batch"),
+      },
+      {
+        label: "View Batches",
+        onClick: () => router.push("/batches"),
+      },
     ])
 
     // Clean up when unmounting
