@@ -1,13 +1,11 @@
-import { Suspense } from 'react';
-import SigninForm from './SigninForm';
+'use client'
+import { signIn } from 'next-auth/react'
 
-export const dynamic = 'force-dynamic';
-
-export default function SigninPage() {
+export default function SignInPage() {
   return (
-    <Suspense fallback={<div>Loading...</div>}>
-      <SigninForm />
-    </Suspense>
-  );
+    <div style={{ textAlign: 'center', marginTop: '50px' }}>
+      <h2>Sign In</h2>
+      <button onClick={() => signIn('google')}>Sign In with Google</button>
+    </div>
+  )
 }
- 
