@@ -1,9 +1,13 @@
-"use client"
-import DashboardLayout from "../../components/DashboardLayout"
-import { useSession } from "next-auth/react"
+"use client";
+
+import DashboardLayout from "../../components/DashboardLayout";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 export default function ProfessorPage() {
-  const { data: session } = useSession()
+  const { data: session, status } = useSession();
+  const router = useRouter();
 
   const sidebarTabs = [
     { label: "Dashboard", href: "/professor" },
@@ -14,7 +18,22 @@ export default function ProfessorPage() {
     { label: "Poll Results", href: "/result" },
     { label: "Profile", href: "/professor/profile" },
     { label: "Settings", href: "/professor/settings" },
-  ]
+  ];
+
+  // 🔐 Role protection + redirect if unauthenticated
+  useEffect(() => {
+  if (status === "authenticated") {
+    if (!session) return;
+    if (session.user.role.toLowerCase() !== "professor") {
+      router.replace("/unauthorized");
+    }
+  } else if (status === "unauthenticated") {
+    router.replace("/signin");
+  }
+}, [status, session, router]);
+
+  // ⏳ Loading state or session null
+  if (status === "loading" || !session) return <div>Loading...</div>;
 
   return (
     <DashboardLayout sidebarTabs={sidebarTabs}>
@@ -26,5 +45,5 @@ export default function ProfessorPage() {
         <li>🧾 Upload Grades</li>
       </ul>
     </DashboardLayout>
-  )
+  );
 }
