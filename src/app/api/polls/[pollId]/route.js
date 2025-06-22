@@ -1,7 +1,5 @@
 import { NextResponse } from "next/server"
-import { PrismaClient } from "@prisma/client"
-
-const prisma = new PrismaClient()
+import { prisma } from "@/lib/prisma"
 
 export async function GET(request, { params }) {
   const { pollId } = params
@@ -22,8 +20,6 @@ export async function GET(request, { params }) {
   } catch (error) {
     console.error("Error fetching poll:", error)
     return NextResponse.json({ error: "Failed to fetch poll" }, { status: 500 })
-  } finally {
-    await prisma.$disconnect()
   }
 }
 
@@ -83,7 +79,5 @@ export async function PUT(request, { params }) {
   } catch (error) {
     console.error("Error updating poll:", error)
     return NextResponse.json({ error: "Failed to update poll" }, { status: 500 })
-  } finally {
-    await prisma.$disconnect()
   }
 }

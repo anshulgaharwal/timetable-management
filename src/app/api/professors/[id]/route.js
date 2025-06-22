@@ -1,10 +1,8 @@
 import { NextResponse } from "next/server"
-import { PrismaClient } from "@prisma/client"
+import { prisma } from "@/lib/prisma"
 import { getServerSession } from "next-auth"
 import bcrypt from "bcrypt"
 import { authOptions } from "../../auth/[...nextauth]/route"
-
-const prisma = new PrismaClient()
 
 // GET a specific professor
 export async function GET(req, { params }) {
@@ -19,24 +17,17 @@ export async function GET(req, { params }) {
     const { id } = params
 
     const professor = await prisma.user.findUnique({
-      where: { id },
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        role: true,
-        createdAt: true,
-      },
+      where: { id, role: "professor" },
     })
 
-    if (!professor || professor.role !== "professor") {
-      return NextResponse.json({ message: "Professor not found" }, { status: 404 })
+    if (!professor) {
+      return NextResponse.json({ error: "Professor not found" }, { status: 404 })
     }
 
-    return NextResponse.json(professor)
+    return NextResponse.json({ professor })
   } catch (error) {
     console.error("Error fetching professor:", error)
-    return NextResponse.json({ message: "An internal server error occurred" }, { status: 500 })
+    return NextResponse.json({ error: "Failed to fetch professor" }, { status: 500 })
   }
 }
 

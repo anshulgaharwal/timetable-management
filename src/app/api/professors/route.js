@@ -1,10 +1,8 @@
 import { NextResponse } from "next/server"
-import { PrismaClient } from "@prisma/client"
+import { prisma } from "@/lib/prisma"
 import { createUser, getUserByEmail } from "../../../lib/user-service"
 import { getServerSession } from "next-auth"
 import { authOptions } from "../auth/[...nextauth]/route"
-
-const prisma = new PrismaClient()
 
 // GET all professors
 export async function GET() {
@@ -22,9 +20,9 @@ export async function GET() {
         id: true,
         name: true,
         email: true,
+        role: true,
         createdAt: true,
       },
-      orderBy: { name: "asc" },
     })
 
     return NextResponse.json(professors)
