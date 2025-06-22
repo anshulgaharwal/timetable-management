@@ -8,32 +8,45 @@ datasource db {
 }
 
 model User {
-  id            String    @id @default(cuid())
+  id            String     @id @default(cuid())
   name          String?
-  email         String    @unique
+  email         String     @unique
   emailVerified DateTime?
   password      String?
   role          String?
   image         String?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+  createdPolls  Poll[]     @relation("PollCreator")
+  responses     Response[] @relation("UserResponses")
 }
 
 model Poll {
-  id        String     @id @default(cuid())
-  title     String
-  question  String
-  isActive  Boolean    @default(true)
-  createdAt DateTime   @default(now())
-  options   Option[]
-  responses Response[]
+  id            String     @id @default(cuid())
+  title         String
+  question      String
+  description   String?
+  category      String?
+  isActive      Boolean    @default(true)
+  expiresAt     DateTime?
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+  createdById   String
+  creator       User       @relation("PollCreator", fields: [createdById], references: [id])
+  options       Option[]
+  responses     Response[]
+  allowMultiple Boolean    @default(false)
+  batchId       Int?
+  batch         Batch?     @relation(fields: [batchId], references: [id])
 }
 
 model Option {
   id        String     @id @default(cuid())
   text      String
+  imageUrl  String?
+  position  Int        @default(0)
   pollId    String
-  poll      Poll       @relation(fields: [pollId], references: [id])
+  poll      Poll       @relation(fields: [pollId], references: [id], onDelete: Cascade)
   responses Response[]
 }
 
@@ -41,9 +54,13 @@ model Response {
   id        String   @id @default(cuid())
   pollId    String
   optionId  String
+  userId    String
   createdAt DateTime @default(now())
-  option    Option   @relation(fields: [optionId], references: [id])
-  poll      Poll     @relation(fields: [pollId], references: [id])
+  option    Option   @relation(fields: [optionId], references: [id], onDelete: Cascade)
+  poll      Poll     @relation(fields: [pollId], references: [id], onDelete: Cascade)
+  user      User     @relation("UserResponses", fields: [userId], references: [id])
+
+  @@unique([pollId, userId, optionId])
 }
 
 model Batch {
@@ -53,6 +70,7 @@ model Batch {
   startYear Int
   endYear   Int
   students  Student[]
+  polls     Poll[]
 }
 
 model Student {

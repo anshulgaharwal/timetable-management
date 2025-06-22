@@ -15,16 +15,47 @@ export async function middleware(req) {
     if (pathname === "/signin" || pathname === "/signup") {
       return NextResponse.redirect(new URL(userDashboard, req.url))
     }
+    
     // If they are trying to access a dashboard other than their own, redirect them
-    if ((pathname.startsWith("/student") && role !== "student") || (pathname.startsWith("/professor") && role !== "professor") || (pathname.startsWith("/admin") && role !== "admin")) {
+    if ((pathname.startsWith("/student") && role !== "student") || 
+        (pathname.startsWith("/professor") && role !== "professor") || 
+        (pathname.startsWith("/admin") && role !== "admin")) {
       return NextResponse.redirect(new URL(userDashboard, req.url))
+    }
+    
+    // Handle API access restrictions for poll management
+    if (pathname.startsWith("/api/polls")) {
+      // For POST, PUT, DELETE operations on polls, only admin and professor can access
+      if ((req.method === "POST" || req.method === "PUT" || req.method === "DELETE") && 
+          pathname === "/api/polls" && 
+          role !== "admin" && role !== "professor") {
+        return NextResponse.json({ error: "Unauthorized" }, { status: 403 })
+      }
+      
+      // For poll toggle-status, only admin and professor can access
+      if (pathname.includes("/toggle-status") && role !== "admin" && role !== "professor") {
+        return NextResponse.json({ error: "Unauthorized" }, { status: 403 })
+      }
     }
   }
   // If a user is not logged in and tries to access a protected page
   else {
     const protectedPaths = ["/student", "/professor", "/admin"]
+    
+    // Protect dashboard routes
     if (protectedPaths.some((path) => pathname.startsWith(path))) {
       return NextResponse.redirect(new URL("/signin", req.url))
+    }
+    
+    // Protect poll API routes that require authentication
+    if (pathname.startsWith("/api/polls")) {
+      // Allow GET requests to public poll endpoints
+      if (req.method === "GET" && !pathname.includes("/details")) {
+        return NextResponse.next()
+      }
+      
+      // All other poll API endpoints require authentication
+      return NextResponse.json({ error: "Authentication required" }, { status: 401 })
     }
   }
 
@@ -35,11 +66,10 @@ export const config = {
   matcher: [
     /*
      * Match all request paths except for the ones starting with:
-     * - api (API routes)
      * - _next/static (static files)
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
      */
-    "/((?!api|_next/static|_next/image|favicon.ico).*)",
+    "/((?!_next/static|_next/image|favicon.ico).*)",
   ],
 }
