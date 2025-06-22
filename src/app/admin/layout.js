@@ -7,6 +7,7 @@ import { AdminProvider } from "../../contexts/AdminContext"
 const adminSidebarTabs = [
   { label: "Dashboard", href: "/admin" },
   { label: "Professors", href: "/admin/professors" },
+  { label: "Batches", href: "/admin/batches" },
   { label: "Polls", href: "/admin/polls" },
 ]
 
@@ -18,6 +19,9 @@ export default function AdminLayout({ children }) {
     if (pathname === "/admin") return "Admin Dashboard"
     if (pathname === "/admin/professors") return "Manage Professors"
     if (pathname === "/admin/polls") return "Manage Polls"
+    if (pathname === "/admin/batches") return "Manage Batches"
+    if (pathname.startsWith("/admin/batches/create")) return "Create New Batch"
+    if (pathname.match(/\/admin\/batches\/\d+/)) return "Batch Details"
     return "Admin"
   }
 

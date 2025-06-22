@@ -1,0 +1,156 @@
+.batchesContainer {
+  width: 100%;
+  height: 100%;
+}
+
+.batchesHeader {
+  margin-bottom: 24px;
+}
+
+.batchesHeader h2 {
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: var(--text-primary);
+}
+
+.batchesHeader p {
+  color: var(--text-secondary);
+  font-size: 15px;
+}
+
+.degreeSection {
+  margin-bottom: 32px;
+}
+
+.degreeTitle {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 16px;
+  color: var(--text-primary);
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--glass-border);
+}
+
+.batchGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.batchCard {
+  background: rgba(255, 255, 255, 0.7);
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  border: 1px solid var(--glass-border);
+  transition: all 0.2s ease;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.batchCard:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+  border-color: var(--accent-primary);
+}
+
+.batchCardHeader {
+  padding: 16px 20px;
+  background: linear-gradient(to right, var(--accent-color), rgba(72, 118, 178, 0.1));
+  border-bottom: 1px solid var(--glass-border);
+}
+
+.batchCardHeader h4 {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--accent-primary);
+  margin-bottom: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.batchYears {
+  font-size: 14px;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.batchCardBody {
+  padding: 16px 20px;
+}
+
+.batchStat {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.statLabel {
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+.statValue {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  text-align: center;
+  padding: 40px;
+}
+
+.emptyState h3 {
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: var(--text-primary);
+}
+
+.emptyState p {
+  color: var(--text-secondary);
+  margin-bottom: 24px;
+}
+
+.createButton {
+  background: var(--accent-primary);
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.createButton:hover {
+  background: #3a6cb5;
+  transform: translateY(-2px);
+}
+
+.loadingContainer, .errorContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  font-size: 16px;
+  color: var(--text-secondary);
+}
+
+.errorContainer {
+  color: #e53935;
+}
+
+@media (max-width: 768px) {
+  .batchGrid {
+    grid-template-columns: 1fr;
+  }
+} 

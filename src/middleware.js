@@ -37,6 +37,39 @@ export async function middleware(req) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 403 })
       }
     }
+    
+    // Handle API access restrictions for admin routes
+    if (pathname.startsWith("/api/admin/")) {
+      // Only admin can access admin API routes
+      if (role !== "admin") {
+        return NextResponse.json({ error: "Admin access required" }, { status: 403 })
+      }
+    }
+    
+    // Protect admin batch UI routes
+    if (pathname.startsWith("/admin/batches") && role !== "admin") {
+      return NextResponse.redirect(new URL(userDashboard, req.url))
+    }
+    
+    // Redirect old batch routes to admin routes
+    if ((pathname.startsWith("/batch/") || pathname === "/batches" || pathname === "/create-batch") && role === "admin") {
+      // Map old routes to new admin routes
+      if (pathname === "/batches") {
+        return NextResponse.redirect(new URL("/admin/batches", req.url))
+      }
+      if (pathname === "/create-batch") {
+        return NextResponse.redirect(new URL("/admin/batches/create", req.url))
+      }
+      if (pathname.startsWith("/batch/")) {
+        const id = pathname.split("/")[2]
+        return NextResponse.redirect(new URL(`/admin/batches/${id}`, req.url))
+      }
+    }
+    
+    // Block access to old API routes that have been moved
+    if (pathname.startsWith("/api/batch") || pathname.startsWith("/api/batches") || pathname.startsWith("/api/student")) {
+      return NextResponse.json({ error: "These endpoints have been moved to /api/admin/batches" }, { status: 410 })
+    }
   }
   // If a user is not logged in and tries to access a protected page
   else {
@@ -55,6 +88,11 @@ export async function middleware(req) {
       }
       
       // All other poll API endpoints require authentication
+      return NextResponse.json({ error: "Authentication required" }, { status: 401 })
+    }
+    
+    // Protect admin API routes
+    if (pathname.startsWith("/api/admin/")) {
       return NextResponse.json({ error: "Authentication required" }, { status: 401 })
     }
   }
