@@ -1,8 +1,9 @@
 "use client"
 import { useSearchParams } from "next/navigation"
 import PollList from "@/components/polls/PollList"
+import { Suspense } from "react"
 
-export default function AdminPollsPage() {
+function AdminPollsContent() {
   const searchParams = useSearchParams()
   const page = searchParams.get("page") || "1"
   const limit = searchParams.get("limit") || "10"
@@ -13,5 +14,13 @@ export default function AdminPollsPage() {
       baseUrl="/admin/polls" 
       fetchUrl={`/api/polls?page=${page}&limit=${limit}`} 
     />
+  )
+}
+
+export default function AdminPollsPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <AdminPollsContent />
+    </Suspense>
   )
 }

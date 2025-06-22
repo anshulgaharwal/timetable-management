@@ -13,8 +13,9 @@ export default function DashboardLayout({ children, sidebarTabs, pageTitle, acti
   const [isMobile, setIsMobile] = useState(false)
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false)
 
-  // Try to get action buttons from context, fall back to props
-  const adminContext = useAdmin ? useAdmin() : null
+  // Always call the hook unconditionally
+  const adminContext = useAdmin()
+  // Then check if we have action buttons from context or props
   const actionButtons = adminContext?.actionButtons || propsActionButtons || []
 
   useEffect(() => {
