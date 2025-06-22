@@ -1,0 +1,15 @@
+name: Trigger Vercel Deploy (Only for contributors)
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    if: github.actor != 'thisisdkyadav'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call Vercel Deploy Hook
+        run: |
+          curl -X POST 'https://api.vercel.com/v1/integrations/deploy/prj_3bCNj9CwZtPrIiWBWdlOYDcko1d3/DPF5MbtquI'
