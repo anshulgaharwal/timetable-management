@@ -380,3 +380,42 @@ textarea {
     grid-template-columns: 1fr;
   }
 }
+
+/* Poll creator info */
+.poll-creator {
+  font-size: 0.9rem;
+  color: #666;
+  margin: 5px 0;
+}
+
+/* Pagination styles */
+.pagination {
+  display: flex;
+  justify-content: center;
+  margin-top: 30px;
+  gap: 5px;
+}
+
+.pagination-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 36px;
+  height: 36px;
+  padding: 0 8px;
+  border-radius: 4px;
+  background-color: #f5f5f5;
+  color: #333;
+  text-decoration: none;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.pagination-link:hover {
+  background-color: #e0e0e0;
+}
+
+.pagination-link.active {
+  background-color: #4a90e2;
+  color: white;
+}
