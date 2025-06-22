@@ -1,7 +1,5 @@
 import { NextResponse } from "next/server"
-import { PrismaClient } from "@prisma/client"
-
-const prisma = new PrismaClient()
+import { prisma } from "@/lib/prisma"
 
 export async function PUT(request, { params }) {
   const { pollId } = params
@@ -17,7 +15,5 @@ export async function PUT(request, { params }) {
   } catch (error) {
     console.error("Error toggling poll status:", error)
     return NextResponse.json({ error: "Failed to update poll status" }, { status: 500 })
-  } finally {
-    await prisma.$disconnect()
   }
 }
