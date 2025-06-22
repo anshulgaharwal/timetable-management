@@ -82,7 +82,7 @@ export default function PollForm({ pollId = null, baseUrl, isEdit = false, retur
         }
       } else {
         // Create new poll
-        res = await fetch("/api/create", {
+        res = await fetch("/api/polls", {
           method: "POST",
           body: JSON.stringify({ title, question, options }),
           headers: { "Content-Type": "application/json" },

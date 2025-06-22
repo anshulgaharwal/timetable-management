@@ -11,7 +11,7 @@ export default function RespondToPoll() {
   const [selectedOptionId, setSelectedOptionId] = useState(null);
 
   useEffect(() => {
-    fetch(`/api/poll/${pollId}`)
+    fetch(`/api/polls/${pollId}`)
       .then((res) => res.json())
       .then((data) => setPoll(data.poll));
   }, [pollId]);
@@ -20,7 +20,7 @@ export default function RespondToPoll() {
     e.preventDefault();
     if (!selectedOptionId) return alert('Please select an option.');
 
-    const res = await fetch('/api/respond', {
+    const res = await fetch('/api/polls/respond', {
       method: 'POST',
       body: JSON.stringify({ pollId, optionId: selectedOptionId }),
       headers: { 'Content-Type': 'application/json' },
