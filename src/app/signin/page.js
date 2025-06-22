@@ -1,18 +1,13 @@
-'use client'
-import { signIn } from 'next-auth/react'
-import './style.css'
+import { Suspense } from 'react';
+import SigninForm from './SigninForm';
 
-export default function SignInPage() {
+export const dynamic = 'force-dynamic';
+
+export default function SigninPage() {
   return (
-    <div className="signin-bg">
-      <img src="/giphy.gif" alt="bg gif" className="bg-gif" />
-      <div className="signin-card">
-        <img src="/IITILogo.png" alt="IIT Logo" className="signin-logo" />
-        <h2 className="signin-title">Welcome to IIT Portal</h2>
-        <button className="signin-button" onClick={() => signIn('google')}>
-          Sign In with Google
-        </button>
-      </div>
-    </div>
-  )
+    <Suspense fallback={<div>Loading...</div>}>
+      <SigninForm />
+    </Suspense>
+  );
 }
+ 

@@ -1,25 +1,25 @@
-import { prisma } from "@/app/lib/prisma";
-import { courseCodeMap } from "@/app/utils/courseCodeMap";
+import { prisma } from "@/lib/prisma"
+import { courseCodeMap } from "@/app/utils/courseCodeMap"
 export async function POST(req) {
   try {
-    const body = await req.json();
-    const { name, rollNo, batchId } = body;
+    const body = await req.json()
+    const { name, rollNo, batchId } = body
 
     const batch = await prisma.batch.findUnique({
       where: { id: batchId },
-    });
+    })
 
     if (!batch) {
-      return new Response(JSON.stringify({ error: 'Batch not found' }), { status: 404 });
+      return new Response(JSON.stringify({ error: "Batch not found" }), { status: 404 })
     }
 
     // Get branch code from course
-    const branchCode = courseCodeMap[batch.course];
+    const branchCode = courseCodeMap[batch.course]
     if (!branchCode) {
-      return new Response(JSON.stringify({ error: 'Course code not found' }), { status: 400 });
+      return new Response(JSON.stringify({ error: "Course code not found" }), { status: 400 })
     }
 
-    const email = `${branchCode}${rollNo}@iiti.ac.in`;
+    const email = `${branchCode}${rollNo}@iiti.ac.in`
 
     const student = await prisma.student.create({
       data: {
@@ -28,11 +28,11 @@ export async function POST(req) {
         email,
         batchId,
       },
-    });
+    })
 
-    return Response.json({ student });
+    return Response.json({ student })
   } catch (error) {
-    console.error('Add student error:', error);
-    return new Response(JSON.stringify({ error: 'Internal Server Error' }), { status: 500 });
+    console.error("Add student error:", error)
+    return new Response(JSON.stringify({ error: "Internal Server Error" }), { status: 500 })
   }
 }
