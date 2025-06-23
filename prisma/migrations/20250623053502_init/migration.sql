@@ -56,8 +56,7 @@ CREATE TABLE "Response" (
 -- CreateTable
 CREATE TABLE "Batch" (
     "id" SERIAL NOT NULL,
-    "degree" TEXT NOT NULL,
-    "course" TEXT NOT NULL,
+    "courseCode" TEXT NOT NULL,
     "startYear" INTEGER NOT NULL,
     "endYear" INTEGER NOT NULL,
 
@@ -75,11 +74,34 @@ CREATE TABLE "Student" (
     CONSTRAINT "Student_pkey" PRIMARY KEY ("id")
 );
 
+-- CreateTable
+CREATE TABLE "Degree" (
+    "code" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+
+    CONSTRAINT "Degree_pkey" PRIMARY KEY ("code")
+);
+
+-- CreateTable
+CREATE TABLE "Course" (
+    "code" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "degreeId" TEXT NOT NULL,
+
+    CONSTRAINT "Course_pkey" PRIMARY KEY ("code")
+);
+
 -- CreateIndex
 CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Response_pollId_userId_optionId_key" ON "Response"("pollId", "userId", "optionId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Degree_name_key" ON "Degree"("name");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Course_name_key" ON "Course"("name");
 
 -- AddForeignKey
 ALTER TABLE "Poll" ADD CONSTRAINT "Poll_createdById_fkey" FOREIGN KEY ("createdById") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -100,4 +122,10 @@ ALTER TABLE "Response" ADD CONSTRAINT "Response_pollId_fkey" FOREIGN KEY ("pollI
 ALTER TABLE "Response" ADD CONSTRAINT "Response_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "Batch" ADD CONSTRAINT "Batch_courseCode_fkey" FOREIGN KEY ("courseCode") REFERENCES "Course"("code") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "Student" ADD CONSTRAINT "Student_batchId_fkey" FOREIGN KEY ("batchId") REFERENCES "Batch"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Course" ADD CONSTRAINT "Course_degreeId_fkey" FOREIGN KEY ("degreeId") REFERENCES "Degree"("code") ON DELETE RESTRICT ON UPDATE CASCADE;
