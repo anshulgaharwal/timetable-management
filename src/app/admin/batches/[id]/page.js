@@ -19,6 +19,8 @@ export default function BatchDetailPage({ params }) {
   const [newStudent, setNewStudent] = useState({
     name: "",
     rollNo: "",
+    email: "",
+    password: "",
   })
   const [isAddingStudent, setIsAddingStudent] = useState(false)
   const [addStudentError, setAddStudentError] = useState(null)
@@ -102,7 +104,7 @@ export default function BatchDetailPage({ params }) {
       }))
 
       // Reset form
-      setNewStudent({ name: "", rollNo: "" })
+      setNewStudent({ name: "", rollNo: "", email: "", password: "" })
       setShowAddForm(false)
     } catch (err) {
       setAddStudentError(err.message)
@@ -167,6 +169,16 @@ export default function BatchDetailPage({ params }) {
                 <input type="number" id="rollNo" name="rollNo" value={newStudent.rollNo} onChange={handleAddStudentChange} required className={styles.input} placeholder="Enter roll number" />
               </div>
 
+              <div className={styles.formGroup}>
+                <label htmlFor="email">Email Address</label>
+                <input type="email" id="email" name="email" value={newStudent.email} onChange={handleAddStudentChange} required className={styles.input} placeholder="Enter student's email address" />
+              </div>
+
+              <div className={styles.formGroup}>
+                <label htmlFor="password">Password</label>
+                <input type="password" id="password" name="password" value={newStudent.password} onChange={handleAddStudentChange} required className={styles.input} placeholder="Create a password" />
+              </div>
+
               <div className={styles.formActions}>
                 <button type="button" onClick={() => setShowAddForm(false)} className={styles.cancelButton} disabled={isAddingStudent}>
                   Cancel
@@ -206,8 +218,8 @@ export default function BatchDetailPage({ params }) {
                   .map((student) => (
                     <tr key={student.id}>
                       <td>{student.rollNo}</td>
-                      <td>{student.name}</td>
-                      <td>{student.email}</td>
+                      <td>{student.user?.name}</td>
+                      <td>{student.user?.email}</td>
                     </tr>
                   ))}
               </tbody>

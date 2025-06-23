@@ -31,7 +31,18 @@ export async function GET(req, { params }) {
     const batch = await prisma.batch.findUnique({
       where: { id: batchId },
       include: {
-        students: true,
+        students: {
+          include: {
+            user: {
+              select: {
+                name: true,
+                email: true,
+                role: true,
+                image: true,
+              },
+            },
+          },
+        },
         course: {
           include: {
             degree: true,
@@ -150,20 +161,40 @@ export async function DELETE(req, { params }) {
     // Check if batch exists
     const existingBatch = await prisma.batch.findUnique({
       where: { id: batchId },
+      include: {
+        students: true,
+      },
     })
 
     if (!existingBatch) {
       return NextResponse.json({ error: "Batch not found" }, { status: 404 })
     }
 
-    // Delete all students in this batch first (if not using cascading deletes)
-    await prisma.student.deleteMany({
-      where: { batchId },
-    })
+    // Get all user IDs associated with students in this batch
+    const userIds = existingBatch.students.map((student) => student.userId).filter(Boolean)
 
-    // Delete the batch
-    await prisma.batch.delete({
-      where: { id: batchId },
+    // Use a transaction to ensure all related records are deleted properly
+    await prisma.$transaction(async (prisma) => {
+      // Delete all students in this batch first
+      await prisma.student.deleteMany({
+        where: { batchId },
+      })
+
+      // Delete associated user accounts
+      if (userIds.length > 0) {
+        await prisma.user.deleteMany({
+          where: {
+            id: {
+              in: userIds,
+            },
+          },
+        })
+      }
+
+      // Delete the batch
+      await prisma.batch.delete({
+        where: { id: batchId },
+      })
     })
 
     return NextResponse.json({ success: true })

@@ -3,6 +3,7 @@ import { courseCodeMap } from "@/app/utils/courseCodeMap"
 import { NextResponse } from "next/server"
 import { getServerSession } from "next-auth/next"
 import { authOptions } from "@/app/api/auth/[...nextauth]/route"
+import bcrypt from "bcrypt"
 
 /**
  * POST /api/admin/batches/students
@@ -22,10 +23,10 @@ export async function POST(req) {
     }
 
     const body = await req.json()
-    const { name, rollNo, batchId } = body
+    const { name, rollNo, batchId, email, password } = body
 
     // Validate required fields
-    if (!name || !rollNo || !batchId) {
+    if (!name || !rollNo || !batchId || !email || !password) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
     }
 
@@ -42,34 +43,62 @@ export async function POST(req) {
     const existingStudent = await prisma.student.findFirst({
       where: {
         rollNo,
-        batchId
-      }
+        batchId,
+      },
     })
 
     if (existingStudent) {
       return NextResponse.json({ error: "A student with this roll number already exists in this batch" }, { status: 409 })
     }
 
-    // Get branch code from course
-    const branchCode = courseCodeMap[batch.course] || 'student'
-    if (!branchCode) {
-      console.warn(`Course code not found for: ${batch.course}`)
-    }
-
-    const email = `${branchCode}${rollNo}@iiti.ac.in`
-
-    const student = await prisma.student.create({
-      data: {
-        name,
-        rollNo,
-        email,
-        batchId,
-      },
+    // Check if user with this email already exists
+    const existingUser = await prisma.user.findUnique({
+      where: { email },
     })
 
-    return NextResponse.json({ student })
+    if (existingUser) {
+      return NextResponse.json({ error: "A user with this email already exists" }, { status: 409 })
+    }
+
+    // Hash the password
+    const hashedPassword = await bcrypt.hash(password, 12)
+
+    // Create user and student in a transaction
+    const result = await prisma.$transaction(async (prisma) => {
+      // Create user first
+      const user = await prisma.user.create({
+        data: {
+          name,
+          email,
+          password: hashedPassword,
+          role: "student",
+        },
+      })
+
+      // Create student linked to user
+      const student = await prisma.student.create({
+        data: {
+          rollNo,
+          batchId,
+          userId: user.id,
+        },
+        include: {
+          user: {
+            select: {
+              name: true,
+              email: true,
+              role: true,
+            },
+          },
+        },
+      })
+
+      return student
+    })
+
+    return NextResponse.json({ student: result })
   } catch (error) {
     console.error("API POST /admin/batches/students error:", error)
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 })
   }
-} 
+}
