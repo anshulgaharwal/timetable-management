@@ -13,6 +13,14 @@
   position: relative;
 }
 
+/* Loading indicator styles */
+.loading-indicator {
+  display: inline-flex;
+  align-items: center;
+  margin-left: 10px;
+  vertical-align: middle;
+}
+
 /* Mobile menu toggle */
 .mobile-menu-toggle {
   position: fixed;

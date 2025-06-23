@@ -76,12 +76,43 @@
   border: 1px solid var(--glass-border);
   cursor: pointer;
   transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
 }
 
 .featureCard:hover {
   transform: translateY(-3px);
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
   border-color: var(--accent-primary);
+}
+
+.featureCard.loading {
+  pointer-events: none;
+}
+
+.featureCardLoading {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(3px);
+  z-index: 10;
+  border-radius: var(--border-radius, 12px);
+  animation: fadeIn 0.2s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 .featureIcon {
@@ -106,8 +137,24 @@
   .statsSection {
     grid-template-columns: 1fr;
   }
-  
+
   .featuresGrid {
     grid-template-columns: 1fr;
   }
+}
+
+.loadingContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  width: 100%;
+  gap: 20px;
+}
+
+.loadingContainer p {
+  color: var(--text-secondary);
+  font-size: 16px;
+  font-weight: 500;
 }
