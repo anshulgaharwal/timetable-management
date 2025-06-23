@@ -14,7 +14,7 @@ export default function SettingsPage() {
 
   return (
     <div className={styles.settingsContainer}>
-      <h1>Settings</h1>
+      <h1>Settingsaaaaa</h1>
     </div>
   )
 }
