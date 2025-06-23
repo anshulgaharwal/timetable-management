@@ -2,35 +2,60 @@
 
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
-import styles from "./create.module.css"
+import { useAdmin } from "../../../../../contexts/AdminContext"
+import styles from "./edit.module.css"
 
-export default function CreateBatchPage() {
+export default function EditBatchPage({ params }) {
+  const { id } = params
   const router = useRouter()
+  const { setActionButtons } = useAdmin()
+
+  const [batch, setBatch] = useState(null)
   const [formData, setFormData] = useState({
-    degreeId: "",
     courseCode: "",
     startYear: new Date().getFullYear(),
     endYear: new Date().getFullYear() + 4,
   })
+  const [isLoading, setIsLoading] = useState(true)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState(null)
   const [degrees, setDegrees] = useState([])
   const [courses, setCourses] = useState([])
-  const [isLoading, setIsLoading] = useState(true)
+  const [selectedDegreeId, setSelectedDegreeId] = useState("")
 
-  // Fetch all degrees when component mounts
+  // Fetch batch data and degrees
   useEffect(() => {
-    const fetchDegrees = async () => {
+    const fetchData = async () => {
       try {
         setIsLoading(true)
-        const res = await fetch("/api/degree")
 
-        if (!res.ok) {
-          throw new Error("Failed to fetch degrees")
+        // Fetch batch details
+        const batchRes = await fetch(`/api/admin/batches/${id}`)
+        if (!batchRes.ok) {
+          throw new Error("Failed to fetch batch details")
+        }
+        const batchData = await batchRes.json()
+        setBatch(batchData.batch)
+
+        // Set initial form data
+        setFormData({
+          courseCode: batchData.batch.courseCode,
+          startYear: batchData.batch.startYear,
+          endYear: batchData.batch.endYear,
+        })
+
+        // Set selected degree
+        if (batchData.batch.course?.degree) {
+          setSelectedDegreeId(batchData.batch.course.degree.code)
         }
 
-        const data = await res.json()
-        setDegrees(data || [])
+        // Fetch all degrees
+        const degreesRes = await fetch("/api/degree")
+        if (!degreesRes.ok) {
+          throw new Error("Failed to fetch degrees")
+        }
+        const degreesData = await degreesRes.json()
+        setDegrees(degreesData)
       } catch (err) {
         setError(err.message)
       } finally {
@@ -38,13 +63,13 @@ export default function CreateBatchPage() {
       }
     }
 
-    fetchDegrees()
-  }, [])
+    fetchData()
+  }, [id])
 
-  // Update courses when degree changes
+  // Update courses when selected degree changes
   useEffect(() => {
-    if (formData.degreeId) {
-      const selectedDegree = degrees.find((d) => d.code === formData.degreeId)
+    if (selectedDegreeId) {
+      const selectedDegree = degrees.find((d) => d.code === selectedDegreeId)
       if (selectedDegree && selectedDegree.courses) {
         setCourses(selectedDegree.courses)
       } else {
@@ -53,40 +78,29 @@ export default function CreateBatchPage() {
     } else {
       setCourses([])
     }
-  }, [formData.degreeId, degrees])
+  }, [selectedDegreeId, degrees])
+
+  // Set action buttons
+  useEffect(() => {
+    setActionButtons([
+      {
+        label: "Back to Batch",
+        onClick: () => router.push(`/admin/batches/${id}`),
+      },
+    ])
+
+    return () => setActionButtons([])
+  }, [id, setActionButtons, router])
 
   const handleChange = (e) => {
     const { name, value } = e.target
 
-    setFormData((prev) => {
-      // If changing degree, reset course
-      if (name === "degreeId") {
-        return { ...prev, [name]: value, courseCode: "" }
-      }
-
-      // If changing startYear, update endYear based on typical program duration
-      if (name === "startYear") {
-        const startYearNum = parseInt(value)
-        let duration = 4 // default to 4 years
-
-        // Set duration based on degree type
-        const selectedDegree = degrees.find((d) => d.code === formData.degreeId)
-        if (selectedDegree) {
-          const degreeName = selectedDegree.name.toLowerCase()
-          if (degreeName.includes("bachelor") || degreeName.includes("btech")) duration = 4
-          else if (degreeName.includes("master") || degreeName.includes("mtech") || degreeName.includes("msc")) duration = 2
-          else if (degreeName.includes("phd") || degreeName.includes("doctor")) duration = 5
-        }
-
-        return {
-          ...prev,
-          [name]: value,
-          endYear: startYearNum + duration,
-        }
-      }
-
-      return { ...prev, [name]: value }
-    })
+    if (name === "degreeId") {
+      setSelectedDegreeId(value)
+      setFormData((prev) => ({ ...prev, courseCode: "" }))
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: value }))
+    }
   }
 
   const handleSubmit = async (e) => {
@@ -95,8 +109,8 @@ export default function CreateBatchPage() {
     setError(null)
 
     try {
-      const res = await fetch("/api/admin/batches", {
-        method: "POST",
+      const res = await fetch(`/api/admin/batches/${id}`, {
+        method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...formData,
@@ -107,11 +121,10 @@ export default function CreateBatchPage() {
 
       if (!res.ok) {
         const errorData = await res.json()
-        throw new Error(errorData.error || "Failed to create batch")
+        throw new Error(errorData.error || "Failed to update batch")
       }
 
-      const { batch } = await res.json()
-      router.push(`/admin/batches/${batch.id}`)
+      router.push(`/admin/batches/${id}`)
     } catch (err) {
       setError(err.message)
     } finally {
@@ -127,11 +140,11 @@ export default function CreateBatchPage() {
   }
 
   return (
-    <div className={styles.createContainer}>
+    <div className={styles.editContainer}>
       <div className={styles.formCard}>
         <div className={styles.formHeader}>
-          <h2>Create New Batch</h2>
-          <p>Add a new student batch to the system</p>
+          <h2>Edit Batch</h2>
+          <p>Update batch information</p>
         </div>
 
         {error && <div className={styles.errorMessage}>{error}</div>}
@@ -139,7 +152,7 @@ export default function CreateBatchPage() {
         <form onSubmit={handleSubmit} className={styles.form}>
           <div className={styles.formGroup}>
             <label htmlFor="degreeId">Degree Program</label>
-            <select id="degreeId" name="degreeId" value={formData.degreeId} onChange={handleChange} required className={styles.select}>
+            <select id="degreeId" name="degreeId" value={selectedDegreeId} onChange={handleChange} required className={styles.select}>
               <option value="">Select Degree</option>
               {degrees.map((degree) => (
                 <option key={degree.code} value={degree.code}>
@@ -151,7 +164,7 @@ export default function CreateBatchPage() {
 
           <div className={styles.formGroup}>
             <label htmlFor="courseCode">Course</label>
-            <select id="courseCode" name="courseCode" value={formData.courseCode} onChange={handleChange} required disabled={!formData.degreeId || courses.length === 0} className={styles.select}>
+            <select id="courseCode" name="courseCode" value={formData.courseCode} onChange={handleChange} required disabled={!selectedDegreeId || courses.length === 0} className={styles.select}>
               <option value="">Select Course</option>
               {courses.map((course) => (
                 <option key={course.code} value={course.code}>
@@ -186,11 +199,11 @@ export default function CreateBatchPage() {
           </div>
 
           <div className={styles.formActions}>
-            <button type="button" onClick={() => router.back()} className={styles.cancelButton} disabled={isSubmitting}>
+            <button type="button" onClick={() => router.push(`/admin/batches/${id}`)} className={styles.cancelButton} disabled={isSubmitting}>
               Cancel
             </button>
             <button type="submit" className={styles.submitButton} disabled={isSubmitting}>
-              {isSubmitting ? "Creating..." : "Create Batch"}
+              {isSubmitting ? "Saving..." : "Save Changes"}
             </button>
           </div>
         </form>

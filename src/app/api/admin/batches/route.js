@@ -20,30 +20,33 @@ export async function GET() {
       return NextResponse.json({ error: "Access denied" }, { status: 403 })
     }
 
-    // Fetch all batches with student counts
+    // Fetch all batches with student counts and related course/degree info
     const batches = await prisma.batch.findMany({
       include: {
         students: true,
+        course: {
+          include: {
+            degree: true,
+          },
+        },
         _count: {
-          select: { students: true }
-        }
+          select: { students: true },
+        },
       },
-      orderBy: [
-        { startYear: "desc" },
-        { degree: "asc" },
-        { course: "asc" }
-      ]
+      orderBy: [{ startYear: "desc" }, { courseCode: "asc" }],
     })
 
     // Map the response to include the student count but not the full student data
-    const formattedBatches = batches.map(batch => ({
+    const formattedBatches = batches.map((batch) => ({
       id: batch.id,
-      degree: batch.degree,
-      course: batch.course,
+      courseCode: batch.courseCode,
+      courseName: batch.course?.name || "Unknown Course",
+      degreeCode: batch.course?.degreeId || "Unknown Degree",
+      degreeName: batch.course?.degree?.name || "Unknown Degree",
       startYear: batch.startYear,
       endYear: batch.endYear,
       students: batch.students,
-      studentCount: batch._count.students
+      studentCount: batch._count.students,
     }))
 
     return NextResponse.json({ batches: formattedBatches })
@@ -71,10 +74,10 @@ export async function POST(req) {
     }
 
     const body = await req.json()
-    const { degree, course, startYear, endYear } = body
+    const { degreeId, courseCode, startYear, endYear } = body
 
     // Validate input
-    if (!degree || !course || !startYear || !endYear) {
+    if (!courseCode || !startYear || !endYear) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
     }
 
@@ -83,10 +86,18 @@ export async function POST(req) {
       return NextResponse.json({ error: "End year must be after start year" }, { status: 400 })
     }
 
+    // Check if course exists
+    const course = await prisma.course.findUnique({
+      where: { code: courseCode },
+    })
+
+    if (!course) {
+      return NextResponse.json({ error: "Course not found" }, { status: 404 })
+    }
+
     const batch = await prisma.batch.create({
       data: {
-        degree,
-        course,
+        courseCode,
         startYear: parseInt(startYear),
         endYear: parseInt(endYear),
       },
@@ -97,4 +108,4 @@ export async function POST(req) {
     console.error("API /admin/batches error:", error)
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 })
   }
-} 
+}

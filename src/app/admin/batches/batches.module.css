@@ -136,7 +136,8 @@
   transform: translateY(-2px);
 }
 
-.loadingContainer, .errorContainer {
+.loadingContainer,
+.errorContainer {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -149,8 +150,14 @@
   color: #e53935;
 }
 
+.courseCode {
+  font-size: 0.8rem;
+  color: #666;
+  margin-top: 5px;
+}
+
 @media (max-width: 768px) {
   .batchGrid {
     grid-template-columns: 1fr;
   }
-} 
+}

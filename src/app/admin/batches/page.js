@@ -18,7 +18,7 @@ export default function AdminBatchesPage() {
       {
         label: "Create New Batch",
         onClick: () => router.push("/admin/batches/create"),
-      }
+      },
     ])
 
     // Fetch batches
@@ -26,11 +26,11 @@ export default function AdminBatchesPage() {
       try {
         setIsLoading(true)
         const res = await fetch("/api/admin/batches")
-        
+
         if (!res.ok) {
           throw new Error("Failed to fetch batches")
         }
-        
+
         const data = await res.json()
         setBatches(data.batches || [])
       } catch (err) {
@@ -48,10 +48,15 @@ export default function AdminBatchesPage() {
 
   // Group batches by degree for better organization
   const batchesByDegree = batches.reduce((acc, batch) => {
-    if (!acc[batch.degree]) {
-      acc[batch.degree] = []
+    const degreeCode = batch.degreeCode || "Unknown"
+    if (!acc[degreeCode]) {
+      acc[degreeCode] = {
+        code: degreeCode,
+        name: batch.degreeName || "Unknown Degree",
+        batches: [],
+      }
     }
-    acc[batch.degree].push(batch)
+    acc[degreeCode].batches.push(batch)
     return acc
   }, {})
 
@@ -69,10 +74,7 @@ export default function AdminBatchesPage() {
         <div className={styles.emptyState}>
           <h3>No batches found</h3>
           <p>Create your first batch to get started</p>
-          <button 
-            className={styles.createButton}
-            onClick={() => router.push("/admin/batches/create")}
-          >
+          <button className={styles.createButton} onClick={() => router.push("/admin/batches/create")}>
             Create Batch
           </button>
         </div>
@@ -82,22 +84,27 @@ export default function AdminBatchesPage() {
             <h2>All Batches</h2>
             <p>Manage student batches across all programs</p>
           </div>
-          
-          {Object.entries(batchesByDegree).map(([degree, degreeBatches]) => (
-            <div key={degree} className={styles.degreeSection}>
-              <h3 className={styles.degreeTitle}>{degree}</h3>
+
+          {Object.values(batchesByDegree).map((degree) => (
+            <div key={degree.code} className={styles.degreeSection}>
+              <h3 className={styles.degreeTitle}>
+                {degree.name} ({degree.code})
+              </h3>
               <div className={styles.batchGrid}>
-                {degreeBatches.map((batch) => (
+                {degree.batches.map((batch) => (
                   <div key={batch.id} className={styles.batchCard} onClick={() => router.push(`/admin/batches/${batch.id}`)}>
                     <div className={styles.batchCardHeader}>
-                      <h4>{batch.course}</h4>
-                      <span className={styles.batchYears}>{batch.startYear} - {batch.endYear}</span>
+                      <h4>{batch.courseName}</h4>
+                      <span className={styles.batchYears}>
+                        {batch.startYear} - {batch.endYear}
+                      </span>
                     </div>
                     <div className={styles.batchCardBody}>
                       <div className={styles.batchStat}>
                         <span className={styles.statLabel}>Students</span>
                         <span className={styles.statValue}>{batch.studentCount || 0}</span>
                       </div>
+                      <div className={styles.courseCode}>{batch.courseCode}</div>
                     </div>
                   </div>
                 ))}
@@ -108,4 +115,4 @@ export default function AdminBatchesPage() {
       )}
     </div>
   )
-} 
+}

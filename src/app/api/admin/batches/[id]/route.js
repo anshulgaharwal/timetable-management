@@ -21,22 +21,29 @@ export async function GET(req, { params }) {
     }
 
     const batchId = parseInt(params.id)
-    
+
     // Validate batchId
     if (isNaN(batchId)) {
       return NextResponse.json({ error: "Invalid batch ID" }, { status: 400 })
     }
-    
-    // Get batch with its students
+
+    // Get batch with its students and course/degree info
     const batch = await prisma.batch.findUnique({
       where: { id: batchId },
-      include: { students: true }
+      include: {
+        students: true,
+        course: {
+          include: {
+            degree: true,
+          },
+        },
+      },
     })
-    
+
     if (!batch) {
       return NextResponse.json({ error: "Batch not found" }, { status: 404 })
     }
-    
+
     return NextResponse.json({ batch })
   } catch (error) {
     console.error("API /admin/batches/[id] error:", error)
@@ -62,45 +69,53 @@ export async function PUT(req, { params }) {
     }
 
     const batchId = parseInt(params.id)
-    
+
     // Validate batchId
     if (isNaN(batchId)) {
       return NextResponse.json({ error: "Invalid batch ID" }, { status: 400 })
     }
-    
+
     const body = await req.json()
-    const { degree, course, startYear, endYear } = body
-    
+    const { courseCode, startYear, endYear } = body
+
     // Validate input
-    if (!degree || !course || !startYear || !endYear) {
+    if (!courseCode || !startYear || !endYear) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
     }
-    
+
     // Validate years
     if (endYear <= startYear) {
       return NextResponse.json({ error: "End year must be after start year" }, { status: 400 })
     }
-    
+
     // Check if batch exists
     const existingBatch = await prisma.batch.findUnique({
-      where: { id: batchId }
+      where: { id: batchId },
     })
-    
+
     if (!existingBatch) {
       return NextResponse.json({ error: "Batch not found" }, { status: 404 })
     }
-    
+
+    // Check if course exists
+    const course = await prisma.course.findUnique({
+      where: { code: courseCode },
+    })
+
+    if (!course) {
+      return NextResponse.json({ error: "Course not found" }, { status: 404 })
+    }
+
     // Update batch
     const updatedBatch = await prisma.batch.update({
       where: { id: batchId },
       data: {
-        degree,
-        course,
+        courseCode,
         startYear: parseInt(startYear),
-        endYear: parseInt(endYear)
-      }
+        endYear: parseInt(endYear),
+      },
     })
-    
+
     return NextResponse.json({ batch: updatedBatch })
   } catch (error) {
     console.error("API PUT /admin/batches/[id] error:", error)
@@ -126,34 +141,34 @@ export async function DELETE(req, { params }) {
     }
 
     const batchId = parseInt(params.id)
-    
+
     // Validate batchId
     if (isNaN(batchId)) {
       return NextResponse.json({ error: "Invalid batch ID" }, { status: 400 })
     }
-    
+
     // Check if batch exists
     const existingBatch = await prisma.batch.findUnique({
-      where: { id: batchId }
+      where: { id: batchId },
     })
-    
+
     if (!existingBatch) {
       return NextResponse.json({ error: "Batch not found" }, { status: 404 })
     }
-    
+
     // Delete all students in this batch first (if not using cascading deletes)
     await prisma.student.deleteMany({
-      where: { batchId }
+      where: { batchId },
     })
-    
+
     // Delete the batch
     await prisma.batch.delete({
-      where: { id: batchId }
+      where: { id: batchId },
     })
-    
+
     return NextResponse.json({ success: true })
   } catch (error) {
     console.error("API DELETE /admin/batches/[id] error:", error)
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 })
   }
-} 
+}
