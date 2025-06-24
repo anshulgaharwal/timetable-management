@@ -1,0 +1,111 @@
+.container {
+  font-family: 'Segoe UI', sans-serif;
+  padding: 1rem;
+}
+
+.timetable {
+  border-collapse: collapse;
+  width: 100%;
+  margin-top: 1rem;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+th, td {
+  border: 1px solid #ddd;
+  padding: 12px;
+  text-align: center;
+}
+
+.cell {
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.cell:hover {
+  background-color: #e0f7ff;
+  transform: scale(1.03);
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+  z-index: 2;
+  position: relative;
+}
+
+.prof {
+  font-size: 0.8em;
+  color: #555;
+}
+
+/* Dynamic course color tiles */
+.course-color-1 { background-color: #e0f7fa; }
+.course-color-2 { background-color: #f1f8e9; }
+.course-color-3 { background-color: #fff3e0; }
+.course-color-4 { background-color: #ede7f6; }
+.course-color-5 { background-color: #fce4ec; }
+.course-color-6 { background-color: #e8f5e9; }
+
+.export-btn {
+  margin-top: 1rem;
+  background-color: #0d6efd;
+  color: white;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.export-btn:hover {
+  background-color: #0b5ed7;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal {
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  width: 300px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+  animation: slideUp 0.3s ease;
+}
+
+label {
+  display: block;
+  margin: 10px 0;
+}
+
+.modal-buttons {
+  margin-top: 1rem;
+}
+
+.modal-buttons button {
+  margin-right: 10px;
+}
+
+.delete-btn {
+  background-color: red;
+  color: white;
+  margin-top: 10px;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 5px;
+}
+
+@keyframes slideUp {
+  from { transform: translateY(20px); opacity: 0 }
+  to { transform: translateY(0); opacity: 1 }
+}
+
+@media (max-width: 768px) {
+  .timetable {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+}

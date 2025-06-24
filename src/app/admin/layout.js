@@ -11,6 +11,7 @@ const adminSidebarTabs = [
   { label: "Polls", href: "/admin/polls" },
   { label: "Settings", href: "/admin/settings" },
   { label: "Degrees", href: "/admin/degrees" },
+  { label: "Timetable", href: "/admin/timetable" },
 ]
 
 export default function AdminLayout({ children }) {

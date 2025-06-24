@@ -20,6 +20,7 @@ model User {
   createdPolls  Poll[]     @relation("PollCreator")
   responses     Response[] @relation("UserResponses")
   student       Student?
+  taughtClasses TimetableEntry[] @relation("UserToTimetable")
 }
 
 model Poll {
@@ -72,6 +73,7 @@ model Batch {
   course     Course    @relation(fields: [courseCode], references: [code])
   polls      Poll[]
   students   Student[]
+  timetableEntries TimetableEntry[]
 }
 
 model Student {
@@ -95,4 +97,25 @@ model Course {
   degreeId String
   batches  Batch[]
   degree   Degree  @relation(fields: [degreeId], references: [code])
+  timetableEntries TimetableEntry[]
 }
+
+model TimetableEntry {
+  id          String   @id @default(cuid())
+  day         String   // e.g., "Monday"
+  timeSlot    String   // e.g., "09:00-10:00"
+  classroom   String
+
+  courseCode  String
+  course      Course   @relation(fields: [courseCode], references: [code])
+
+  professorId String
+  professor   User     @relation("UserToTimetable", fields: [professorId], references: [id])
+
+  batchId     Int
+  batch       Batch    @relation(fields: [batchId], references: [id])
+
+  createdAt   DateTime @default(now())
+}
+
+
