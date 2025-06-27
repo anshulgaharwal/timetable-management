@@ -123,7 +123,8 @@
   transform: translateY(-2px);
 }
 
-.submitButton:disabled, .cancelButton:disabled {
+.submitButton:disabled,
+.cancelButton:disabled {
   opacity: 0.7;
   cursor: not-allowed;
   transform: none;
@@ -140,17 +141,32 @@
   font-size: 14px;
 }
 
+.loadingContainer {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  min-height: 300px;
+}
+
+.loadingContainer p {
+  margin-top: 1rem;
+  color: var(--text-secondary);
+  font-size: 16px;
+}
+
 @media (max-width: 768px) {
   .createContainer {
     padding: 10px;
   }
-  
+
   .formRow {
     flex-direction: column;
     gap: 20px;
   }
-  
+
   .formRow .formGroup {
     margin-bottom: 0;
   }
-} 
+}

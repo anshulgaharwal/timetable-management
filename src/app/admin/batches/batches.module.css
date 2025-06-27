@@ -45,7 +45,6 @@
   border: 1px solid var(--glass-border);
   transition: all 0.2s ease;
   overflow: hidden;
-  cursor: pointer;
 }
 
 .batchCard:hover {
@@ -98,6 +97,54 @@
   color: var(--text-primary);
 }
 
+.batchCardActions {
+  display: flex;
+  gap: 10px;
+  margin-top: 16px;
+  justify-content: space-between;
+}
+
+.viewButton,
+.deleteButton,
+.createButton {
+  padding: 8px 14px;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+  font-size: 14px;
+}
+
+.viewButton {
+  background: rgba(59, 130, 246, 0.1);
+  color: #3b82f6;
+}
+
+.viewButton:hover {
+  background: rgba(59, 130, 246, 0.2);
+}
+
+.deleteButton {
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+}
+
+.deleteButton:hover {
+  background: rgba(239, 68, 68, 0.2);
+}
+
+.createButton {
+  background: var(--accent-primary);
+  color: white;
+  padding: 10px 20px;
+}
+
+.createButton:hover {
+  background: #3a6cb5;
+  transform: translateY(-2px);
+}
+
 .emptyState {
   display: flex;
   flex-direction: column;
@@ -120,30 +167,20 @@
   margin-bottom: 24px;
 }
 
-.createButton {
-  background: var(--accent-primary);
-  color: white;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 8px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.createButton:hover {
-  background: #3a6cb5;
-  transform: translateY(-2px);
-}
-
 .loadingContainer,
 .errorContainer {
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   height: 100%;
-  font-size: 16px;
+  min-height: 300px;
+}
+
+.loadingContainer p {
+  margin-top: 1rem;
   color: var(--text-secondary);
+  font-size: 16px;
 }
 
 .errorContainer {
@@ -156,8 +193,118 @@
   margin-top: 5px;
 }
 
+/* Table view styles */
+.batchTable {
+  width: 100%;
+  overflow-x: auto;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.batchTable table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.batchTable th,
+.batchTable td {
+  padding: 12px 16px;
+  text-align: left;
+  border-bottom: 1px solid #eaeaea;
+}
+
+.batchTable th {
+  background-color: #f9fafb;
+  font-weight: 600;
+  color: #374151;
+  position: sticky;
+  top: 0;
+}
+
+.tableActions {
+  display: flex;
+  gap: 8px;
+}
+
+.tableActions button {
+  padding: 6px 12px;
+}
+
+/* Form styles for modal */
+.formGroup {
+  margin-bottom: 16px;
+  width: 100%;
+}
+
+.formGroup label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.formRow {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 16px;
+}
+
+.formRow .formGroup {
+  margin-bottom: 0;
+  flex: 1;
+}
+
+.select {
+  width: 100%;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid var(--glass-border);
+  background-color: rgba(255, 255, 255, 0.8);
+  font-size: 14px;
+  color: var(--text-primary);
+  transition: all 0.2s ease;
+}
+
+.select:focus {
+  outline: none;
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 2px rgba(72, 118, 178, 0.2);
+}
+
+.select:disabled {
+  background-color: rgba(240, 240, 240, 0.8);
+  cursor: not-allowed;
+}
+
+.errorMessage {
+  background-color: rgba(229, 57, 53, 0.1);
+  border: 1px solid rgba(229, 57, 53, 0.3);
+  color: #e53935;
+  padding: 12px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  font-size: 14px;
+}
+
 @media (max-width: 768px) {
   .batchGrid {
     grid-template-columns: 1fr;
+  }
+
+  .batchTable th,
+  .batchTable td {
+    padding: 8px;
+  }
+
+  .tableActions button {
+    padding: 4px 8px;
+    font-size: 0.875rem;
+  }
+
+  .formRow {
+    flex-direction: column;
+    gap: 16px;
   }
 }

@@ -3,19 +3,23 @@
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { useAdmin } from "../../../../contexts/AdminContext"
+import LoadingSpinner from "../../../../components/LoadingSpinner"
+import Modal from "../../../../components/Modal"
 import styles from "./batchDetail.module.css"
 
 export default function BatchDetailPage({ params }) {
   const { id } = params
   const router = useRouter()
-  const { setActionButtons } = useAdmin()
+  const { setActionButtons, setIsLoading: setGlobalLoading, isLoading } = useAdmin()
 
   const [batch, setBatch] = useState(null)
-  const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState(null)
 
   // New student form state
-  const [showAddForm, setShowAddForm] = useState(false)
+  const [showAddModal, setShowAddModal] = useState(false)
+  const [showDeleteModal, setShowDeleteModal] = useState(false)
+  const [showEditModal, setShowEditModal] = useState(false)
+  const [studentToDelete, setStudentToDelete] = useState(null)
   const [newStudent, setNewStudent] = useState({
     name: "",
     rollNo: "",
@@ -25,27 +29,42 @@ export default function BatchDetailPage({ params }) {
   const [isAddingStudent, setIsAddingStudent] = useState(false)
   const [addStudentError, setAddStudentError] = useState(null)
 
+  // Edit batch state
+  const [editFormData, setEditFormData] = useState({
+    courseCode: "",
+    startYear: new Date().getFullYear(),
+    endYear: new Date().getFullYear() + 4,
+  })
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [degrees, setDegrees] = useState([])
+  const [courses, setCourses] = useState([])
+  const [selectedDegreeId, setSelectedDegreeId] = useState("")
+  const [dataLoaded, setDataLoaded] = useState(false)
+
   useEffect(() => {
     // Set action buttons in the navbar
     setActionButtons([
       {
         label: "Add Student",
-        onClick: () => setShowAddForm(true),
+        onClick: () => setShowAddModal(true),
       },
       {
         label: "Edit Batch",
-        onClick: () => router.push(`/admin/batches/${id}/edit`),
+        onClick: () => setShowEditModal(true),
       },
       {
         label: "Back to Batches",
-        onClick: () => router.push("/admin/batches"),
+        onClick: () => {
+          setGlobalLoading(true)
+          router.push("/admin/batches")
+        },
       },
     ])
 
     // Fetch batch data
     const fetchBatchData = async () => {
       try {
-        setIsLoading(true)
+        setGlobalLoading(true)
 
         // Fetch batch details with students
         const batchRes = await fetch(`/api/admin/batches/${id}`)
@@ -56,18 +75,57 @@ export default function BatchDetailPage({ params }) {
 
         const batchData = await batchRes.json()
         setBatch(batchData.batch)
+
+        // Set initial edit form data
+        setEditFormData({
+          courseCode: batchData.batch.courseCode,
+          startYear: batchData.batch.startYear,
+          endYear: batchData.batch.endYear,
+        })
+
+        // Set selected degree
+        if (batchData.batch.course?.degree) {
+          setSelectedDegreeId(batchData.batch.course.degree.code)
+        }
+
+        // Fetch all degrees for edit modal
+        const degreesRes = await fetch("/api/degree")
+        if (!degreesRes.ok) {
+          throw new Error("Failed to fetch degrees")
+        }
+        const degreesData = await degreesRes.json()
+        setDegrees(degreesData)
+
+        setDataLoaded(true)
       } catch (err) {
         setError(err.message)
       } finally {
-        setIsLoading(false)
+        setGlobalLoading(false)
       }
     }
 
     fetchBatchData()
 
     // Clean up when component unmounts
-    return () => setActionButtons([])
-  }, [id, setActionButtons, router])
+    return () => {
+      setActionButtons([])
+      setGlobalLoading(false)
+    }
+  }, [id, setActionButtons, router, setGlobalLoading])
+
+  // Update courses when selected degree changes
+  useEffect(() => {
+    if (selectedDegreeId) {
+      const selectedDegree = degrees.find((d) => d.code === selectedDegreeId)
+      if (selectedDegree && selectedDegree.courses) {
+        setCourses(selectedDegree.courses)
+      } else {
+        setCourses([])
+      }
+    } else {
+      setCourses([])
+    }
+  }, [selectedDegreeId, degrees])
 
   const handleAddStudentChange = (e) => {
     const { name, value } = e.target
@@ -75,9 +133,10 @@ export default function BatchDetailPage({ params }) {
   }
 
   const handleAddStudent = async (e) => {
-    e.preventDefault()
+    if (e) e.preventDefault()
     setIsAddingStudent(true)
     setAddStudentError(null)
+    setGlobalLoading(true)
 
     try {
       const res = await fetch("/api/admin/batches/students", {
@@ -105,16 +164,105 @@ export default function BatchDetailPage({ params }) {
 
       // Reset form
       setNewStudent({ name: "", rollNo: "", email: "", password: "" })
-      setShowAddForm(false)
+      setShowAddModal(false)
     } catch (err) {
       setAddStudentError(err.message)
     } finally {
       setIsAddingStudent(false)
+      setGlobalLoading(false)
     }
   }
 
-  if (isLoading) {
-    return <div className={styles.loadingContainer}>Loading batch details...</div>
+  const handleDeleteStudent = async () => {
+    if (!studentToDelete) return
+
+    try {
+      setGlobalLoading(true)
+      const res = await fetch(`/api/admin/batches/students/${studentToDelete.id}`, {
+        method: "DELETE",
+      })
+
+      if (!res.ok) {
+        throw new Error("Failed to delete student")
+      }
+
+      // Remove the deleted student from state
+      setBatch((prev) => ({
+        ...prev,
+        students: prev.students.filter((student) => student.id !== studentToDelete.id),
+      }))
+      setShowDeleteModal(false)
+      setStudentToDelete(null)
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setGlobalLoading(false)
+    }
+  }
+
+  const handleEditChange = (e) => {
+    const { name, value } = e.target
+
+    if (name === "degreeId") {
+      setSelectedDegreeId(value)
+      setEditFormData((prev) => ({ ...prev, courseCode: "" }))
+    } else {
+      setEditFormData((prev) => ({ ...prev, [name]: value }))
+    }
+  }
+
+  const handleEditBatch = async () => {
+    setIsSubmitting(true)
+    setError(null)
+    setGlobalLoading(true)
+
+    try {
+      const res = await fetch(`/api/admin/batches/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...editFormData,
+          startYear: parseInt(editFormData.startYear),
+          endYear: parseInt(editFormData.endYear),
+        }),
+      })
+
+      if (!res.ok) {
+        const errorData = await res.json()
+        throw new Error(errorData.error || "Failed to update batch")
+      }
+
+      // Refresh batch data
+      const batchRes = await fetch(`/api/admin/batches/${id}`)
+      if (batchRes.ok) {
+        const batchData = await batchRes.json()
+        setBatch(batchData.batch)
+      }
+
+      setShowEditModal(false)
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setIsSubmitting(false)
+      setGlobalLoading(false)
+    }
+  }
+
+  const openDeleteModal = (student) => {
+    setStudentToDelete(student)
+    setShowDeleteModal(true)
+  }
+
+  const currentYear = new Date().getFullYear()
+  const yearOptions = Array.from({ length: 10 }, (_, i) => currentYear - 5 + i)
+
+  if (isLoading || !dataLoaded) {
+    return (
+      <div className={styles.loadingContainer}>
+        <LoadingSpinner size="large" />
+        <p>Loading batch details...</p>
+      </div>
+    )
   }
 
   if (error) {
@@ -140,65 +288,13 @@ export default function BatchDetailPage({ params }) {
         </div>
       </div>
 
-      {showAddForm && (
-        <div className={styles.addStudentSection}>
-          <div className={styles.addStudentCard}>
-            <div className={styles.addStudentHeader}>
-              <h3>Add New Student</h3>
-              <button
-                className={styles.closeButton}
-                onClick={() => {
-                  setShowAddForm(false)
-                  setAddStudentError(null)
-                }}
-              >
-                ×
-              </button>
-            </div>
-
-            {addStudentError && <div className={styles.errorMessage}>{addStudentError}</div>}
-
-            <form onSubmit={handleAddStudent} className={styles.addStudentForm}>
-              <div className={styles.formGroup}>
-                <label htmlFor="name">Student Name</label>
-                <input type="text" id="name" name="name" value={newStudent.name} onChange={handleAddStudentChange} required className={styles.input} placeholder="Enter student's full name" />
-              </div>
-
-              <div className={styles.formGroup}>
-                <label htmlFor="rollNo">Roll Number</label>
-                <input type="number" id="rollNo" name="rollNo" value={newStudent.rollNo} onChange={handleAddStudentChange} required className={styles.input} placeholder="Enter roll number" />
-              </div>
-
-              <div className={styles.formGroup}>
-                <label htmlFor="email">Email Address</label>
-                <input type="email" id="email" name="email" value={newStudent.email} onChange={handleAddStudentChange} required className={styles.input} placeholder="Enter student's email address" />
-              </div>
-
-              <div className={styles.formGroup}>
-                <label htmlFor="password">Password</label>
-                <input type="password" id="password" name="password" value={newStudent.password} onChange={handleAddStudentChange} required className={styles.input} placeholder="Create a password" />
-              </div>
-
-              <div className={styles.formActions}>
-                <button type="button" onClick={() => setShowAddForm(false)} className={styles.cancelButton} disabled={isAddingStudent}>
-                  Cancel
-                </button>
-                <button type="submit" className={styles.submitButton} disabled={isAddingStudent}>
-                  {isAddingStudent ? "Adding..." : "Add Student"}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
       <div className={styles.studentsSection}>
         <h3 className={styles.sectionTitle}>Enrolled Students</h3>
 
         {!batch?.students || batch.students.length === 0 ? (
           <div className={styles.emptyState}>
             <p>No students enrolled in this batch yet.</p>
-            <button className={styles.addButton} onClick={() => setShowAddForm(true)}>
+            <button className={styles.addButton} onClick={() => setShowAddModal(true)}>
               Add First Student
             </button>
           </div>
@@ -210,6 +306,7 @@ export default function BatchDetailPage({ params }) {
                   <th>Roll No</th>
                   <th>Name</th>
                   <th>Email</th>
+                  <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -220,6 +317,11 @@ export default function BatchDetailPage({ params }) {
                       <td>{student.rollNo}</td>
                       <td>{student.user?.name}</td>
                       <td>{student.user?.email}</td>
+                      <td className={styles.actionsCell}>
+                        <button className={styles.deleteButton} onClick={() => openDeleteModal(student)}>
+                          Delete
+                        </button>
+                      </td>
                     </tr>
                   ))}
               </tbody>
@@ -227,6 +329,168 @@ export default function BatchDetailPage({ params }) {
           </div>
         )}
       </div>
+
+      {/* Add Student Modal */}
+      <Modal
+        isOpen={showAddModal}
+        onClose={() => {
+          setShowAddModal(false)
+          setAddStudentError(null)
+          setNewStudent({ name: "", rollNo: "", email: "", password: "" })
+        }}
+        title="Add New Student"
+        size="medium"
+        footerButtons={{
+          cancel: {
+            text: "Cancel",
+            onClick: () => {
+              setShowAddModal(false)
+              setAddStudentError(null)
+              setNewStudent({ name: "", rollNo: "", email: "", password: "" })
+            },
+          },
+          confirm: {
+            text: isAddingStudent ? "Adding..." : "Add Student",
+            onClick: handleAddStudent,
+          },
+        }}
+      >
+        {addStudentError && <div className={styles.errorMessage}>{addStudentError}</div>}
+
+        <div className={styles.formGroup}>
+          <label htmlFor="name">Student Name</label>
+          <input type="text" id="name" name="name" value={newStudent.name} onChange={handleAddStudentChange} required className={styles.input} placeholder="Enter student's full name" />
+        </div>
+
+        <div className={styles.formGroup}>
+          <label htmlFor="rollNo">Roll Number</label>
+          <input type="number" id="rollNo" name="rollNo" value={newStudent.rollNo} onChange={handleAddStudentChange} required className={styles.input} placeholder="Enter roll number" />
+        </div>
+
+        <div className={styles.formGroup}>
+          <label htmlFor="email">Email Address</label>
+          <input type="email" id="email" name="email" value={newStudent.email} onChange={handleAddStudentChange} required className={styles.input} placeholder="Enter student's email address" />
+        </div>
+
+        <div className={styles.formGroup}>
+          <label htmlFor="password">Password</label>
+          <input type="password" id="password" name="password" value={newStudent.password} onChange={handleAddStudentChange} required className={styles.input} placeholder="Create a password" />
+        </div>
+      </Modal>
+
+      {/* Delete Student Modal */}
+      <Modal
+        isOpen={showDeleteModal}
+        onClose={() => {
+          setShowDeleteModal(false)
+          setStudentToDelete(null)
+        }}
+        title="Confirm Deletion"
+        size="small"
+        footerButtons={{
+          cancel: {
+            text: "Cancel",
+            onClick: () => {
+              setShowDeleteModal(false)
+              setStudentToDelete(null)
+            },
+          },
+          confirm: {
+            text: "Delete Student",
+            onClick: handleDeleteStudent,
+          },
+        }}
+      >
+        <p>
+          Are you sure you want to delete student <strong>{studentToDelete?.user?.name}</strong> with roll number <strong>{studentToDelete?.rollNo}</strong>? This action cannot be undone.
+        </p>
+      </Modal>
+
+      {/* Edit Batch Modal */}
+      <Modal
+        isOpen={showEditModal}
+        onClose={() => {
+          setShowEditModal(false)
+          // Reset form to current batch values
+          setEditFormData({
+            courseCode: batch.courseCode,
+            startYear: batch.startYear,
+            endYear: batch.endYear,
+          })
+          setSelectedDegreeId(batch.course?.degree?.code || "")
+        }}
+        title="Edit Batch"
+        size="medium"
+        footerButtons={{
+          cancel: {
+            text: "Cancel",
+            onClick: () => {
+              setShowEditModal(false)
+              // Reset form to current batch values
+              setEditFormData({
+                courseCode: batch.courseCode,
+                startYear: batch.startYear,
+                endYear: batch.endYear,
+              })
+              setSelectedDegreeId(batch.course?.degree?.code || "")
+            },
+          },
+          confirm: {
+            text: isSubmitting ? "Saving..." : "Save Changes",
+            onClick: handleEditBatch,
+          },
+        }}
+      >
+        {error && <div className={styles.errorMessage}>{error}</div>}
+
+        <div className={styles.formGroup}>
+          <label htmlFor="degreeId">Degree Program</label>
+          <select id="degreeId" name="degreeId" value={selectedDegreeId} onChange={handleEditChange} required className={styles.select}>
+            <option value="">Select Degree</option>
+            {degrees.map((degree) => (
+              <option key={degree.code} value={degree.code}>
+                {degree.name} ({degree.code})
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className={styles.formGroup}>
+          <label htmlFor="courseCode">Course</label>
+          <select id="courseCode" name="courseCode" value={editFormData.courseCode} onChange={handleEditChange} required disabled={!selectedDegreeId || courses.length === 0} className={styles.select}>
+            <option value="">Select Course</option>
+            {courses.map((course) => (
+              <option key={course.code} value={course.code}>
+                {course.name} ({course.code})
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className={styles.formRow}>
+          <div className={styles.formGroup}>
+            <label htmlFor="startYear">Start Year</label>
+            <select id="startYear" name="startYear" value={editFormData.startYear} onChange={handleEditChange} required className={styles.select}>
+              {yearOptions.map((year) => (
+                <option key={year} value={year}>
+                  {year}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className={styles.formGroup}>
+            <label htmlFor="endYear">End Year</label>
+            <select id="endYear" name="endYear" value={editFormData.endYear} onChange={handleEditChange} required className={styles.select}>
+              {yearOptions.map((year) => (
+                <option key={year} value={year} disabled={year < editFormData.startYear}>
+                  {year}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+      </Modal>
     </div>
   )
 }

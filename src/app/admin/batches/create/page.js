@@ -2,10 +2,13 @@
 
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
+import { useAdmin } from "../../../../contexts/AdminContext"
+import LoadingSpinner from "../../../../components/LoadingSpinner"
 import styles from "./create.module.css"
 
 export default function CreateBatchPage() {
   const router = useRouter()
+  const { setIsLoading: setGlobalLoading, setActionButtons } = useAdmin()
   const [formData, setFormData] = useState({
     degreeId: "",
     courseCode: "",
@@ -18,11 +21,24 @@ export default function CreateBatchPage() {
   const [courses, setCourses] = useState([])
   const [isLoading, setIsLoading] = useState(true)
 
+  // Set action buttons
+  useEffect(() => {
+    setActionButtons([
+      {
+        label: "Back to Batches",
+        onClick: () => router.push("/admin/batches"),
+      },
+    ])
+
+    return () => setActionButtons([])
+  }, [setActionButtons, router])
+
   // Fetch all degrees when component mounts
   useEffect(() => {
     const fetchDegrees = async () => {
       try {
         setIsLoading(true)
+        setGlobalLoading(true)
         const res = await fetch("/api/degree")
 
         if (!res.ok) {
@@ -35,11 +51,16 @@ export default function CreateBatchPage() {
         setError(err.message)
       } finally {
         setIsLoading(false)
+        setGlobalLoading(false)
       }
     }
 
     fetchDegrees()
-  }, [])
+
+    return () => {
+      setGlobalLoading(false)
+    }
+  }, [setGlobalLoading])
 
   // Update courses when degree changes
   useEffect(() => {
@@ -93,6 +114,7 @@ export default function CreateBatchPage() {
     e.preventDefault()
     setIsSubmitting(true)
     setError(null)
+    setGlobalLoading(true)
 
     try {
       const res = await fetch("/api/admin/batches", {
@@ -114,7 +136,7 @@ export default function CreateBatchPage() {
       router.push(`/admin/batches/${batch.id}`)
     } catch (err) {
       setError(err.message)
-    } finally {
+      setGlobalLoading(false)
       setIsSubmitting(false)
     }
   }
@@ -123,7 +145,12 @@ export default function CreateBatchPage() {
   const yearOptions = Array.from({ length: 10 }, (_, i) => currentYear - 5 + i)
 
   if (isLoading) {
-    return <div className={styles.loadingContainer}>Loading...</div>
+    return (
+      <div className={styles.loadingContainer}>
+        <LoadingSpinner size="large" />
+        <p>Loading degree programs...</p>
+      </div>
+    )
   }
 
   return (
