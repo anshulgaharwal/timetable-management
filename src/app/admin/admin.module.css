@@ -149,8 +149,16 @@
   align-items: center;
   justify-content: center;
   height: 100%;
-  width: 100%;
-  gap: 20px;
+  min-height: 400px;
+}
+
+.contentLoadingContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  min-height: 200px;
 }
 
 .loadingContainer p {
