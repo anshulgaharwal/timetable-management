@@ -89,13 +89,13 @@ export default function StudentTimetablePage() {
 
   const getWeeklyStats = () => {
     const totalClasses = entries.length
-    const uniqueDepartments = new Set(entries.map(e => e.department?.code)).size
+    const uniqueCourses = new Set(entries.map(e => e.course)).size
     const totalHours = entries.length // Assuming each slot is 1 hour
     
-    return { totalClasses, uniqueDepartments, totalHours }
+    return { totalClasses, uniqueCourses, totalHours }
   }
 
-  const { totalClasses, uniqueDepartments, totalHours } = getWeeklyStats()
+  const { totalClasses, uniqueCourses, totalHours } = getWeeklyStats()
 
   return (
     <div className={styles.timetableContainer}>
@@ -120,8 +120,8 @@ export default function StudentTimetablePage() {
               <div className={styles.statLabel}>Total Classes</div>
             </div>
             <div className={styles.statCard}>
-              <div className={styles.statValue}>{uniqueDepartments}</div>
-              <div className={styles.statLabel}>Unique Departments</div>
+              <div className={styles.statValue}>{uniqueCourses}</div>
+              <div className={styles.statLabel}>Unique Courses</div>
             </div>
             <div className={styles.statCard}>
               <div className={styles.statValue}>{totalHours}</div>
@@ -163,7 +163,7 @@ export default function StudentTimetablePage() {
                             {entry ? (
                               <div className={styles.departmentEntry}>
                                 <div className={styles.departmentName}>
-                                  {entry.department?.name || "Unknown Department"}
+                                  {entry.course || "Unknown Course"}
                                 </div>
                                 <div className={styles.departmentClassroom}>
                                   {entry.classroom || "TBA"}

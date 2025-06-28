@@ -15,7 +15,6 @@ export default function BatchTimetablePage() {
   const { setActionButtons } = useLayout()
 
   const [entries, setEntries] = useState([])
-  const [departments, setDepartments] = useState([])
   const [professors, setProfessors] = useState([])
   const [batchInfo, setBatchInfo] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -25,21 +24,13 @@ export default function BatchTimetablePage() {
   const [isDeleting, setIsDeleting] = useState(false)
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [editData, setEditData] = useState({
-    departmentCode: "",
+    course: "",
     professorId: "",
     classroom: "",
   })
 
   const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]
-  const slots = [
-    "09:00-10:00",
-    "10:00-11:00", 
-    "11:00-12:00",
-    "12:00-13:00",
-    "14:00-15:00",
-    "15:00-16:00",
-    "16:00-17:00",
-  ]
+  const slots = ["09:00-10:00", "10:00-11:00", "11:00-12:00", "12:00-13:00", "14:00-15:00", "15:00-16:00", "16:00-17:00"]
 
   useEffect(() => {
     // Set action buttons immediately
@@ -81,7 +72,7 @@ export default function BatchTimetablePage() {
     try {
       setLoading(true)
       setError(null)
-      
+
       // Fetch timetable entries
       const entriesRes = await fetch(`/api/timetable/batch/${batchId}`)
       if (!entriesRes.ok) {
@@ -110,26 +101,18 @@ export default function BatchTimetablePage() {
         throw new Error("Failed to fetch form data")
       }
       const data = await res.json()
-      setDepartments(data.departments || [])
       setProfessors(data.professors || [])
     } catch (err) {
       console.error("Error fetching form data:", err)
     }
   }
 
-  const getEntry = (day, slot) =>
-    entries.find((e) => e.day === day && e.timeSlot === slot)
-
-  const getColorClass = (departmentCode) => {
-    const hash = Array.from(departmentCode).reduce((acc, c) => acc + c.charCodeAt(0), 0)
-    const colorIndex = (hash % 6) + 1
-    return `departmentColor${colorIndex}`
-  }
+  const getEntry = (day, slot) => entries.find((e) => e.day === day && e.timeSlot === slot)
 
   const handleCellClick = (day, timeSlot) => {
     const existing = getEntry(day, timeSlot)
     setEditData({
-      departmentCode: existing?.departmentCode || "",
+      course: existing?.course || "",
       professorId: existing?.professorId || "",
       classroom: existing?.classroom || "",
     })
@@ -158,7 +141,7 @@ export default function BatchTimetablePage() {
   }
 
   const handleSave = async () => {
-    if (!editData.departmentCode || !editData.professorId || !editData.classroom.trim()) {
+    if (!editData.course.trim() || !editData.professorId || !editData.classroom.trim()) {
       setError("Please fill in all fields")
       return
     }
@@ -185,14 +168,12 @@ export default function BatchTimetablePage() {
       const newEntry = await res.json()
 
       setEntries((prev) => {
-        const others = prev.filter(
-          (e) => !(e.day === newEntry.day && e.timeSlot === newEntry.timeSlot)
-        )
+        const others = prev.filter((e) => !(e.day === newEntry.day && e.timeSlot === newEntry.timeSlot))
         return [...others, newEntry]
       })
 
       setSelectedSlot(null)
-      setEditData({ departmentCode: "", professorId: "", classroom: "" })
+      setEditData({ course: "", professorId: "", classroom: "" })
     } catch (err) {
       setError(err.message)
     } finally {
@@ -221,15 +202,11 @@ export default function BatchTimetablePage() {
         throw new Error("Failed to delete timetable entry")
       }
 
-      setEntries((prev) =>
-        prev.filter(
-          (e) => !(e.day === selectedSlot.day && e.timeSlot === selectedSlot.timeSlot)
-        )
-      )
-      
+      setEntries((prev) => prev.filter((e) => !(e.day === selectedSlot.day && e.timeSlot === selectedSlot.timeSlot)))
+
       setShowDeleteModal(false)
       setSelectedSlot(null)
-      setEditData({ departmentCode: "", professorId: "", classroom: "" })
+      setEditData({ course: "", professorId: "", classroom: "" })
     } catch (err) {
       setError(err.message)
     } finally {
@@ -239,7 +216,7 @@ export default function BatchTimetablePage() {
 
   const closeModal = () => {
     setSelectedSlot(null)
-    setEditData({ departmentCode: "", professorId: "", classroom: "" })
+    setEditData({ course: "", professorId: "", classroom: "" })
     setShowDeleteModal(false)
     setError(null)
   }
@@ -256,12 +233,8 @@ export default function BatchTimetablePage() {
       ) : (
         <>
           <div className={styles.timetableHeader}>
-            <h2>
-              Timetable - {batchInfo ? `${batchInfo.departmentName} (${batchInfo.departmentCode})` : `Batch ${batchId}`}
-            </h2>
-            <p>
-              {batchInfo && `${batchInfo.startYear} - ${batchInfo.endYear} • ${batchInfo.studentCount || 0} students`}
-            </p>
+            <h2>Timetable - {batchInfo ? `${batchInfo.departmentName} (${batchInfo.departmentCode})` : `Batch ${batchId}`}</h2>
+            <p>{batchInfo && `${batchInfo.startYear} - ${batchInfo.endYear} • ${batchInfo.studentCount || 0} students`}</p>
           </div>
 
           <div className={styles.timetableWrapper}>
@@ -283,16 +256,10 @@ export default function BatchTimetablePage() {
                     {days.map((day) => {
                       const entry = getEntry(day, slot)
                       return (
-                        <td
-                          key={day + slot}
-                          className={`${styles.timetableCell} ${
-                            entry ? styles[getColorClass(entry.department.code)] : styles.empty
-                          }`}
-                          onClick={() => handleCellClick(day, slot)}
-                        >
+                        <td key={day + slot} className={`${styles.timetableCell} ${entry ? styles.filled : styles.empty}`} onClick={() => handleCellClick(day, slot)}>
                           {entry ? (
                             <div className={styles.departmentEntry}>
-                              <div className={styles.departmentName}>{entry.department.name}</div>
+                              <div className={styles.departmentName}>{entry.course}</div>
                               <div className={styles.departmentClassroom}>{entry.classroom}</div>
                               <div className={styles.departmentProfessor}>{entry.professor.name}</div>
                             </div>
@@ -337,34 +304,13 @@ export default function BatchTimetablePage() {
         {error && <div className={styles.errorMessage}>{error}</div>}
 
         <div className={styles.formGroup}>
-          <label htmlFor="departmentCode">Department</label>
-          <select
-            id="departmentCode"
-            name="departmentCode"
-            value={editData.departmentCode}
-            onChange={handleFormChange}
-            required
-            className={styles.select}
-          >
-            <option value="">Select Department</option>
-            {departments.map((department) => (
-              <option key={department.code} value={department.code}>
-                {department.name} ({department.code})
-              </option>
-            ))}
-          </select>
+          <label htmlFor="course">Course</label>
+          <input id="course" name="course" type="text" value={editData.course} onChange={handleFormChange} placeholder="Enter course name (e.g., Mathematics, Physics)" required className={styles.input} />
         </div>
 
         <div className={styles.formGroup}>
           <label htmlFor="professorId">Professor</label>
-          <select
-            id="professorId"
-            name="professorId"
-            value={editData.professorId}
-            onChange={handleFormChange}
-            required
-            className={styles.select}
-          >
+          <select id="professorId" name="professorId" value={editData.professorId} onChange={handleFormChange} required className={styles.select}>
             <option value="">Select Professor</option>
             {professors.map((professor) => (
               <option key={professor.id} value={professor.id}>
@@ -376,16 +322,7 @@ export default function BatchTimetablePage() {
 
         <div className={styles.formGroup}>
           <label htmlFor="classroom">Classroom</label>
-          <input
-            id="classroom"
-            name="classroom"
-            type="text"
-            value={editData.classroom}
-            onChange={handleFormChange}
-            placeholder="Enter classroom (e.g., Room 101)"
-            required
-            className={styles.input}
-          />
+          <input id="classroom" name="classroom" type="text" value={editData.classroom} onChange={handleFormChange} placeholder="Enter classroom (e.g., Room 101)" required className={styles.input} />
         </div>
       </Modal>
 
@@ -408,9 +345,7 @@ export default function BatchTimetablePage() {
           },
         }}
       >
-        <p>
-          Are you sure you want to delete this timetable entry? This action cannot be undone.
-        </p>
+        <p>Are you sure you want to delete this timetable entry? This action cannot be undone.</p>
       </Modal>
     </div>
   )

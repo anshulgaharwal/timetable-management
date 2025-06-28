@@ -4,8 +4,8 @@ import { NextResponse } from 'next/server'
 export async function GET() {
   const entries = await prisma.timetableEntry.findMany({
     include: {
-      department: true,
       professor: true,
+      batch: true,
     },
   })
   return NextResponse.json(entries)

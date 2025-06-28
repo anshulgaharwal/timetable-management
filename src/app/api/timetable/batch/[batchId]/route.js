@@ -7,8 +7,8 @@ export async function GET(_, { params }) {
   const entries = await prisma.timetableEntry.findMany({
     where: { batchId: parseInt(batchId) },
     include: {
-      department: true,
       professor: true,
+      batch: true,
     },
   })
 
