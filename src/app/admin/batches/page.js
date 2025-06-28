@@ -1,8 +1,8 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useTransition } from "react"
 import { useRouter } from "next/navigation"
-import { useAdmin } from "../../../contexts/AdminContext"
+import { useLayout } from "../../../contexts/LayoutContext"
 import LoadingSpinner from "../../../components/LoadingSpinner"
 import Modal from "../../../components/Modal"
 import styles from "./batches.module.css"
@@ -17,6 +17,8 @@ export default function AdminBatchesPage() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [degrees, setDegrees] = useState([])
   const [courses, setCourses] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [degreesLoading, setDegreesLoading] = useState(false)
   const [formData, setFormData] = useState({
     degreeId: "",
     courseCode: "",
@@ -24,56 +26,70 @@ export default function AdminBatchesPage() {
     endYear: new Date().getFullYear() + 4,
   })
   const router = useRouter()
-  const { setActionButtons, setIsLoading: setGlobalLoading, isLoading } = useAdmin()
+  const [isPending, startTransition] = useTransition()
+  const { setActionButtons } = useLayout()
 
   useEffect(() => {
-    // Set action buttons in the navbar
+    // Set action buttons immediately
     setActionButtons([
       {
-        label: "Create New Batch",
-        onClick: () => setShowCreateModal(true),
+        label: "Create Batch",
+        icon: "➕",
+        onClick: () => {
+          setShowCreateModal(true)
+          setError(null)
+          if (degrees.length === 0) {
+            fetchDegrees()
+          }
+        },
+        variant: "primary",
       },
       {
         label: viewMode === "grid" ? "List View" : "Grid View",
+        icon: viewMode === "grid" ? "📋" : "⊞",
         onClick: () => setViewMode(viewMode === "grid" ? "list" : "grid"),
+        variant: "secondary",
       },
     ])
 
-    // Fetch batches
-    const fetchBatchesAndDegrees = async () => {
-      try {
-        setGlobalLoading(true)
+    // Fetch batches immediately
+    fetchBatches()
 
-        // Fetch batches
-        const batchesRes = await fetch("/api/admin/batches")
-        if (!batchesRes.ok) {
-          throw new Error("Failed to fetch batches")
-        }
-        const batchesData = await batchesRes.json()
-        setBatches(batchesData.batches || [])
-
-        // Fetch degrees for create modal
-        const degreesRes = await fetch("/api/degree")
-        if (!degreesRes.ok) {
-          throw new Error("Failed to fetch degrees")
-        }
-        const degreesData = await degreesRes.json()
-        setDegrees(degreesData || [])
-      } catch (err) {
-        setError(err.message)
-      } finally {
-        setGlobalLoading(false)
-      }
-    }
-
-    fetchBatchesAndDegrees()
-
-    // Clean up when component unmounts
     return () => {
       setActionButtons([])
-      setGlobalLoading(false)
     }
-  }, [setActionButtons, router, viewMode, setGlobalLoading])
+  }, [viewMode])
+
+  const fetchBatches = async () => {
+    try {
+      const batchesRes = await fetch("/api/admin/batches")
+      if (!batchesRes.ok) {
+        throw new Error("Failed to fetch batches")
+      }
+      const batchesData = await batchesRes.json()
+      setBatches(batchesData.batches || [])
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const fetchDegrees = async () => {
+    try {
+      setDegreesLoading(true)
+      const degreesRes = await fetch("/api/degree")
+      if (!degreesRes.ok) {
+        throw new Error("Failed to fetch degrees")
+      }
+      const degreesData = await degreesRes.json()
+      setDegrees(degreesData || [])
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setDegreesLoading(false)
+    }
+  }
 
   // Update courses when degree changes
   useEffect(() => {
@@ -107,7 +123,6 @@ export default function AdminBatchesPage() {
     if (!batchToDelete) return
 
     try {
-      setGlobalLoading(true)
       const res = await fetch(`/api/admin/batches/${batchToDelete.id}`, {
         method: "DELETE",
       })
@@ -120,21 +135,22 @@ export default function AdminBatchesPage() {
       setBatches(batches.filter((batch) => batch.id !== batchToDelete.id))
       setShowDeleteModal(false)
       setBatchToDelete(null)
+      setError(null)
     } catch (err) {
       setError(err.message)
-    } finally {
-      setGlobalLoading(false)
     }
   }
 
   const openDeleteModal = (batch) => {
     setBatchToDelete(batch)
     setShowDeleteModal(true)
+    setError(null)
   }
 
   const navigateToBatch = (batchId) => {
-    setGlobalLoading(true)
-    router.push(`/admin/batches/${batchId}`)
+    startTransition(() => {
+      router.push(`/admin/batches/${batchId}`)
+    })
   }
 
   const handleFormChange = (e) => {
@@ -172,9 +188,13 @@ export default function AdminBatchesPage() {
   }
 
   const handleCreateBatch = async () => {
+    if (!formData.degreeId || !formData.courseCode) {
+      setError("Please select both degree and course")
+      return
+    }
+
     setIsSubmitting(true)
     setError(null)
-    setGlobalLoading(true)
 
     try {
       const res = await fetch("/api/admin/batches", {
@@ -213,29 +233,22 @@ export default function AdminBatchesPage() {
       setError(err.message)
     } finally {
       setIsSubmitting(false)
-      setGlobalLoading(false)
     }
   }
 
   const currentYear = new Date().getFullYear()
   const yearOptions = Array.from({ length: 10 }, (_, i) => currentYear - 5 + i)
 
-  if (isLoading) {
-    return (
-      <div className={styles.loadingContainer}>
-        <LoadingSpinner size="large" />
-        <p>Loading batches...</p>
-      </div>
-    )
-  }
-
-  if (error) {
-    return <div className={styles.errorContainer}>Error: {error}</div>
-  }
-
   return (
     <div className={styles.batchesContainer}>
-      {Object.keys(batchesByDegree).length === 0 ? (
+      {error && <div className={styles.errorMessage}>{error}</div>}
+
+      {loading ? (
+        <div className={styles.loadingContainer}>
+          <LoadingSpinner size="large" />
+          <p>Loading batches...</p>
+        </div>
+      ) : Object.keys(batchesByDegree).length === 0 ? (
         <div className={styles.emptyState}>
           <h3>No batches found</h3>
           <p>Create your first batch to get started</p>
@@ -390,58 +403,68 @@ export default function AdminBatchesPage() {
           confirm: {
             text: isSubmitting ? "Creating..." : "Create Batch",
             onClick: handleCreateBatch,
+            disabled: isSubmitting || degreesLoading || !formData.degreeId || !formData.courseCode,
           },
         }}
       >
         {error && <div className={styles.errorMessage}>{error}</div>}
 
-        <div className={styles.formGroup}>
-          <label htmlFor="degreeId">Degree Program</label>
-          <select id="degreeId" name="degreeId" value={formData.degreeId} onChange={handleFormChange} required className={styles.select}>
-            <option value="">Select Degree</option>
-            {degrees.map((degree) => (
-              <option key={degree.code} value={degree.code}>
-                {degree.name} ({degree.code})
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div className={styles.formGroup}>
-          <label htmlFor="courseCode">Course</label>
-          <select id="courseCode" name="courseCode" value={formData.courseCode} onChange={handleFormChange} required disabled={!formData.degreeId || courses.length === 0} className={styles.select}>
-            <option value="">Select Course</option>
-            {courses.map((course) => (
-              <option key={course.code} value={course.code}>
-                {course.name} ({course.code})
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div className={styles.formRow}>
-          <div className={styles.formGroup}>
-            <label htmlFor="startYear">Start Year</label>
-            <select id="startYear" name="startYear" value={formData.startYear} onChange={handleFormChange} required className={styles.select}>
-              {yearOptions.map((year) => (
-                <option key={year} value={year}>
-                  {year}
-                </option>
-              ))}
-            </select>
+        {degreesLoading ? (
+          <div className={styles.loadingContainer}>
+            <LoadingSpinner size="medium" />
+            <p>Loading degree programs...</p>
           </div>
+        ) : (
+          <>
+            <div className={styles.formGroup}>
+              <label htmlFor="degreeId">Degree Program</label>
+              <select id="degreeId" name="degreeId" value={formData.degreeId} onChange={handleFormChange} required className={styles.select}>
+                <option value="">Select Degree</option>
+                {degrees.map((degree) => (
+                  <option key={degree.code} value={degree.code}>
+                    {degree.name} ({degree.code})
+                  </option>
+                ))}
+              </select>
+            </div>
 
-          <div className={styles.formGroup}>
-            <label htmlFor="endYear">End Year</label>
-            <select id="endYear" name="endYear" value={formData.endYear} onChange={handleFormChange} required className={styles.select}>
-              {yearOptions.map((year) => (
-                <option key={year} value={year} disabled={year < formData.startYear}>
-                  {year}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
+            <div className={styles.formGroup}>
+              <label htmlFor="courseCode">Course</label>
+              <select id="courseCode" name="courseCode" value={formData.courseCode} onChange={handleFormChange} required disabled={!formData.degreeId || courses.length === 0} className={styles.select}>
+                <option value="">{!formData.degreeId ? "Select degree first" : courses.length === 0 ? "No courses available" : "Select Course"}</option>
+                {courses.map((course) => (
+                  <option key={course.code} value={course.code}>
+                    {course.name} ({course.code})
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className={styles.formRow}>
+              <div className={styles.formGroup}>
+                <label htmlFor="startYear">Start Year</label>
+                <select id="startYear" name="startYear" value={formData.startYear} onChange={handleFormChange} required className={styles.select}>
+                  {yearOptions.map((year) => (
+                    <option key={year} value={year}>
+                      {year}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className={styles.formGroup}>
+                <label htmlFor="endYear">End Year</label>
+                <select id="endYear" name="endYear" value={formData.endYear} onChange={handleFormChange} required className={styles.select}>
+                  {yearOptions.map((year) => (
+                    <option key={year} value={year} disabled={year < formData.startYear}>
+                      {year}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+          </>
+        )}
       </Modal>
     </div>
   )

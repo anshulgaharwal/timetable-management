@@ -1,8 +1,8 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useTransition } from "react"
 import { useRouter } from "next/navigation"
-import { useAdmin } from "../../../../contexts/AdminContext"
+import { useLayout } from "../../../../contexts/LayoutContext"
 import LoadingSpinner from "../../../../components/LoadingSpinner"
 import Modal from "../../../../components/Modal"
 import styles from "./batchDetail.module.css"
@@ -10,10 +10,12 @@ import styles from "./batchDetail.module.css"
 export default function BatchDetailPage({ params }) {
   const { id } = params
   const router = useRouter()
-  const { setActionButtons, setIsLoading: setGlobalLoading, isLoading } = useAdmin()
+  const [isPending, startTransition] = useTransition()
+  const { setActionButtons } = useLayout()
 
   const [batch, setBatch] = useState(null)
   const [error, setError] = useState(null)
+  const [loading, setLoading] = useState(true)
 
   // New student form state
   const [showAddModal, setShowAddModal] = useState(false)
@@ -42,76 +44,93 @@ export default function BatchDetailPage({ params }) {
   const [dataLoaded, setDataLoaded] = useState(false)
 
   useEffect(() => {
-    // Set action buttons in the navbar
+    // Set action buttons immediately
     setActionButtons([
       {
         label: "Add Student",
+        icon: "👨‍🎓",
         onClick: () => setShowAddModal(true),
+        variant: "primary"
       },
       {
         label: "Edit Batch",
+        icon: "✏️",
         onClick: () => setShowEditModal(true),
+        variant: "secondary"
       },
       {
         label: "Back to Batches",
+        icon: "←",
         onClick: () => {
-          setGlobalLoading(true)
-          router.push("/admin/batches")
+          startTransition(() => {
+            router.push("/admin/batches")
+          })
         },
+        variant: "secondary"
       },
     ])
 
-    // Fetch batch data
-    const fetchBatchData = async () => {
-      try {
-        setGlobalLoading(true)
-
-        // Fetch batch details with students
-        const batchRes = await fetch(`/api/admin/batches/${id}`)
-
-        if (!batchRes.ok) {
-          throw new Error("Failed to fetch batch details")
-        }
-
-        const batchData = await batchRes.json()
-        setBatch(batchData.batch)
-
-        // Set initial edit form data
-        setEditFormData({
-          courseCode: batchData.batch.courseCode,
-          startYear: batchData.batch.startYear,
-          endYear: batchData.batch.endYear,
-        })
-
-        // Set selected degree
-        if (batchData.batch.course?.degree) {
-          setSelectedDegreeId(batchData.batch.course.degree.code)
-        }
-
-        // Fetch all degrees for edit modal
-        const degreesRes = await fetch("/api/degree")
-        if (!degreesRes.ok) {
-          throw new Error("Failed to fetch degrees")
-        }
-        const degreesData = await degreesRes.json()
-        setDegrees(degreesData)
-
-        setDataLoaded(true)
-      } catch (err) {
-        setError(err.message)
-      } finally {
-        setGlobalLoading(false)
-      }
-    }
-
+    // Fetch batch data immediately
     fetchBatchData()
 
-    // Clean up when component unmounts
     return () => {
       setActionButtons([])
-      setGlobalLoading(false)
     }
-  }, [id, setActionButtons, router, setGlobalLoading])
+  }, [id, router, setActionButtons])
+
+  const fetchBatchData = async () => {
+    try {
+      // Fetch batch details with students
+      const batchRes = await fetch(`/api/admin/batches/${id}`)
+
+      if (!batchRes.ok) {
+        throw new Error("Failed to fetch batch details")
+      }
+
+      const batchData = await batchRes.json()
+      setBatch(batchData.batch)
+
+      // Set initial edit form data
+      setEditFormData({
+        courseCode: batchData.batch.courseCode,
+        startYear: batchData.batch.startYear,
+        endYear: batchData.batch.endYear,
+      })
+
+      // Set selected degree
+      if (batchData.batch.course?.degree) {
+        setSelectedDegreeId(batchData.batch.course.degree.code)
+      }
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const fetchDegreesForEdit = async () => {
+    try {
+      // Fetch all degrees for edit modal
+      const degreesRes = await fetch("/api/degree")
+      if (!degreesRes.ok) {
+        throw new Error("Failed to fetch degrees")
+      }
+      const degreesData = await degreesRes.json()
+      setDegrees(degreesData || [])
+
+      // Find and set courses for the current degree
+      if (selectedDegreeId) {
+        const selectedDegree = degreesData.find((d) => d.code === selectedDegreeId)
+        if (selectedDegree && selectedDegree.courses) {
+          setCourses(selectedDegree.courses)
+        }
+      }
+
+      setDataLoaded(true)
+    } catch (err) {
+      setError(err.message)
+    }
+  }
 
   // Update courses when selected degree changes
   useEffect(() => {
@@ -134,9 +153,14 @@ export default function BatchDetailPage({ params }) {
 
   const handleAddStudent = async (e) => {
     if (e) e.preventDefault()
+    
+    if (!newStudent.name || !newStudent.rollNo || !newStudent.email || !newStudent.password) {
+      setAddStudentError("All fields are required")
+      return
+    }
+
     setIsAddingStudent(true)
     setAddStudentError(null)
-    setGlobalLoading(true)
 
     try {
       const res = await fetch("/api/admin/batches/students", {
@@ -169,7 +193,6 @@ export default function BatchDetailPage({ params }) {
       setAddStudentError(err.message)
     } finally {
       setIsAddingStudent(false)
-      setGlobalLoading(false)
     }
   }
 
@@ -212,9 +235,13 @@ export default function BatchDetailPage({ params }) {
   }
 
   const handleEditBatch = async () => {
+    if (!editFormData.courseCode) {
+      setError("Course code is required")
+      return
+    }
+
     setIsSubmitting(true)
     setError(null)
-    setGlobalLoading(true)
 
     try {
       const res = await fetch(`/api/admin/batches/${id}`, {
@@ -244,7 +271,6 @@ export default function BatchDetailPage({ params }) {
       setError(err.message)
     } finally {
       setIsSubmitting(false)
-      setGlobalLoading(false)
     }
   }
 
@@ -256,25 +282,25 @@ export default function BatchDetailPage({ params }) {
   const currentYear = new Date().getFullYear()
   const yearOptions = Array.from({ length: 10 }, (_, i) => currentYear - 5 + i)
 
-  if (isLoading || !dataLoaded) {
-    return (
-      <div className={styles.loadingContainer}>
-        <LoadingSpinner size="large" />
-        <p>Loading batch details...</p>
-      </div>
-    )
-  }
-
-  if (error) {
-    return <div className={styles.errorContainer}>Error: {error}</div>
-  }
-
   return (
     <div className={styles.batchDetailContainer}>
-      <div className={styles.batchHeader}>
-        <div className={styles.batchInfo}>
-          <h2>{batch?.course?.degree?.name || "Unknown Degree"}</h2>
-          <h3>{batch?.course?.name || "Unknown Course"}</h3>
+      {error && (
+        <div className={styles.errorMessage}>
+          {error}
+        </div>
+      )}
+
+      {loading ? (
+        <div className={styles.loadingContainer}>
+          <LoadingSpinner size="large" />
+          <p>Loading batch details...</p>
+        </div>
+      ) : batch ? (
+        <>
+          <div className={styles.batchHeader}>
+            <div className={styles.batchInfo}>
+              <h2>{batch?.course?.degree?.name || "Unknown Degree"}</h2>
+              <h3>{batch?.course?.name || "Unknown Course"}</h3>
           <div className={styles.batchMeta}>
             <span className={styles.batchYears}>
               {batch?.startYear} - {batch?.endYear}
@@ -491,6 +517,13 @@ export default function BatchDetailPage({ params }) {
           </div>
         </div>
       </Modal>
+        </>
+      ) : (
+        <div className={styles.emptyState}>
+          <h3>Batch not found</h3>
+          <p>The requested batch could not be loaded</p>
+        </div>
+      )}
     </div>
   )
 }

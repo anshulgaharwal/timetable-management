@@ -1,13 +1,13 @@
 "use client"
 
 import LoadingSpinner from "../../../components/LoadingSpinner"
-import styles from "./polls.module.css"
+import styles from "../student.module.css"
 
 export default function Loading() {
   return (
     <div className={styles.loadingContainer}>
       <LoadingSpinner size="large" />
-      <p>Loading polls...</p>
+      <p>Loading timetable...</p>
     </div>
   )
 }

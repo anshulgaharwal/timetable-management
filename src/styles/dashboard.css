@@ -266,7 +266,8 @@
 }
 
 /* Sidebar links */
-.sidebar-tabs a {
+.sidebar-tabs a,
+.sidebar-tabs button {
   display: flex;
   align-items: center;
   text-decoration: none;
@@ -279,6 +280,11 @@
   font-size: 0.95em;
   position: relative;
   z-index: 1;
+  background: none;
+  border: none;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
 }
 
 .tab-icon {
@@ -294,21 +300,34 @@
   justify-content: center;
 }
 
-.sidebar-tabs a:hover {
+.sidebar-tabs a:hover,
+.sidebar-tabs button:hover {
   background: rgba(72, 118, 178, 0.15);
   color: var(--accent-primary);
   transform: translateX(2px);
 }
 
-.sidebar-tabs a.active {
+.sidebar-tabs a.active,
+.sidebar-tabs button.active {
   background: var(--accent-primary);
   color: white;
   font-weight: 600;
   box-shadow: 0 4px 12px rgba(72, 118, 178, 0.25);
 }
 
-.sidebar-tabs a.active:hover {
+.sidebar-tabs a.active:hover,
+.sidebar-tabs button.active:hover {
   transform: translateX(0);
+}
+
+.sidebar-tabs button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Hide sidebar on mobile when not open */
+.sidebar-hidden {
+  transform: translateX(-100%);
 }
 
 /* Mobile sidebar overlay */

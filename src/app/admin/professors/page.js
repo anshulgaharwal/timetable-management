@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { useAdmin } from "../../../contexts/AdminContext"
+import { useLayout } from "../../../contexts/LayoutContext"
 import styles from "./professors.module.css"
 import ProfessorTable from "./components/ProfessorTable"
 import ProfessorForm from "./components/ProfessorForm"
@@ -15,7 +15,8 @@ export default function ProfessorsPage() {
   const [showEditForm, setShowEditForm] = useState(false)
   const [currentProfessor, setCurrentProfessor] = useState(null)
   const [formData, setFormData] = useState({ name: "", email: "", password: "" })
-  const { setActionButtons } = useAdmin()
+  const [submitLoading, setSubmitLoading] = useState(false)
+  const { setActionButtons } = useLayout()
 
   // Fetch professors data
   useEffect(() => {
@@ -39,11 +40,14 @@ export default function ProfessorsPage() {
   useEffect(() => {
     setActionButtons([
       {
-        label: "Add New Professor",
+        label: "Add Professor",
+        icon: "➕",
         onClick: () => {
           setShowAddForm(true)
           setFormData({ name: "", email: "", password: "" })
+          setError("")
         },
+        variant: "primary",
       },
     ])
 
@@ -53,8 +57,13 @@ export default function ProfessorsPage() {
   // Handle professor operations
   const handleAddProfessor = async (e) => {
     if (e) e.preventDefault()
+    if (!formData.name || !formData.email || !formData.password) {
+      setError("All fields are required")
+      return
+    }
+
     try {
-      setLoading(true)
+      setSubmitLoading(true)
       const res = await fetch("/api/professors", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -75,17 +84,23 @@ export default function ProfessorsPage() {
       setProfessors([...professors, data.professor])
       setShowAddForm(false)
       setFormData({ name: "", email: "", password: "" })
+      setError("")
     } catch (err) {
       setError(err.message)
     } finally {
-      setLoading(false)
+      setSubmitLoading(false)
     }
   }
 
   const handleEditProfessor = async (e) => {
     if (e) e.preventDefault()
+    if (!formData.name || !formData.email) {
+      setError("Name and email are required")
+      return
+    }
+
     try {
-      setLoading(true)
+      setSubmitLoading(true)
       const res = await fetch(`/api/professors/${currentProfessor.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
@@ -106,27 +121,26 @@ export default function ProfessorsPage() {
       setShowEditForm(false)
       setCurrentProfessor(null)
       setFormData({ name: "", email: "", password: "" })
+      setError("")
     } catch (err) {
       setError(err.message)
     } finally {
-      setLoading(false)
+      setSubmitLoading(false)
     }
   }
 
   const handleDeleteProfessor = async (id) => {
     if (!confirm("Are you sure you want to delete this professor?")) return
     try {
-      setLoading(true)
       const res = await fetch(`/api/professors/${id}`, {
         method: "DELETE",
       })
 
       if (!res.ok) throw new Error("Failed to delete professor")
       setProfessors(professors.filter((p) => p.id !== id))
+      setError("")
     } catch (err) {
       setError(err.message)
-    } finally {
-      setLoading(false)
     }
   }
 
@@ -138,6 +152,7 @@ export default function ProfessorsPage() {
       password: "", // Don't populate password for security
     })
     setShowEditForm(true)
+    setError("")
   }
 
   return (
@@ -148,16 +163,23 @@ export default function ProfessorsPage() {
 
       <Modal
         isOpen={showAddForm}
-        onClose={() => setShowAddForm(false)}
+        onClose={() => {
+          setShowAddForm(false)
+          setError("")
+        }}
         title="Add New Professor"
         footerButtons={{
           cancel: {
             text: "Cancel",
-            onClick: () => setShowAddForm(false),
+            onClick: () => {
+              setShowAddForm(false)
+              setError("")
+            },
           },
           confirm: {
-            text: "Add Professor",
+            text: submitLoading ? "Adding..." : "Add Professor",
             onClick: handleAddProfessor,
+            disabled: submitLoading,
           },
         }}
       >
@@ -169,6 +191,7 @@ export default function ProfessorsPage() {
         onClose={() => {
           setShowEditForm(false)
           setCurrentProfessor(null)
+          setError("")
         }}
         title="Edit Professor"
         footerButtons={{
@@ -177,11 +200,13 @@ export default function ProfessorsPage() {
             onClick: () => {
               setShowEditForm(false)
               setCurrentProfessor(null)
+              setError("")
             },
           },
           confirm: {
-            text: "Update Professor",
+            text: submitLoading ? "Updating..." : "Update Professor",
             onClick: handleEditProfessor,
+            disabled: submitLoading,
           },
         }}
       >

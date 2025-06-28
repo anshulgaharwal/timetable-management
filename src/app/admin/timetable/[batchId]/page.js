@@ -1,184 +1,417 @@
-'use client'
-import html2pdf from 'html2pdf.js'
-import { useEffect, useState } from 'react'
-import { useParams } from 'next/navigation'
-import './style.css' // 👈 Import external stylesheet
+"use client"
+
+import { useState, useEffect, useTransition } from "react"
+import { useParams, useRouter } from "next/navigation"
+import { useLayout } from "../../../../contexts/LayoutContext"
+import LoadingSpinner from "../../../../components/LoadingSpinner"
+import Modal from "../../../../components/Modal"
+import html2pdf from "html2pdf.js"
+import styles from "../timetable.module.css"
 
 export default function BatchTimetablePage() {
   const { batchId } = useParams()
+  const router = useRouter()
+  const [isPending, startTransition] = useTransition()
+  const { setActionButtons } = useLayout()
+
   const [entries, setEntries] = useState([])
   const [courses, setCourses] = useState([])
   const [professors, setProfessors] = useState([])
+  const [batchInfo, setBatchInfo] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
   const [selectedSlot, setSelectedSlot] = useState(null)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false)
+  const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [editData, setEditData] = useState({
-    courseCode: '',
-    professorId: '',
-    classroom: '',
+    courseCode: "",
+    professorId: "",
+    classroom: "",
   })
 
+  const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]
+  const slots = [
+    "09:00-10:00",
+    "10:00-11:00", 
+    "11:00-12:00",
+    "12:00-13:00",
+    "14:00-15:00",
+    "15:00-16:00",
+    "16:00-17:00",
+  ]
+
   useEffect(() => {
-    fetch(`/api/timetable/batch/${batchId}`).then(res => res.json()).then(setEntries)
-    fetch('/api/form-data').then(res => res.json()).then(data => {
-      setCourses(data.courses)
-      setProfessors(data.professors)
-    })
+    // Set action buttons immediately
+    setActionButtons([
+      {
+        label: "Back to Timetables",
+        icon: "←",
+        onClick: () => {
+          startTransition(() => {
+            router.push("/admin/timetable")
+          })
+        },
+        variant: "secondary",
+      },
+      {
+        label: "Export PDF",
+        icon: "📄",
+        onClick: handleExportPDF,
+        variant: "primary",
+      },
+      {
+        label: "Refresh",
+        icon: "🔄",
+        onClick: fetchTimetableData,
+        variant: "secondary",
+      },
+    ])
+
+    // Fetch data immediately
+    fetchTimetableData()
+    fetchFormData()
+
+    return () => {
+      setActionButtons([])
+    }
   }, [batchId])
 
+  const fetchTimetableData = async () => {
+    try {
+      setLoading(true)
+      setError(null)
+      
+      // Fetch timetable entries
+      const entriesRes = await fetch(`/api/timetable/batch/${batchId}`)
+      if (!entriesRes.ok) {
+        throw new Error("Failed to fetch timetable data")
+      }
+      const entriesData = await entriesRes.json()
+      setEntries(entriesData || [])
+
+      // Fetch batch info
+      const batchRes = await fetch(`/api/admin/batches/${batchId}`)
+      if (batchRes.ok) {
+        const batchData = await batchRes.json()
+        setBatchInfo(batchData.batch)
+      }
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const fetchFormData = async () => {
+    try {
+      const res = await fetch("/api/form-data")
+      if (!res.ok) {
+        throw new Error("Failed to fetch form data")
+      }
+      const data = await res.json()
+      setCourses(data.courses || [])
+      setProfessors(data.professors || [])
+    } catch (err) {
+      console.error("Error fetching form data:", err)
+    }
+  }
+
   const getEntry = (day, slot) =>
-    entries.find(e => e.day === day && e.timeSlot === slot)
+    entries.find((e) => e.day === day && e.timeSlot === slot)
+
+  const getColorClass = (courseCode) => {
+    const hash = Array.from(courseCode).reduce((acc, c) => acc + c.charCodeAt(0), 0)
+    const colorIndex = (hash % 6) + 1
+    return `courseColor${colorIndex}`
+  }
 
   const handleCellClick = (day, timeSlot) => {
     const existing = getEntry(day, timeSlot)
     setEditData({
-      courseCode: existing?.courseCode || '',
-      professorId: existing?.professorId || '',
-      classroom: existing?.classroom || '',
+      courseCode: existing?.courseCode || "",
+      professorId: existing?.professorId || "",
+      classroom: existing?.classroom || "",
     })
     setSelectedSlot({ day, timeSlot })
+    setError(null)
   }
 
   const handleExportPDF = () => {
-    const element = document.getElementById('timetable-grid')
-    html2pdf().set({
+    const element = document.getElementById("timetable-grid")
+    if (!element) return
+
+    const opt = {
       filename: `Batch-${batchId}-Timetable.pdf`,
       margin: [0.5, 0.5],
-      image: { type: 'jpeg', quality: 0.98 },
+      image: { type: "jpeg", quality: 0.98 },
       html2canvas: { scale: 2 },
-      jsPDF: { unit: 'in', format: 'letter', orientation: 'landscape' },
-    }).from(element).save()
-  }
-
-  const handleDelete = async () => {
-    const res = await fetch('/api/timetable/delete', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        day: selectedSlot.day,
-        timeSlot: selectedSlot.timeSlot,
-        batchId,
-      }),
-    })
-
-    if (res.ok) {
-      setEntries(prev => prev.filter(e => !(e.day === selectedSlot.day && e.timeSlot === selectedSlot.timeSlot)))
-      setSelectedSlot(null)
+      jsPDF: { unit: "in", format: "letter", orientation: "landscape" },
     }
+
+    html2pdf().set(opt).from(element).save()
   }
 
-  const handleEditChange = (e) => {
-    setEditData(prev => ({ ...prev, [e.target.name]: e.target.value }))
+  const handleFormChange = (e) => {
+    const { name, value } = e.target
+    setEditData((prev) => ({ ...prev, [name]: value }))
   }
 
   const handleSave = async () => {
-    const res = await fetch('/api/timetable/upsert', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        ...selectedSlot,
-        ...editData,
-        batchId,
-      }),
-    })
+    if (!editData.courseCode || !editData.professorId || !editData.classroom.trim()) {
+      setError("Please fill in all fields")
+      return
+    }
 
-    const newEntry = await res.json()
+    setIsSubmitting(true)
+    setError(null)
 
-    setEntries(prev => {
-      const others = prev.filter(e => !(e.day === newEntry.day && e.timeSlot === newEntry.timeSlot))
-      return [...others, newEntry]
-    })
+    try {
+      const res = await fetch("/api/timetable/upsert", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...selectedSlot,
+          ...editData,
+          batchId: parseInt(batchId),
+        }),
+      })
 
-    setSelectedSlot(null)
+      if (!res.ok) {
+        const errorData = await res.json()
+        throw new Error(errorData.error || "Failed to save timetable entry")
+      }
+
+      const newEntry = await res.json()
+
+      setEntries((prev) => {
+        const others = prev.filter(
+          (e) => !(e.day === newEntry.day && e.timeSlot === newEntry.timeSlot)
+        )
+        return [...others, newEntry]
+      })
+
+      setSelectedSlot(null)
+      setEditData({ courseCode: "", professorId: "", classroom: "" })
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
-  const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']
-  const slots = [
-    '09:00-10:00',
-    '10:00-11:00',
-    '11:00-12:00',
-    '12:00-13:00',
-    '14:00-15:00',
-    '15:00-16:00',
-    '16:00-17:00',
-  ]
+  const handleDelete = async () => {
+    if (!selectedSlot) return
 
-  const getColorClass = (courseCode) => {
-    const hash = Array.from(courseCode).reduce((acc, c) => acc + c.charCodeAt(0), 0)
-    const colorIndex = (hash % 6) + 1 // Adjust total number of color classes here
-    return `course-color-${colorIndex}`
+    setIsDeleting(true)
+    setError(null)
+
+    try {
+      const res = await fetch("/api/timetable/delete", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          day: selectedSlot.day,
+          timeSlot: selectedSlot.timeSlot,
+          batchId: parseInt(batchId),
+        }),
+      })
+
+      if (!res.ok) {
+        throw new Error("Failed to delete timetable entry")
+      }
+
+      setEntries((prev) =>
+        prev.filter(
+          (e) => !(e.day === selectedSlot.day && e.timeSlot === selectedSlot.timeSlot)
+        )
+      )
+      
+      setShowDeleteModal(false)
+      setSelectedSlot(null)
+      setEditData({ courseCode: "", professorId: "", classroom: "" })
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setIsDeleting(false)
+    }
+  }
+
+  const closeModal = () => {
+    setSelectedSlot(null)
+    setEditData({ courseCode: "", professorId: "", classroom: "" })
+    setShowDeleteModal(false)
+    setError(null)
   }
 
   return (
-    <div className="container">
-      <h2>Timetable - Batch {batchId}</h2>
+    <div className={styles.timetableDetailContainer}>
+      {error && <div className={styles.errorMessage}>{error}</div>}
 
-      <table id="timetable-grid" className="timetable">
-        <thead>
-          <tr>
-            <th>Time</th>
-            {days.map(day => <th key={day}>{day}</th>)}
-          </tr>
-        </thead>
-        <tbody>
-          {slots.map(slot => (
-            <tr key={slot}>
-              <td><strong>{slot}</strong></td>
-              {days.map(day => {
-                const entry = getEntry(day, slot)
-                const colorClass = entry ? getColorClass(entry.course.code) : ''
-                return (
-                  <td
-                    key={day + slot}
-                    className={`cell ${colorClass}`}
-                    onClick={() => handleCellClick(day, slot)}
-                  >
-                    {entry ? (
-                      <>
-                        <div><b>{entry.course.name}</b></div>
-                        <div>{entry.classroom}</div>
-                        <div className="prof">{entry.professor.name}</div>
-                      </>
-                    ) : '-'}
-                  </td>
-                )
-              })}
-            </tr>
-          ))}
-        </tbody>
-      </table>
-
-      <button className="export-btn" onClick={handleExportPDF}>📄 Export to PDF</button>
-
-      {selectedSlot && (
-        <div className="modal-overlay" onClick={() => setSelectedSlot(null)}>
-          <div className="modal" onClick={e => e.stopPropagation()}>
-            <h3>Edit Slot: {selectedSlot.day}, {selectedSlot.timeSlot}</h3>
-
-            <label>Course:
-              <select name="courseCode" value={editData.courseCode} onChange={handleEditChange}>
-                <option value="">-- Select --</option>
-                {courses.map(c => <option key={c.code} value={c.code}>{c.name}</option>)}
-              </select>
-            </label>
-
-            <label>Professor:
-              <select name="professorId" value={editData.professorId} onChange={handleEditChange}>
-                <option value="">-- Select --</option>
-                {professors.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
-              </select>
-            </label>
-
-            <label>Classroom:
-              <input name="classroom" value={editData.classroom} onChange={handleEditChange} />
-            </label>
-
-            <div className="modal-buttons">
-              <button onClick={handleSave}>💾 Save</button>
-              <button onClick={() => setSelectedSlot(null)}>Cancel</button>
-            </div>
-            <button className="delete-btn" onClick={handleDelete}>🗑 Delete</button>
-          </div>
+      {loading ? (
+        <div className={styles.loadingContainer}>
+          <LoadingSpinner size="large" />
+          <p>Loading timetable...</p>
         </div>
+      ) : (
+        <>
+          <div className={styles.timetableHeader}>
+            <h2>
+              Timetable - {batchInfo ? `${batchInfo.courseName} (${batchInfo.courseCode})` : `Batch ${batchId}`}
+            </h2>
+            <p>
+              {batchInfo && `${batchInfo.startYear} - ${batchInfo.endYear} • ${batchInfo.studentCount || 0} students`}
+            </p>
+          </div>
+
+          <div className={styles.timetableWrapper}>
+            <table id="timetable-grid" className={styles.timetableGrid}>
+              <thead>
+                <tr>
+                  <th>Time</th>
+                  {days.map((day) => (
+                    <th key={day}>{day}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {slots.map((slot) => (
+                  <tr key={slot}>
+                    <td>
+                      <strong>{slot}</strong>
+                    </td>
+                    {days.map((day) => {
+                      const entry = getEntry(day, slot)
+                      return (
+                        <td
+                          key={day + slot}
+                          className={`${styles.timetableCell} ${
+                            entry ? styles[getColorClass(entry.course.code)] : styles.empty
+                          }`}
+                          onClick={() => handleCellClick(day, slot)}
+                        >
+                          {entry ? (
+                            <div className={styles.courseEntry}>
+                              <div className={styles.courseName}>{entry.course.name}</div>
+                              <div className={styles.courseClassroom}>{entry.classroom}</div>
+                              <div className={styles.courseProfessor}>{entry.professor.name}</div>
+                            </div>
+                          ) : (
+                            "Click to add"
+                          )}
+                        </td>
+                      )
+                    })}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </>
       )}
+
+      {/* Edit Slot Modal */}
+      <Modal
+        isOpen={selectedSlot && !showDeleteModal}
+        onClose={closeModal}
+        title={`Edit Slot: ${selectedSlot?.day}, ${selectedSlot?.timeSlot}`}
+        size="medium"
+        footerButtons={{
+          cancel: {
+            text: "Cancel",
+            onClick: closeModal,
+          },
+          confirm: {
+            text: isSubmitting ? "Saving..." : "Save",
+            onClick: handleSave,
+            disabled: isSubmitting,
+          },
+          delete: {
+            text: "Delete Entry",
+            onClick: () => setShowDeleteModal(true),
+            variant: "danger",
+            show: getEntry(selectedSlot?.day, selectedSlot?.timeSlot),
+          },
+        }}
+      >
+        {error && <div className={styles.errorMessage}>{error}</div>}
+
+        <div className={styles.formGroup}>
+          <label htmlFor="courseCode">Course</label>
+          <select
+            id="courseCode"
+            name="courseCode"
+            value={editData.courseCode}
+            onChange={handleFormChange}
+            required
+            className={styles.select}
+          >
+            <option value="">Select Course</option>
+            {courses.map((course) => (
+              <option key={course.code} value={course.code}>
+                {course.name} ({course.code})
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className={styles.formGroup}>
+          <label htmlFor="professorId">Professor</label>
+          <select
+            id="professorId"
+            name="professorId"
+            value={editData.professorId}
+            onChange={handleFormChange}
+            required
+            className={styles.select}
+          >
+            <option value="">Select Professor</option>
+            {professors.map((professor) => (
+              <option key={professor.id} value={professor.id}>
+                {professor.name}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className={styles.formGroup}>
+          <label htmlFor="classroom">Classroom</label>
+          <input
+            id="classroom"
+            name="classroom"
+            type="text"
+            value={editData.classroom}
+            onChange={handleFormChange}
+            placeholder="Enter classroom (e.g., Room 101)"
+            required
+            className={styles.input}
+          />
+        </div>
+      </Modal>
+
+      {/* Delete Confirmation Modal */}
+      <Modal
+        isOpen={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        title="Confirm Deletion"
+        size="small"
+        footerButtons={{
+          cancel: {
+            text: "Cancel",
+            onClick: () => setShowDeleteModal(false),
+          },
+          confirm: {
+            text: isDeleting ? "Deleting..." : "Delete Entry",
+            onClick: handleDelete,
+            disabled: isDeleting,
+            variant: "danger",
+          },
+        }}
+      >
+        <p>
+          Are you sure you want to delete this timetable entry? This action cannot be undone.
+        </p>
+      </Modal>
     </div>
   )
 }

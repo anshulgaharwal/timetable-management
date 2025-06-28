@@ -1,15 +1,16 @@
 "use client"
+
 import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import { useEffect, useState, useTransition } from "react"
-import { useAdmin } from "../../contexts/AdminContext"
+import { useLayout } from "../../contexts/LayoutContext"
 import styles from "./admin.module.css"
 import LoadingSpinner from "../../components/LoadingSpinner"
 
 export default function AdminPage() {
   const { data: session } = useSession()
   const router = useRouter()
-  const { setActionButtons, setIsLoading } = useAdmin()
+  const { setActionButtons } = useLayout()
   const [stats, setStats] = useState({
     batches: 0,
     students: 0,
@@ -17,44 +18,40 @@ export default function AdminPage() {
   })
   const [statsLoading, setStatsLoading] = useState(true)
   const [isPending, startTransition] = useTransition()
-  const [loadingSection, setLoadingSection] = useState(null)
 
   useEffect(() => {
-    // Clear any global loading state when component mounts
-    setIsLoading(false)
-
+    // Set action buttons immediately
     setActionButtons([
       {
         label: "Create Poll",
-        onClick: () => router.push("/create"),
+        icon: "📊",
+        onClick: () => handleNavigation("/admin/polls/create"),
+        variant: "primary",
       },
       {
         label: "Create Batch",
-        onClick: () => router.push("/admin/batches/create"),
+        icon: "👥",
+        onClick: () => handleNavigation("/admin/batches/create"),
+        variant: "secondary",
       },
     ])
 
-    // Fetch some basic stats
+    // Fetch stats asynchronously without blocking UI
     const fetchStats = async () => {
       try {
-        setStatsLoading(true)
-        const batchesRes = await fetch("/api/batches")
+        const batchesRes = await fetch("/api/admin/batches")
 
         if (batchesRes.ok) {
           const batchesData = await batchesRes.json()
           const batches = batchesData.batches || []
-
-          // Calculate total students across all batches
           const totalStudents = batches.reduce((sum, batch) => sum + (batch.studentCount || 0), 0)
 
-          setStats((prev) => ({
-            ...prev,
+          setStats({
             batches: batches.length,
             students: totalStudents,
-          }))
+            polls: 0, // Add polls count when API is available
+          })
         }
-
-        // You could add more stats here like polls count, etc.
       } catch (error) {
         console.error("Error fetching stats:", error)
       } finally {
@@ -64,29 +61,16 @@ export default function AdminPage() {
 
     fetchStats()
 
-    // Clean up when unmounting
+    // Cleanup
     return () => {
       setActionButtons([])
-      setLoadingSection(null) // Clear loading section on unmount
     }
-  }, [setActionButtons, router, setIsLoading])
+  }, [setActionButtons])
 
   const handleNavigation = (path) => {
-    // Set loading section to indicate which section is being loaded
-    setLoadingSection(path)
-
-    // Set global loading state
-    setIsLoading(true)
-
-    // Use startTransition to indicate to React this is a non-urgent update
     startTransition(() => {
       router.push(path)
     })
-
-    // Set a safety timeout to clear loading state in case the navigation takes too long
-    setTimeout(() => {
-      setLoadingSection(null)
-    }, 3000)
   }
 
   const adminFeatures = [
@@ -108,23 +92,43 @@ export default function AdminPage() {
       icon: "👨‍🏫",
       path: "/admin/professors",
     },
+    {
+      title: "Degree Management",
+      description: "Manage academic degrees and courses",
+      icon: "🎓",
+      path: "/admin/degrees",
+    },
+    {
+      title: "Timetable Management",
+      description: "View and manage timetables",
+      icon: "📅",
+      path: "/admin/timetable",
+    },
+    {
+      title: "Settings",
+      description: "System configuration and settings",
+      icon: "⚙️",
+      path: "/admin/settings",
+    },
   ]
 
   return (
     <div className={styles.adminDashboard}>
+      {/* Welcome section renders immediately */}
       <div className={styles.welcomeSection}>
         <h1>Welcome, {session?.user?.name || "Administrator"}!</h1>
-        <p>Manage your timetable management system</p>
+        <p>Manage your timetable management system from this dashboard</p>
       </div>
 
+      {/* Stats section with individual loading indicators */}
       <div className={styles.statsSection}>
         <div className={styles.statCard}>
           <div className={styles.statValue}>{statsLoading ? <LoadingSpinner size="small" /> : stats.batches}</div>
-          <div className={styles.statLabel}>Batches</div>
+          <div className={styles.statLabel}>Total Batches</div>
         </div>
         <div className={styles.statCard}>
           <div className={styles.statValue}>{statsLoading ? <LoadingSpinner size="small" /> : stats.students}</div>
-          <div className={styles.statLabel}>Students</div>
+          <div className={styles.statLabel}>Total Students</div>
         </div>
         <div className={styles.statCard}>
           <div className={styles.statValue}>{statsLoading ? <LoadingSpinner size="small" /> : stats.polls}</div>
@@ -132,15 +136,11 @@ export default function AdminPage() {
         </div>
       </div>
 
-      <h2 className={styles.sectionTitle}>Quick Actions</h2>
+      {/* Features grid renders immediately */}
+      <h2 className={styles.sectionTitle}>Admin Features</h2>
       <div className={styles.featuresGrid}>
         {adminFeatures.map((feature, index) => (
-          <div key={index} className={`${styles.featureCard} ${loadingSection === feature.path ? styles.loading : ""}`} onClick={() => handleNavigation(feature.path)}>
-            {loadingSection === feature.path && (
-              <div className={styles.featureCardLoading}>
-                <LoadingSpinner size="medium" />
-              </div>
-            )}
+          <div key={index} className={styles.featureCard} onClick={() => handleNavigation(feature.path)}>
             <div className={styles.featureIcon}>{feature.icon}</div>
             <h3>{feature.title}</h3>
             <p>{feature.description}</p>

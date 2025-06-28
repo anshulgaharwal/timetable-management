@@ -1,21 +1,24 @@
 "use client"
 
 import { usePathname } from "next/navigation"
+import { useEffect } from "react"
 import DashboardLayout from "../../components/DashboardLayout"
 import { AdminProvider } from "../../contexts/AdminContext"
+import { useLayout } from "../../contexts/LayoutContext"
 
 const adminSidebarTabs = [
-  { label: "Dashboard", href: "/admin" },
-  { label: "Professors", href: "/admin/professors" },
-  { label: "Batches", href: "/admin/batches" },
-  { label: "Polls", href: "/admin/polls" },
-  { label: "Settings", href: "/admin/settings" },
-  { label: "Degrees", href: "/admin/degrees" },
-  { label: "Timetable", href: "/admin/timetable" },
+  { label: "Dashboard", href: "/admin", icon: "🏠" },
+  { label: "Professors", href: "/admin/professors", icon: "👨‍🏫" },
+  { label: "Batches", href: "/admin/batches", icon: "👥" },
+  { label: "Polls", href: "/admin/polls", icon: "📊" },
+  { label: "Settings", href: "/admin/settings", icon: "⚙️" },
+  { label: "Degrees", href: "/admin/degrees", icon: "🎓" },
+  { label: "Timetable", href: "/admin/timetable", icon: "📅" },
 ]
 
-export default function AdminLayout({ children }) {
+function AdminLayoutContent({ children }) {
   const pathname = usePathname()
+  const { setPageTitle, setSidebarTabs } = useLayout()
 
   // Determine page title based on pathname
   const getPageTitle = () => {
@@ -31,11 +34,19 @@ export default function AdminLayout({ children }) {
     return "Admin"
   }
 
+  useEffect(() => {
+    // Set the page title and sidebar tabs for admin
+    setPageTitle(getPageTitle())
+    setSidebarTabs(adminSidebarTabs)
+  }, [pathname, setPageTitle, setSidebarTabs])
+
+  return <DashboardLayout>{children}</DashboardLayout>
+}
+
+export default function AdminLayout({ children }) {
   return (
     <AdminProvider>
-      <DashboardLayout sidebarTabs={adminSidebarTabs} pageTitle={getPageTitle()}>
-        {children}
-      </DashboardLayout>
+      <AdminLayoutContent>{children}</AdminLayoutContent>
     </AdminProvider>
   )
 }

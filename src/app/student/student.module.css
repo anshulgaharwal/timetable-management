@@ -1,0 +1,327 @@
+/* Student container and layout styles */
+.studentContainer {
+  width: 100%;
+  height: 100%;
+  padding: 20px;
+  background: transparent;
+}
+
+.studentHeader {
+  margin-bottom: 24px;
+}
+
+.studentHeader h1 {
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: var(--accent-primary);
+}
+
+.studentHeader p {
+  font-size: 16px;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.welcomeSection {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 32px;
+}
+
+.welcomeTitle {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0 0 8px 0;
+}
+
+.welcomeSubtitle {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin: 0 0 20px 0;
+}
+
+.featureGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+  margin-top: 24px;
+}
+
+.featureCard {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.featureCard:hover {
+  border-color: var(--accent-primary);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+}
+
+.featureIcon {
+  font-size: 32px;
+  margin-bottom: 12px;
+  display: block;
+}
+
+.featureTitle {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0 0 8px 0;
+}
+
+.featureDescription {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* Quick stats */
+.quickStats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.statCard {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px;
+  text-align: center;
+}
+
+.statValue {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--accent-primary);
+  margin-bottom: 4px;
+}
+
+.statLabel {
+  font-size: 14px;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Timetable styles */
+.timetableContainer {
+  width: 100%;
+  height: 100%;
+  padding: 20px;
+  background: transparent;
+}
+
+.timetableHeader {
+  margin-bottom: 24px;
+}
+
+.timetableHeader h2 {
+  font-size: 22px;
+  font-weight: 600;
+  margin-bottom: 4px;
+  color: var(--accent-primary);
+}
+
+.timetableHeader p {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.timetableWrapper {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  margin-top: 24px;
+}
+
+.timetableGrid {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.timetableGrid th,
+.timetableGrid td {
+  border: 1px solid var(--border);
+  padding: 12px;
+  text-align: center;
+  vertical-align: middle;
+}
+
+.timetableGrid th {
+  background: var(--surface-secondary);
+  color: var(--text-secondary);
+  font-weight: 500;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.timetableGrid th:first-child {
+  background: var(--accent-primary);
+  color: white;
+  font-weight: 600;
+}
+
+.timetableCell {
+  min-height: 80px;
+  background: var(--surface);
+  transition: all 0.2s ease;
+}
+
+.timetableCell.hasEntry {
+  background: linear-gradient(135deg, #e8f5e8, #c8e6c9);
+}
+
+.timetableCell.empty {
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+.courseEntry {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 8px;
+}
+
+.courseName {
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--text-primary);
+  text-align: center;
+  line-height: 1.2;
+}
+
+.courseClassroom {
+  font-size: 11px;
+  color: var(--text-secondary);
+  background: var(--surface-secondary);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.courseProfessor {
+  font-size: 11px;
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+/* Loading and error states */
+.loadingContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 300px;
+  gap: 16px;
+}
+
+.loadingContainer p {
+  color: var(--text-secondary);
+  font-size: 14px;
+}
+
+.errorMessage {
+  background: #fee;
+  color: #c33;
+  padding: 12px 16px;
+  border-radius: 8px;
+  border: 1px solid #fcc;
+  margin-bottom: 16px;
+  font-size: 14px;
+}
+
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 300px;
+  gap: 16px;
+  text-align: center;
+}
+
+.emptyState h3 {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.emptyState p {
+  color: var(--text-secondary);
+  font-size: 14px;
+  margin: 0;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .studentContainer,
+  .timetableContainer {
+    padding: 16px;
+  }
+
+  .featureGrid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .quickStats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .timetableWrapper {
+    overflow-x: auto;
+  }
+
+  .timetableGrid {
+    min-width: 600px;
+  }
+
+  .timetableGrid th,
+  .timetableGrid td {
+    padding: 8px;
+    font-size: 12px;
+  }
+
+  .courseName {
+    font-size: 11px;
+  }
+
+  .courseClassroom,
+  .courseProfessor {
+    font-size: 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .quickStats {
+    grid-template-columns: 1fr;
+  }
+
+  .studentHeader h1 {
+    font-size: 20px;
+  }
+
+  .studentHeader p {
+    font-size: 14px;
+  }
+}

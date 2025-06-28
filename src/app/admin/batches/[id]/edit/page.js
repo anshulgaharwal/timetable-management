@@ -1,14 +1,16 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useTransition } from "react"
 import { useRouter } from "next/navigation"
-import { useAdmin } from "../../../../../contexts/AdminContext"
+import { useLayout } from "../../../../../contexts/LayoutContext"
+import LoadingSpinner from "../../../../../components/LoadingSpinner"
 import styles from "./edit.module.css"
 
 export default function EditBatchPage({ params }) {
   const { id } = params
   const router = useRouter()
-  const { setActionButtons } = useAdmin()
+  const [isPending, startTransition] = useTransition()
+  const { setActionButtons } = useLayout()
 
   const [batch, setBatch] = useState(null)
   const [formData, setFormData] = useState({
@@ -16,55 +18,72 @@ export default function EditBatchPage({ params }) {
     startYear: new Date().getFullYear(),
     endYear: new Date().getFullYear() + 4,
   })
-  const [isLoading, setIsLoading] = useState(true)
+  const [loading, setLoading] = useState(true)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState(null)
   const [degrees, setDegrees] = useState([])
   const [courses, setCourses] = useState([])
   const [selectedDegreeId, setSelectedDegreeId] = useState("")
 
-  // Fetch batch data and degrees
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setIsLoading(true)
+  const fetchData = async () => {
+    try {
+      setLoading(true)
+      setError(null)
 
-        // Fetch batch details
-        const batchRes = await fetch(`/api/admin/batches/${id}`)
-        if (!batchRes.ok) {
-          throw new Error("Failed to fetch batch details")
-        }
-        const batchData = await batchRes.json()
-        setBatch(batchData.batch)
-
-        // Set initial form data
-        setFormData({
-          courseCode: batchData.batch.courseCode,
-          startYear: batchData.batch.startYear,
-          endYear: batchData.batch.endYear,
-        })
-
-        // Set selected degree
-        if (batchData.batch.course?.degree) {
-          setSelectedDegreeId(batchData.batch.course.degree.code)
-        }
-
-        // Fetch all degrees
-        const degreesRes = await fetch("/api/degree")
-        if (!degreesRes.ok) {
-          throw new Error("Failed to fetch degrees")
-        }
-        const degreesData = await degreesRes.json()
-        setDegrees(degreesData)
-      } catch (err) {
-        setError(err.message)
-      } finally {
-        setIsLoading(false)
+      // Fetch batch details
+      const batchRes = await fetch(`/api/admin/batches/${id}`)
+      if (!batchRes.ok) {
+        throw new Error("Failed to fetch batch details")
       }
-    }
+      const batchData = await batchRes.json()
+      setBatch(batchData.batch)
 
+      // Set initial form data
+      setFormData({
+        courseCode: batchData.batch.courseCode,
+        startYear: batchData.batch.startYear,
+        endYear: batchData.batch.endYear,
+      })
+
+      // Set selected degree
+      if (batchData.batch.course?.degree) {
+        setSelectedDegreeId(batchData.batch.course.degree.code)
+      }
+
+      // Fetch all degrees
+      const degreesRes = await fetch("/api/degree")
+      if (!degreesRes.ok) {
+        throw new Error("Failed to fetch degrees")
+      }
+      const degreesData = await degreesRes.json()
+      setDegrees(degreesData)
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    // Set action buttons immediately
+    setActionButtons([
+      {
+        label: "Back to Batch",
+        icon: "←",
+        onClick: () => {
+          startTransition(() => {
+            router.push(`/admin/batches/${id}`)
+          })
+        },
+        variant: "secondary"
+      },
+    ])
+
+    // Fetch data immediately
     fetchData()
-  }, [id])
+
+    return () => setActionButtons([])
+  }, [id, router, setActionButtons])
 
   // Update courses when selected degree changes
   useEffect(() => {
@@ -79,18 +98,6 @@ export default function EditBatchPage({ params }) {
       setCourses([])
     }
   }, [selectedDegreeId, degrees])
-
-  // Set action buttons
-  useEffect(() => {
-    setActionButtons([
-      {
-        label: "Back to Batch",
-        onClick: () => router.push(`/admin/batches/${id}`),
-      },
-    ])
-
-    return () => setActionButtons([])
-  }, [id, setActionButtons, router])
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -135,8 +142,12 @@ export default function EditBatchPage({ params }) {
   const currentYear = new Date().getFullYear()
   const yearOptions = Array.from({ length: 10 }, (_, i) => currentYear - 5 + i)
 
-  if (isLoading) {
-    return <div className={styles.loadingContainer}>Loading...</div>
+  if (loading) {
+    return (
+      <div className={styles.loadingContainer}>
+        <LoadingSpinner />
+      </div>
+    )
   }
 
   return (

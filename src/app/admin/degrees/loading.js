@@ -1,7 +1,7 @@
 "use client"
 
 import LoadingSpinner from "../../../components/LoadingSpinner"
-import styles from "../admin.module.css"
+import styles from "./degrees.module.css"
 
 export default function Loading() {
   return (

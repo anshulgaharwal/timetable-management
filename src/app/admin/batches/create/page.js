@@ -1,14 +1,15 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useTransition } from "react"
 import { useRouter } from "next/navigation"
-import { useAdmin } from "../../../../contexts/AdminContext"
+import { useLayout } from "../../../../contexts/LayoutContext"
 import LoadingSpinner from "../../../../components/LoadingSpinner"
 import styles from "./create.module.css"
 
 export default function CreateBatchPage() {
   const router = useRouter()
-  const { setIsLoading: setGlobalLoading, setActionButtons } = useAdmin()
+  const [isPending, startTransition] = useTransition()
+  const { setActionButtons } = useLayout()
   const [formData, setFormData] = useState({
     degreeId: "",
     courseCode: "",
@@ -19,48 +20,45 @@ export default function CreateBatchPage() {
   const [error, setError] = useState(null)
   const [degrees, setDegrees] = useState([])
   const [courses, setCourses] = useState([])
-  const [isLoading, setIsLoading] = useState(true)
+  const [loading, setLoading] = useState(true)
 
-  // Set action buttons
+  // Set action buttons immediately
   useEffect(() => {
     setActionButtons([
       {
         label: "Back to Batches",
-        onClick: () => router.push("/admin/batches"),
+        icon: "←",
+        onClick: () => {
+          startTransition(() => {
+            router.push("/admin/batches")
+          })
+        },
+        variant: "secondary"
       },
     ])
+
+    // Fetch degrees immediately
+    fetchDegrees()
 
     return () => setActionButtons([])
   }, [setActionButtons, router])
 
-  // Fetch all degrees when component mounts
-  useEffect(() => {
-    const fetchDegrees = async () => {
-      try {
-        setIsLoading(true)
-        setGlobalLoading(true)
-        const res = await fetch("/api/degree")
+  const fetchDegrees = async () => {
+    try {
+      const res = await fetch("/api/degree")
 
-        if (!res.ok) {
-          throw new Error("Failed to fetch degrees")
-        }
-
-        const data = await res.json()
-        setDegrees(data || [])
-      } catch (err) {
-        setError(err.message)
-      } finally {
-        setIsLoading(false)
-        setGlobalLoading(false)
+      if (!res.ok) {
+        throw new Error("Failed to fetch degrees")
       }
-    }
 
-    fetchDegrees()
-
-    return () => {
-      setGlobalLoading(false)
+      const data = await res.json()
+      setDegrees(data || [])
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setLoading(false)
     }
-  }, [setGlobalLoading])
+  }
 
   // Update courses when degree changes
   useEffect(() => {
@@ -112,9 +110,14 @@ export default function CreateBatchPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+    
+    if (!formData.degreeId || !formData.courseCode) {
+      setError("Please select both degree and course")
+      return
+    }
+
     setIsSubmitting(true)
     setError(null)
-    setGlobalLoading(true)
 
     try {
       const res = await fetch("/api/admin/batches", {
@@ -133,10 +136,12 @@ export default function CreateBatchPage() {
       }
 
       const { batch } = await res.json()
-      router.push(`/admin/batches/${batch.id}`)
+      startTransition(() => {
+        router.push(`/admin/batches/${batch.id}`)
+      })
     } catch (err) {
       setError(err.message)
-      setGlobalLoading(false)
+    } finally {
       setIsSubmitting(false)
     }
   }
@@ -144,26 +149,27 @@ export default function CreateBatchPage() {
   const currentYear = new Date().getFullYear()
   const yearOptions = Array.from({ length: 10 }, (_, i) => currentYear - 5 + i)
 
-  if (isLoading) {
-    return (
-      <div className={styles.loadingContainer}>
-        <LoadingSpinner size="large" />
-        <p>Loading degree programs...</p>
-      </div>
-    )
-  }
-
   return (
     <div className={styles.createContainer}>
-      <div className={styles.formCard}>
-        <div className={styles.formHeader}>
-          <h2>Create New Batch</h2>
-          <p>Add a new student batch to the system</p>
+      {error && (
+        <div className={styles.errorMessage}>
+          {error}
         </div>
+      )}
 
-        {error && <div className={styles.errorMessage}>{error}</div>}
+      {loading ? (
+        <div className={styles.loadingContainer}>
+          <LoadingSpinner size="large" />
+          <p>Loading degree programs...</p>
+        </div>
+      ) : (
+        <div className={styles.formCard}>
+          <div className={styles.formHeader}>
+            <h2>Create New Batch</h2>
+            <p>Add a new student batch to the system</p>
+          </div>
 
-        <form onSubmit={handleSubmit} className={styles.form}>
+          <form onSubmit={handleSubmit} className={styles.form}>
           <div className={styles.formGroup}>
             <label htmlFor="degreeId">Degree Program</label>
             <select id="degreeId" name="degreeId" value={formData.degreeId} onChange={handleChange} required className={styles.select}>
@@ -220,8 +226,9 @@ export default function CreateBatchPage() {
               {isSubmitting ? "Creating..." : "Create Batch"}
             </button>
           </div>
-        </form>
-      </div>
+          </form>
+        </div>
+      )}
     </div>
   )
 }

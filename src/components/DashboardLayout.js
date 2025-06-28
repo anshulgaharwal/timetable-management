@@ -1,143 +1,122 @@
 "use client"
+
 import { useSession, signOut } from "next-auth/react"
 import { usePathname, useRouter } from "next/navigation"
-import "../styles/dashboard.css"
-import Link from "next/link"
-import { useAdmin } from "../contexts/AdminContext"
 import { useState, useEffect, useTransition } from "react"
-import LoadingSpinner from "./LoadingSpinner"
+import { useLayout } from "../contexts/LayoutContext"
+import "../styles/dashboard.css"
 
-export default function DashboardLayout({ children, sidebarTabs, pageTitle, actionButtons: propsActionButtons }) {
+export default function DashboardLayout({ children }) {
   const { data: session } = useSession()
-  const path = usePathname()
+  const pathname = usePathname()
   const router = useRouter()
   const [isMobile, setIsMobile] = useState(false)
-  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false)
   const [isPending, startTransition] = useTransition()
-  const [activeTab, setActiveTab] = useState("")
 
-  // Get loading state from context
-  const { actionButtons: contextButtons, setActionButtons, isLoading, setIsLoading } = useAdmin()
+  // Get layout state from context
+  const { pageTitle, actionButtons, sidebarTabs, isMobileSidebarOpen, setIsMobileSidebarOpen } = useLayout()
 
-  // Then check if we have action buttons from context or props
-  const actionButtons = contextButtons || propsActionButtons || []
-
+  // Handle responsive design
   useEffect(() => {
-    const checkScreenSize = () => {
-      setIsMobile(window.innerWidth < 768)
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768)
     }
 
-    checkScreenSize()
-    window.addEventListener("resize", checkScreenSize)
+    checkMobile()
+    window.addEventListener("resize", checkMobile)
+    return () => window.removeEventListener("resize", checkMobile)
+  }, [])
 
-    // Set active tab based on current path
-    setActiveTab(path)
-
-    // Clear loading state when path changes (navigation completes)
-    setIsLoading(false)
-
-    return () => window.removeEventListener("resize", checkScreenSize)
-  }, [path, setIsLoading])
+  // Close mobile sidebar when route changes
+  useEffect(() => {
+    setIsMobileSidebarOpen(false)
+  }, [pathname, setIsMobileSidebarOpen])
 
   const handleSignOut = async () => {
-    await signOut({ redirect: false })
-    router.push("/")
+    try {
+      await signOut({ callbackUrl: "/signin" })
+    } catch (error) {
+      console.error("Sign out error:", error)
+    }
   }
 
   const toggleMobileSidebar = () => {
-    setMobileSidebarOpen((prev) => !prev)
+    setIsMobileSidebarOpen(!isMobileSidebarOpen)
   }
 
   const handleNavigation = (href) => {
-    if (href === path) return
+    if (href === pathname) return
 
-    // Set loading state immediately
-    setIsLoading(true)
-    setActiveTab(href)
-
-    // Use startTransition to indicate to React this is a non-urgent update
     startTransition(() => {
       router.push(href)
     })
+  }
 
-    // Close mobile sidebar if open
-    if (isMobile) {
-      setMobileSidebarOpen(false)
+  const isTabActive = (href) => {
+    if (href === "/admin") {
+      return pathname === "/admin"
     }
-
-    // Set a safety timeout to clear loading state in case the navigation takes too long
-    setTimeout(() => {
-      setIsLoading(false)
-    }, 3000)
+    return pathname.startsWith(href)
   }
 
   return (
     <div className="dashboard-container">
-      {isMobile && (
-        <button className="mobile-menu-toggle" onClick={toggleMobileSidebar} aria-label="Toggle menu">
-          <span></span>
-          <span></span>
-          <span></span>
-        </button>
-      )}
+      {/* Mobile overlay */}
+      {isMobile && isMobileSidebarOpen && <div className="sidebar-overlay" onClick={() => setIsMobileSidebarOpen(false)} />}
 
-      <div className={`sidebar ${isMobile && mobileSidebarOpen ? "mobile-open" : ""}`}>
+      {/* Sidebar */}
+      <aside className={`sidebar ${isMobile && !isMobileSidebarOpen ? "sidebar-hidden" : ""}`}>
         <div className="sidebar-logo">
-          <span>TMS</span>
+          <h2>Timetable System</h2>
         </div>
 
-        <div className="sidebar-tabs">
-          {sidebarTabs &&
-            sidebarTabs.map((tab, index) => (
-              <a
-                key={index}
-                href={tab.href}
-                className={activeTab === tab.href ? "active" : ""}
-                onClick={(e) => {
-                  e.preventDefault()
-                  handleNavigation(tab.href)
-                }}
-              >
-                {tab.icon && <span className="tab-icon">{tab.icon}</span>}
-                <span>{tab.label}</span>
-              </a>
-            ))}
-        </div>
+        <nav className="sidebar-tabs">
+          {sidebarTabs.map((tab) => (
+            <button key={tab.href} onClick={() => handleNavigation(tab.href)} className={isTabActive(tab.href) ? "active" : ""} disabled={isPending}>
+              {tab.icon && <span className="tab-icon">{tab.icon}</span>}
+              {tab.label}
+            </button>
+          ))}
+        </nav>
 
-        <div className="sidebar-user">
-          <span className="user-name">{session?.user?.name || "User"}</span>
-          <span className="user-role">{session?.user?.role || "Guest"}</span>
-          <button onClick={handleSignOut}>Sign out</button>
-        </div>
-      </div>
-
-      <div className="main">
-        <div className="navbar">
-          <div className="page-title">
-            {pageTitle || "Dashboard"}
-            {isPending && (
-              <span className="loading-indicator">
-                <LoadingSpinner size="small" />
-              </span>
-            )}
+        {session && (
+          <div className="sidebar-user">
+            <div className="user-name">{session.user?.name}</div>
+            <div className="user-role">{session.user?.role || "User"}</div>
+            <button onClick={handleSignOut}>Sign Out</button>
           </div>
-          <div className="action-buttons">
-            {actionButtons &&
-              actionButtons.map((button, index) => (
-                <button key={index} onClick={button.onClick} className={button.className || ""} disabled={button.disabled || isPending}>
+        )}
+      </aside>
+
+      {/* Main content area */}
+      <main className="main">
+        {/* Header */}
+        <header className="navbar">
+          {isMobile && (
+            <button className="mobile-menu-toggle" onClick={toggleMobileSidebar}>
+              <span></span>
+              <span></span>
+              <span></span>
+            </button>
+          )}
+
+          <h1 className="page-title">{pageTitle}</h1>
+
+          {actionButtons.length > 0 && (
+            <div className="action-buttons">
+              {actionButtons.map((button, index) => (
+                <button key={index} onClick={button.onClick} disabled={button.disabled || isPending} className={button.variant || "primary"}>
                   {button.icon && <span className="button-icon">{button.icon}</span>}
                   {button.label}
                 </button>
               ))}
-          </div>
-        </div>
-        <div className="content">
-          {isLoading && <LoadingSpinner fullPage={true} size="large" />}
-          {children}
-        </div>
-      </div>
+            </div>
+          )}
+        </header>
 
-      {isMobile && mobileSidebarOpen && <div className="sidebar-overlay" onClick={() => setMobileSidebarOpen(false)}></div>}
+        {/* Page content */}
+        <div className="content">{children}</div>
+      </main>
     </div>
   )
 }
