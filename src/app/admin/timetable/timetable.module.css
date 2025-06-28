@@ -373,7 +373,7 @@
   font-style: italic;
 }
 
-.courseEntry {
+.departmentEntry {
   display: flex;
   flex-direction: column;
   gap: 4px;
@@ -383,7 +383,7 @@
   padding: 8px;
 }
 
-.courseName {
+.departmentName {
   font-weight: 600;
   font-size: 13px;
   color: var(--text-primary);
@@ -391,7 +391,7 @@
   line-height: 1.2;
 }
 
-.courseClassroom {
+.departmentClassroom {
   font-size: 11px;
   color: var(--text-secondary);
   background: var(--surface-secondary);
@@ -399,19 +399,19 @@
   border-radius: 4px;
 }
 
-.courseProfessor {
+.departmentProfessor {
   font-size: 11px;
   color: var(--text-secondary);
   font-style: italic;
 }
 
-/* Course color classes */
-.courseColor1 { background: linear-gradient(135deg, #e3f2fd, #bbdefb); }
-.courseColor2 { background: linear-gradient(135deg, #f1f8e9, #dcedc8); }
-.courseColor3 { background: linear-gradient(135deg, #fff3e0, #ffcc02); }
-.courseColor4 { background: linear-gradient(135deg, #f3e5f5, #e1bee7); }
-.courseColor5 { background: linear-gradient(135deg, #fce4ec, #f8bbd9); }
-.courseColor6 { background: linear-gradient(135deg, #e8f5e8, #c8e6c9); }
+/* Department color classes */
+.departmentColor1 { background: linear-gradient(135deg, #e3f2fd, #bbdefb); }
+.departmentColor2 { background: linear-gradient(135deg, #f1f8e9, #dcedc8); }
+.departmentColor3 { background: linear-gradient(135deg, #fff3e0, #ffcc02); }
+.departmentColor4 { background: linear-gradient(135deg, #f3e5f5, #e1bee7); }
+.departmentColor5 { background: linear-gradient(135deg, #fce4ec, #f8bbd9); }
+.departmentColor6 { background: linear-gradient(135deg, #e8f5e8, #c8e6c9); }
 
 .exportButton {
   background: var(--accent-secondary);
@@ -599,12 +599,12 @@
     font-size: 12px;
   }
   
-  .courseName {
+  .departmentName {
     font-size: 11px;
   }
   
-  .courseClassroom,
-  .courseProfessor {
+  .departmentClassroom,
+  .departmentProfessor {
     font-size: 10px;
   }
 }

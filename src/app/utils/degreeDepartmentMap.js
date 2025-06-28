@@ -1,4 +1,4 @@
-export const degreeCourseMap = {
+export const degreeDepartmentMap = {
   'Bachelor of Technology (BTech)': [
     'Computer Science and Engineering',
     'Electrical Engineering',
@@ -76,4 +76,4 @@ export const degreeCourseMap = {
   'M.A. ENGLISH': [
     'MA English (Literature and Linguistics)',
   ]
-}; 
+};

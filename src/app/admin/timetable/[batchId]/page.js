@@ -15,7 +15,7 @@ export default function BatchTimetablePage() {
   const { setActionButtons } = useLayout()
 
   const [entries, setEntries] = useState([])
-  const [courses, setCourses] = useState([])
+  const [departments, setDepartments] = useState([])
   const [professors, setProfessors] = useState([])
   const [batchInfo, setBatchInfo] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -25,7 +25,7 @@ export default function BatchTimetablePage() {
   const [isDeleting, setIsDeleting] = useState(false)
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [editData, setEditData] = useState({
-    courseCode: "",
+    departmentCode: "",
     professorId: "",
     classroom: "",
   })
@@ -110,7 +110,7 @@ export default function BatchTimetablePage() {
         throw new Error("Failed to fetch form data")
       }
       const data = await res.json()
-      setCourses(data.courses || [])
+      setDepartments(data.departments || [])
       setProfessors(data.professors || [])
     } catch (err) {
       console.error("Error fetching form data:", err)
@@ -120,16 +120,16 @@ export default function BatchTimetablePage() {
   const getEntry = (day, slot) =>
     entries.find((e) => e.day === day && e.timeSlot === slot)
 
-  const getColorClass = (courseCode) => {
-    const hash = Array.from(courseCode).reduce((acc, c) => acc + c.charCodeAt(0), 0)
+  const getColorClass = (departmentCode) => {
+    const hash = Array.from(departmentCode).reduce((acc, c) => acc + c.charCodeAt(0), 0)
     const colorIndex = (hash % 6) + 1
-    return `courseColor${colorIndex}`
+    return `departmentColor${colorIndex}`
   }
 
   const handleCellClick = (day, timeSlot) => {
     const existing = getEntry(day, timeSlot)
     setEditData({
-      courseCode: existing?.courseCode || "",
+      departmentCode: existing?.departmentCode || "",
       professorId: existing?.professorId || "",
       classroom: existing?.classroom || "",
     })
@@ -158,7 +158,7 @@ export default function BatchTimetablePage() {
   }
 
   const handleSave = async () => {
-    if (!editData.courseCode || !editData.professorId || !editData.classroom.trim()) {
+    if (!editData.departmentCode || !editData.professorId || !editData.classroom.trim()) {
       setError("Please fill in all fields")
       return
     }
@@ -192,7 +192,7 @@ export default function BatchTimetablePage() {
       })
 
       setSelectedSlot(null)
-      setEditData({ courseCode: "", professorId: "", classroom: "" })
+      setEditData({ departmentCode: "", professorId: "", classroom: "" })
     } catch (err) {
       setError(err.message)
     } finally {
@@ -229,7 +229,7 @@ export default function BatchTimetablePage() {
       
       setShowDeleteModal(false)
       setSelectedSlot(null)
-      setEditData({ courseCode: "", professorId: "", classroom: "" })
+      setEditData({ departmentCode: "", professorId: "", classroom: "" })
     } catch (err) {
       setError(err.message)
     } finally {
@@ -239,7 +239,7 @@ export default function BatchTimetablePage() {
 
   const closeModal = () => {
     setSelectedSlot(null)
-    setEditData({ courseCode: "", professorId: "", classroom: "" })
+    setEditData({ departmentCode: "", professorId: "", classroom: "" })
     setShowDeleteModal(false)
     setError(null)
   }
@@ -257,7 +257,7 @@ export default function BatchTimetablePage() {
         <>
           <div className={styles.timetableHeader}>
             <h2>
-              Timetable - {batchInfo ? `${batchInfo.courseName} (${batchInfo.courseCode})` : `Batch ${batchId}`}
+              Timetable - {batchInfo ? `${batchInfo.departmentName} (${batchInfo.departmentCode})` : `Batch ${batchId}`}
             </h2>
             <p>
               {batchInfo && `${batchInfo.startYear} - ${batchInfo.endYear} • ${batchInfo.studentCount || 0} students`}
@@ -286,15 +286,15 @@ export default function BatchTimetablePage() {
                         <td
                           key={day + slot}
                           className={`${styles.timetableCell} ${
-                            entry ? styles[getColorClass(entry.course.code)] : styles.empty
+                            entry ? styles[getColorClass(entry.department.code)] : styles.empty
                           }`}
                           onClick={() => handleCellClick(day, slot)}
                         >
                           {entry ? (
-                            <div className={styles.courseEntry}>
-                              <div className={styles.courseName}>{entry.course.name}</div>
-                              <div className={styles.courseClassroom}>{entry.classroom}</div>
-                              <div className={styles.courseProfessor}>{entry.professor.name}</div>
+                            <div className={styles.departmentEntry}>
+                              <div className={styles.departmentName}>{entry.department.name}</div>
+                              <div className={styles.departmentClassroom}>{entry.classroom}</div>
+                              <div className={styles.departmentProfessor}>{entry.professor.name}</div>
                             </div>
                           ) : (
                             "Click to add"
@@ -337,19 +337,19 @@ export default function BatchTimetablePage() {
         {error && <div className={styles.errorMessage}>{error}</div>}
 
         <div className={styles.formGroup}>
-          <label htmlFor="courseCode">Course</label>
+          <label htmlFor="departmentCode">Department</label>
           <select
-            id="courseCode"
-            name="courseCode"
-            value={editData.courseCode}
+            id="departmentCode"
+            name="departmentCode"
+            value={editData.departmentCode}
             onChange={handleFormChange}
             required
             className={styles.select}
           >
-            <option value="">Select Course</option>
-            {courses.map((course) => (
-              <option key={course.code} value={course.code}>
-                {course.name} ({course.code})
+            <option value="">Select Department</option>
+            {departments.map((department) => (
+              <option key={department.code} value={department.code}>
+                {department.name} ({department.code})
               </option>
             ))}
           </select>

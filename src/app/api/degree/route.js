@@ -6,7 +6,7 @@ export async function GET() {
     console.log("Fetching degrees")
     const degrees = await prisma.degree.findMany({
       include: {
-        courses: true,
+        departments: true,
       },
     })
     console.log(degrees)

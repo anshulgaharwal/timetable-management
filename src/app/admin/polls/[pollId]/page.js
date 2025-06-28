@@ -266,7 +266,7 @@ export default function AdminPollDetailPage() {
             <div className={styles.metaItem}>
               <span className={styles.metaLabel}>Target Batch</span>
               <span className={styles.metaValue}>
-                {poll.batch.courseName} ({poll.batch.startYear}-{poll.batch.endYear})
+                {poll.batch.departmentName} ({poll.batch.startYear}-{poll.batch.endYear})
               </span>
             </div>
           )}

@@ -119,13 +119,13 @@ export default function AdminTimetablePage() {
                       onClick={() => navigateToTimetable(batch.id)}
                     >
                       <div className={styles.batchCardHeader}>
-                        <h4>{batch.courseName}</h4>
+                        <h4>{batch.departmentName}</h4>
                         <span className={styles.batchId}>#{batch.id}</span>
                       </div>
                       <div className={styles.batchCardBody}>
                         <div className={styles.batchInfo}>
                           <div className={styles.batchDetail}>
-                            <strong>Course:</strong> {batch.courseCode}
+                            <strong>Department:</strong> {batch.departmentCode}
                           </div>
                         </div>
                         <div className={styles.batchInfo}>
@@ -160,8 +160,8 @@ export default function AdminTimetablePage() {
                     <thead>
                       <tr>
                         <th>Batch ID</th>
-                        <th>Course Name</th>
-                        <th>Course Code</th>
+                        <th>Department Name</th>
+                        <th>Department Code</th>
                         <th>Years</th>
                         <th>Students</th>
                         <th>Actions</th>
@@ -171,8 +171,8 @@ export default function AdminTimetablePage() {
                       {degree.batches.map((batch) => (
                         <tr key={batch.id}>
                           <td>#{batch.id}</td>
-                          <td>{batch.courseName}</td>
-                          <td>{batch.courseCode}</td>
+                          <td>{batch.departmentName}</td>
+                          <td>{batch.departmentCode}</td>
                           <td>{batch.startYear} - {batch.endYear}</td>
                           <td>{batch.studentCount || 0}</td>
                           <td className={styles.tableActions}>

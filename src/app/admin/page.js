@@ -94,7 +94,7 @@ export default function AdminPage() {
     },
     {
       title: "Degree Management",
-      description: "Manage academic degrees and courses",
+      description: "Manage academic degrees and departments",
       icon: "🎓",
       path: "/admin/degrees",
     },

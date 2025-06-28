@@ -34,13 +34,13 @@ th, td {
   color: #555;
 }
 
-/* Dynamic course color tiles */
-.course-color-1 { background-color: #e0f7fa; }
-.course-color-2 { background-color: #f1f8e9; }
-.course-color-3 { background-color: #fff3e0; }
-.course-color-4 { background-color: #ede7f6; }
-.course-color-5 { background-color: #fce4ec; }
-.course-color-6 { background-color: #e8f5e9; }
+/* Dynamic department color tiles */
+.department-color-1 { background-color: #e0f7fa; }
+.department-color-2 { background-color: #f1f8e9; }
+.department-color-3 { background-color: #fff3e0; }
+.department-color-4 { background-color: #ede7f6; }
+.department-color-5 { background-color: #fce4ec; }
+.department-color-6 { background-color: #e8f5e9; }
 
 .export-btn {
   margin-top: 1rem;

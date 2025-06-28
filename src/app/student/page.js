@@ -14,7 +14,7 @@ export default function StudentDashboard() {
   const { setActionButtons } = useLayout()
 
   const [stats, setStats] = useState({
-    totalCourses: 0,
+    totalDepartments: 0,
     currentSemester: 0,
     completedAssignments: 0,
     upcomingExams: 0,
@@ -71,7 +71,7 @@ export default function StudentDashboard() {
       await new Promise(resolve => setTimeout(resolve, 1000)) // Simulate API call
       
       setStats({
-        totalCourses: 6,
+        totalDepartments: 6,
         currentSemester: 4,
         completedAssignments: 12,
         upcomingExams: 3,
@@ -129,7 +129,7 @@ export default function StudentDashboard() {
           Welcome back, {session?.user?.name || 'Student'}!
         </h1>
         <p className={styles.welcomeSubtitle}>
-          Here's your student dashboard overview
+          Here&apos;s your student dashboard overview
         </p>
 
         {loading ? (
@@ -140,8 +140,8 @@ export default function StudentDashboard() {
         ) : (
           <div className={styles.quickStats}>
             <div className={styles.statCard}>
-              <div className={styles.statValue}>{stats.totalCourses}</div>
-              <div className={styles.statLabel}>Total Courses</div>
+              <div className={styles.statValue}>{stats.totalDepartments}</div>
+              <div className={styles.statLabel}>Total Departments</div>
             </div>
             <div className={styles.statCard}>
               <div className={styles.statValue}>{stats.currentSemester}</div>

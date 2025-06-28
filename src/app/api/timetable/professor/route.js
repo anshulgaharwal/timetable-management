@@ -12,7 +12,7 @@ export async function GET(req) {
   const entries = await prisma.timetableEntry.findMany({
     where: { professorId: session.user.id },
     include: {
-      course: true,
+      department: true,
       professor: true,
     },
   })

@@ -91,7 +91,7 @@ export default function ProfessorPage() {
           Welcome back, {session?.user?.name || 'Professor'}!
         </h1>
         <p className={styles.welcomeSubtitle}>
-          Here's your teaching dashboard overview
+          Here&apos;s your teaching dashboard overview
         </p>
 
         {loading ? (

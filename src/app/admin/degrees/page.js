@@ -213,7 +213,7 @@ export default function DegreesPage() {
         <>
           <div className={styles.degreesHeader}>
             <h2>Degree Programs</h2>
-            <p>Manage academic degree programs and their courses</p>
+            <p>Manage academic degree programs and their departments</p>
           </div>
 
           {viewMode === "grid" ? (
@@ -226,8 +226,8 @@ export default function DegreesPage() {
                   </div>
                   <div className={styles.degreeCardBody}>
                     <div className={styles.degreeStat}>
-                      <span className={styles.statLabel}>Courses</span>
-                      <span className={styles.statValue}>{degree.courses?.length || 0}</span>
+                      <span className={styles.statLabel}>Departments</span>
+                      <span className={styles.statValue}>{degree.departments?.length || 0}</span>
                     </div>
                     <div className={styles.degreeCardActions}>
                       <button
@@ -260,7 +260,7 @@ export default function DegreesPage() {
                   <tr>
                     <th>Degree Name</th>
                     <th>Code</th>
-                    <th>Courses</th>
+                    <th>Departments</th>
                     <th>Actions</th>
                   </tr>
                 </thead>
@@ -269,7 +269,7 @@ export default function DegreesPage() {
                     <tr key={degree.code}>
                       <td>{degree.name}</td>
                       <td>{degree.code}</td>
-                      <td>{degree.courses?.length || 0}</td>
+                      <td>{degree.departments?.length || 0}</td>
                       <td className={styles.tableActions}>
                         <button className={styles.viewButton} onClick={() => viewDegreeDetails(degree)}>
                           View
@@ -437,7 +437,7 @@ export default function DegreesPage() {
         {error && <div className={styles.errorMessage}>{error}</div>}
 
         <p>
-          Are you sure you want to delete the degree program <strong>{selectedDegree?.name}</strong>? This action cannot be undone and will also delete all associated courses.
+          Are you sure you want to delete the degree program <strong>{selectedDegree?.name}</strong>? This action cannot be undone and will also delete all associated departments.
         </p>
       </Modal>
     </div>

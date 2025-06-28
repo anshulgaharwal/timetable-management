@@ -89,13 +89,13 @@ export default function StudentTimetablePage() {
 
   const getWeeklyStats = () => {
     const totalClasses = entries.length
-    const uniqueCourses = new Set(entries.map(e => e.course?.code)).size
+    const uniqueDepartments = new Set(entries.map(e => e.department?.code)).size
     const totalHours = entries.length // Assuming each slot is 1 hour
     
-    return { totalClasses, uniqueCourses, totalHours }
+    return { totalClasses, uniqueDepartments, totalHours }
   }
 
-  const { totalClasses, uniqueCourses, totalHours } = getWeeklyStats()
+  const { totalClasses, uniqueDepartments, totalHours } = getWeeklyStats()
 
   return (
     <div className={styles.timetableContainer}>
@@ -120,8 +120,8 @@ export default function StudentTimetablePage() {
               <div className={styles.statLabel}>Total Classes</div>
             </div>
             <div className={styles.statCard}>
-              <div className={styles.statValue}>{uniqueCourses}</div>
-              <div className={styles.statLabel}>Unique Courses</div>
+              <div className={styles.statValue}>{uniqueDepartments}</div>
+              <div className={styles.statLabel}>Unique Departments</div>
             </div>
             <div className={styles.statCard}>
               <div className={styles.statValue}>{totalHours}</div>
@@ -132,7 +132,7 @@ export default function StudentTimetablePage() {
           {entries.length === 0 ? (
             <div className={styles.emptyState}>
               <h3>No classes scheduled</h3>
-              <p>You don't have any classes assigned to your timetable yet.</p>
+              <p>You don&apos;t have any classes assigned to your timetable yet.</p>
             </div>
           ) : (
             <div className={styles.timetableWrapper}>
@@ -161,14 +161,14 @@ export default function StudentTimetablePage() {
                             }`}
                           >
                             {entry ? (
-                              <div className={styles.courseEntry}>
-                                <div className={styles.courseName}>
-                                  {entry.course?.name || "Unknown Course"}
+                              <div className={styles.departmentEntry}>
+                                <div className={styles.departmentName}>
+                                  {entry.department?.name || "Unknown Department"}
                                 </div>
-                                <div className={styles.courseClassroom}>
+                                <div className={styles.departmentClassroom}>
                                   {entry.classroom || "TBA"}
                                 </div>
-                                <div className={styles.courseProfessor}>
+                                <div className={styles.departmentProfessor}>
                                   {entry.professor?.name || "TBA"}
                                 </div>
                               </div>

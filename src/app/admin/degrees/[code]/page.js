@@ -7,7 +7,7 @@ import LoadingSpinner from "../../../../components/LoadingSpinner"
 import Modal from "../../../../components/Modal"
 import styles from "../degrees.module.css"
 
-export default function DegreeCoursesPage() {
+export default function DegreeDepartmentsPage() {
   const params = useParams()
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
@@ -15,14 +15,14 @@ export default function DegreeCoursesPage() {
   const degreeCode = params.code
 
   const [degree, setDegree] = useState(null)
-  const [courses, setCourses] = useState([])
+  const [departments, setDepartments] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [showEditModal, setShowEditModal] = useState(false)
   const [showDeleteModal, setShowDeleteModal] = useState(false)
-  const [courseFormData, setCourseFormData] = useState({ name: "", code: "" })
-  const [selectedCourse, setSelectedCourse] = useState(null)
+  const [departmentFormData, setDepartmentFormData] = useState({ name: "", code: "" })
+  const [selectedDepartment, setSelectedDepartment] = useState(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [viewMode, setViewMode] = useState("grid") // grid or list
 
@@ -30,10 +30,10 @@ export default function DegreeCoursesPage() {
     // Set action buttons immediately
     setActionButtons([
       {
-        label: "Add Course",
+        label: "Add Department",
         icon: "➕",
         onClick: () => {
-          setCourseFormData({ name: "", code: "" })
+          setDepartmentFormData({ name: "", code: "" })
           setShowCreateModal(true)
           setError(null)
         },
@@ -78,7 +78,7 @@ export default function DegreeCoursesPage() {
 
       if (foundDegree) {
         setDegree(foundDegree)
-        setCourses(foundDegree.courses || [])
+        setDepartments(foundDegree.departments || [])
       } else {
         setError("Degree not found")
         // Redirect to degrees list after a short delay
@@ -95,13 +95,13 @@ export default function DegreeCoursesPage() {
     }
   }
 
-  const handleCourseFormChange = (e) => {
+  const handleDepartmentFormChange = (e) => {
     const { name, value } = e.target
-    setCourseFormData((prev) => ({ ...prev, [name]: value }))
+    setDepartmentFormData((prev) => ({ ...prev, [name]: value }))
   }
 
-  const handleCreateCourse = async () => {
-    if (!courseFormData.name || !courseFormData.code) {
+  const handleCreateDepartment = async () => {
+    if (!departmentFormData.name || !departmentFormData.code) {
       setError("Please fill in all fields")
       return
     }
@@ -110,25 +110,25 @@ export default function DegreeCoursesPage() {
     setError(null)
 
     try {
-      const res = await fetch("/api/course", {
+      const res = await fetch("/api/department", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          ...courseFormData,
+          ...departmentFormData,
           degreeId: degreeCode,
         }),
       })
 
       if (!res.ok) {
         const errorData = await res.json()
-        throw new Error(errorData.error || "Failed to create course")
+        throw new Error(errorData.error || "Failed to create department")
       }
 
       // Refresh degree data
       await fetchDegree()
 
       // Reset form and close modal
-      setCourseFormData({ name: "", code: "" })
+      setDepartmentFormData({ name: "", code: "" })
       setShowCreateModal(false)
     } catch (err) {
       setError(err.message)
@@ -137,8 +137,8 @@ export default function DegreeCoursesPage() {
     }
   }
 
-  const handleEditCourse = async () => {
-    if (!courseFormData.name || !courseFormData.code) {
+  const handleEditDepartment = async () => {
+    if (!departmentFormData.name || !departmentFormData.code) {
       setError("Please fill in all fields")
       return
     }
@@ -147,27 +147,27 @@ export default function DegreeCoursesPage() {
     setError(null)
 
     try {
-      const res = await fetch("/api/course", {
+      const res = await fetch("/api/department", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          id: selectedCourse.code,
-          ...courseFormData,
+          id: selectedDepartment.code,
+          ...departmentFormData,
           degreeId: degreeCode,
         }),
       })
 
       if (!res.ok) {
         const errorData = await res.json()
-        throw new Error(errorData.error || "Failed to update course")
+        throw new Error(errorData.error || "Failed to update department")
       }
 
       // Refresh degree data
       await fetchDegree()
 
       // Reset form and close modal
-      setCourseFormData({ name: "", code: "" })
-      setSelectedCourse(null)
+      setDepartmentFormData({ name: "", code: "" })
+      setSelectedDepartment(null)
       setShowEditModal(false)
     } catch (err) {
       setError(err.message)
@@ -176,29 +176,29 @@ export default function DegreeCoursesPage() {
     }
   }
 
-  const handleDeleteCourse = async () => {
-    if (!selectedCourse) return
+  const handleDeleteDepartment = async () => {
+    if (!selectedDepartment) return
 
     setIsSubmitting(true)
     setError(null)
 
     try {
-      const res = await fetch("/api/course", {
+      const res = await fetch("/api/department", {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id: selectedCourse.code }),
+        body: JSON.stringify({ id: selectedDepartment.code }),
       })
 
       if (!res.ok) {
         const errorData = await res.json()
-        throw new Error(errorData.error || "Failed to delete course")
+        throw new Error(errorData.error || "Failed to delete department")
       }
 
       // Refresh degree data
       await fetchDegree()
 
       // Reset state and close modal
-      setSelectedCourse(null)
+      setSelectedDepartment(null)
       setShowDeleteModal(false)
     } catch (err) {
       setError(err.message)
@@ -207,15 +207,15 @@ export default function DegreeCoursesPage() {
     }
   }
 
-  const openEditModal = (course) => {
-    setSelectedCourse(course)
-    setCourseFormData({ name: course.name, code: course.code })
+  const openEditModal = (department) => {
+    setSelectedDepartment(department)
+    setDepartmentFormData({ name: department.name, code: department.code })
     setShowEditModal(true)
     setError(null)
   }
 
-  const openDeleteModal = (course) => {
-    setSelectedCourse(course)
+  const openDeleteModal = (department) => {
+    setSelectedDepartment(department)
     setShowDeleteModal(true)
     setError(null)
   }
@@ -247,40 +247,40 @@ export default function DegreeCoursesPage() {
 
       <div className={styles.degreesHeader}>
         <h2>
-          {degree.name} ({degree.code}) - Courses
+          {degree.name} ({degree.code}) - Departments
         </h2>
-        <p>Manage courses for this degree program</p>
+        <p>Manage departments for this degree program</p>
       </div>
 
-      {courses.length === 0 ? (
+      {departments.length === 0 ? (
         <div className={styles.emptyState}>
-          <h3>No courses found</h3>
-          <p>Add courses to this degree program to get started</p>
+          <h3>No departments found</h3>
+          <p>Add departments to this degree program to get started</p>
           <button className={styles.createButton} onClick={() => setShowCreateModal(true)}>
-            Add Course
+            Add Department
           </button>
         </div>
       ) : (
         <>
           {viewMode === "grid" ? (
             <div className={styles.degreeGrid}>
-              {courses.map((course) => (
-                <div key={course.code} className={styles.degreeCard}>
+              {departments.map((department) => (
+                <div key={department.code} className={styles.degreeCard}>
                   <div className={styles.degreeCardHeader}>
-                    <h4>{course.name}</h4>
-                    <span className={styles.degreeCode}>{course.code}</span>
+                    <h4>{department.name}</h4>
+                    <span className={styles.degreeCode}>{department.code}</span>
                   </div>
                   <div className={styles.degreeCardBody}>
                     <div className={styles.degreeCardActions}>
                       <button
                         className={styles.editButton}
-                        onClick={() => openEditModal(course)}
+                        onClick={() => openEditModal(department)}
                       >
                         Edit
                       </button>
                       <button
                         className={styles.deleteButton}
-                        onClick={() => openDeleteModal(course)}
+                        onClick={() => openDeleteModal(department)}
                       >
                         Delete
                       </button>
@@ -294,21 +294,21 @@ export default function DegreeCoursesPage() {
               <table>
                 <thead>
                   <tr>
-                    <th>Course Name</th>
-                    <th>Course Code</th>
+                    <th>Department Name</th>
+                    <th>Department Code</th>
                     <th>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {courses.map((course) => (
-                    <tr key={course.code}>
-                      <td>{course.name}</td>
-                      <td>{course.code}</td>
+                  {departments.map((department) => (
+                    <tr key={department.code}>
+                      <td>{department.name}</td>
+                      <td>{department.code}</td>
                       <td className={styles.tableActions}>
-                        <button className={styles.editButton} onClick={() => openEditModal(course)}>
+                        <button className={styles.editButton} onClick={() => openEditModal(department)}>
                           Edit
                         </button>
-                        <button className={styles.deleteButton} onClick={() => openDeleteModal(course)}>
+                        <button className={styles.deleteButton} onClick={() => openDeleteModal(department)}>
                           Delete
                         </button>
                       </td>
@@ -321,129 +321,129 @@ export default function DegreeCoursesPage() {
         </>
       )}
 
-      {/* Create Course Modal */}
+      {/* Create Department Modal */}
       <Modal
         isOpen={showCreateModal}
         onClose={() => {
           setShowCreateModal(false)
-          setCourseFormData({ name: "", code: "" })
+          setDepartmentFormData({ name: "", code: "" })
           setError(null)
         }}
-        title="Add New Course"
+        title="Add New Department"
         size="medium"
         footerButtons={{
           cancel: {
             text: "Cancel",
             onClick: () => {
               setShowCreateModal(false)
-              setCourseFormData({ name: "", code: "" })
+              setDepartmentFormData({ name: "", code: "" })
               setError(null)
             },
           },
           confirm: {
-            text: isSubmitting ? "Adding..." : "Add Course",
-            onClick: handleCreateCourse,
-            disabled: isSubmitting || !courseFormData.name || !courseFormData.code,
+            text: isSubmitting ? "Adding..." : "Add Department",
+            onClick: handleCreateDepartment,
+            disabled: isSubmitting || !departmentFormData.name || !departmentFormData.code,
           },
         }}
       >
         {error && <div className={styles.errorMessage}>{error}</div>}
 
         <div className={styles.formGroup}>
-          <label htmlFor="courseCode">Course Code</label>
+          <label htmlFor="departmentCode">Department Code</label>
           <input
             type="text"
-            id="courseCode"
+            id="departmentCode"
             name="code"
-            value={courseFormData.code}
-            onChange={handleCourseFormChange}
+            value={departmentFormData.code}
+            onChange={handleDepartmentFormChange}
             required
-            placeholder="e.g., CS101, MATH201"
+            placeholder="e.g., CSE, ME, EE"
             className={styles.input}
           />
         </div>
 
         <div className={styles.formGroup}>
-          <label htmlFor="courseName">Course Name</label>
+          <label htmlFor="departmentName">Department Name</label>
           <input
             type="text"
-            id="courseName"
+            id="departmentName"
             name="name"
-            value={courseFormData.name}
-            onChange={handleCourseFormChange}
+            value={departmentFormData.name}
+            onChange={handleDepartmentFormChange}
             required
-            placeholder="e.g., Introduction to Computer Science"
+            placeholder="e.g., Computer Science and Engineering"
             className={styles.input}
           />
         </div>
       </Modal>
 
-      {/* Edit Course Modal */}
+      {/* Edit Department Modal */}
       <Modal
         isOpen={showEditModal}
         onClose={() => {
           setShowEditModal(false)
-          setCourseFormData({ name: "", code: "" })
-          setSelectedCourse(null)
+          setDepartmentFormData({ name: "", code: "" })
+          setSelectedDepartment(null)
           setError(null)
         }}
-        title="Edit Course"
+        title="Edit Department"
         size="medium"
         footerButtons={{
           cancel: {
             text: "Cancel",
             onClick: () => {
               setShowEditModal(false)
-              setCourseFormData({ name: "", code: "" })
-              setSelectedCourse(null)
+              setDepartmentFormData({ name: "", code: "" })
+              setSelectedDepartment(null)
               setError(null)
             },
           },
           confirm: {
             text: isSubmitting ? "Saving..." : "Save Changes",
-            onClick: handleEditCourse,
-            disabled: isSubmitting || !courseFormData.name || !courseFormData.code,
+            onClick: handleEditDepartment,
+            disabled: isSubmitting || !departmentFormData.name || !departmentFormData.code,
           },
         }}
       >
         {error && <div className={styles.errorMessage}>{error}</div>}
 
         <div className={styles.formGroup}>
-          <label htmlFor="editCourseCode">Course Code</label>
+          <label htmlFor="editDepartmentCode">Department Code</label>
           <input
             type="text"
-            id="editCourseCode"
+            id="editDepartmentCode"
             name="code"
-            value={courseFormData.code}
-            onChange={handleCourseFormChange}
+            value={departmentFormData.code}
+            onChange={handleDepartmentFormChange}
             required
             disabled
             className={styles.input}
           />
-          <small className={styles.helpText}>Course code cannot be changed</small>
+          <small className={styles.helpText}>Department code cannot be changed</small>
         </div>
 
         <div className={styles.formGroup}>
-          <label htmlFor="editCourseName">Course Name</label>
+          <label htmlFor="editDepartmentName">Department Name</label>
           <input
             type="text"
-            id="editCourseName"
+            id="editDepartmentName"
             name="name"
-            value={courseFormData.name}
-            onChange={handleCourseFormChange}
+            value={departmentFormData.name}
+            onChange={handleDepartmentFormChange}
             required
-            placeholder="e.g., Introduction to Computer Science"
+            placeholder="e.g., Computer Science and Engineering"
             className={styles.input}
           />
         </div>
       </Modal>
 
-      {/* Delete Course Modal */}
+      {/* Delete Department Modal */}
       <Modal
         isOpen={showDeleteModal}
         onClose={() => {
           setShowDeleteModal(false)
-          setSelectedCourse(null)
+          setSelectedDepartment(null)
           setError(null)
         }}
         title="Confirm Deletion"
@@ -453,13 +453,13 @@ export default function DegreeCoursesPage() {
             text: "Cancel",
             onClick: () => {
               setShowDeleteModal(false)
-              setSelectedCourse(null)
+              setSelectedDepartment(null)
               setError(null)
             },
           },
           confirm: {
-            text: isSubmitting ? "Deleting..." : "Delete Course",
-            onClick: handleDeleteCourse,
+            text: isSubmitting ? "Deleting..." : "Delete Department",
+            onClick: handleDeleteDepartment,
             disabled: isSubmitting,
             variant: "danger",
           },
@@ -468,7 +468,7 @@ export default function DegreeCoursesPage() {
         {error && <div className={styles.errorMessage}>{error}</div>}
 
         <p>
-          Are you sure you want to delete the course <strong>{selectedCourse?.name}</strong>? This action cannot be undone and may affect related data.
+          Are you sure you want to delete the department <strong>{selectedDepartment?.name}</strong>? This action cannot be undone and may affect related data.
         </p>
       </Modal>
     </div>

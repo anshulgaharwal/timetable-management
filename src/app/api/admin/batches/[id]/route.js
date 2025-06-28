@@ -27,7 +27,7 @@ export async function GET(req, { params }) {
       return NextResponse.json({ error: "Invalid batch ID" }, { status: 400 })
     }
 
-    // Get batch with its students and course/degree info
+    // Get batch with its students and department/degree info
     const batch = await prisma.batch.findUnique({
       where: { id: batchId },
       include: {
@@ -43,7 +43,7 @@ export async function GET(req, { params }) {
             },
           },
         },
-        course: {
+        department: {
           include: {
             degree: true,
           },
@@ -87,10 +87,10 @@ export async function PUT(req, { params }) {
     }
 
     const body = await req.json()
-    const { courseCode, startYear, endYear } = body
+    const { departmentCode, startYear, endYear } = body
 
     // Validate input
-    if (!courseCode || !startYear || !endYear) {
+    if (!departmentCode || !startYear || !endYear) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
     }
 
@@ -108,20 +108,20 @@ export async function PUT(req, { params }) {
       return NextResponse.json({ error: "Batch not found" }, { status: 404 })
     }
 
-    // Check if course exists
-    const course = await prisma.course.findUnique({
-      where: { code: courseCode },
+    // Check if department exists
+    const department = await prisma.department.findUnique({
+      where: { code: departmentCode },
     })
 
-    if (!course) {
-      return NextResponse.json({ error: "Course not found" }, { status: 404 })
+    if (!department) {
+      return NextResponse.json({ error: "Department not found" }, { status: 404 })
     }
 
     // Update batch
     const updatedBatch = await prisma.batch.update({
       where: { id: batchId },
       data: {
-        courseCode,
+        departmentCode,
         startYear: parseInt(startYear),
         endYear: parseInt(endYear),
       },

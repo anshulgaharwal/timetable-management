@@ -33,13 +33,13 @@ export default function BatchDetailPage({ params }) {
 
   // Edit batch state
   const [editFormData, setEditFormData] = useState({
-    courseCode: "",
+    departmentCode: "",
     startYear: new Date().getFullYear(),
     endYear: new Date().getFullYear() + 4,
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [degrees, setDegrees] = useState([])
-  const [courses, setCourses] = useState([])
+  const [departments, setDepartments] = useState([])
   const [selectedDegreeId, setSelectedDegreeId] = useState("")
   const [dataLoaded, setDataLoaded] = useState(false)
 
@@ -92,14 +92,14 @@ export default function BatchDetailPage({ params }) {
 
       // Set initial edit form data
       setEditFormData({
-        courseCode: batchData.batch.courseCode,
+        departmentCode: batchData.batch.departmentCode,
         startYear: batchData.batch.startYear,
         endYear: batchData.batch.endYear,
       })
 
       // Set selected degree
-      if (batchData.batch.course?.degree) {
-        setSelectedDegreeId(batchData.batch.course.degree.code)
+      if (batchData.batch.department?.degree) {
+        setSelectedDegreeId(batchData.batch.department.degree.code)
       }
     } catch (err) {
       setError(err.message)
@@ -118,11 +118,11 @@ export default function BatchDetailPage({ params }) {
       const degreesData = await degreesRes.json()
       setDegrees(degreesData || [])
 
-      // Find and set courses for the current degree
+      // Find and set departments for the current degree
       if (selectedDegreeId) {
         const selectedDegree = degreesData.find((d) => d.code === selectedDegreeId)
-        if (selectedDegree && selectedDegree.courses) {
-          setCourses(selectedDegree.courses)
+        if (selectedDegree && selectedDegree.departments) {
+          setDepartments(selectedDegree.departments)
         }
       }
 
@@ -132,17 +132,17 @@ export default function BatchDetailPage({ params }) {
     }
   }
 
-  // Update courses when selected degree changes
+  // Update departments when selected degree changes
   useEffect(() => {
     if (selectedDegreeId) {
       const selectedDegree = degrees.find((d) => d.code === selectedDegreeId)
-      if (selectedDegree && selectedDegree.courses) {
-        setCourses(selectedDegree.courses)
+      if (selectedDegree && selectedDegree.departments) {
+        setDepartments(selectedDegree.departments)
       } else {
-        setCourses([])
+        setDepartments([])
       }
     } else {
-      setCourses([])
+      setDepartments([])
     }
   }, [selectedDegreeId, degrees])
 
@@ -228,15 +228,15 @@ export default function BatchDetailPage({ params }) {
 
     if (name === "degreeId") {
       setSelectedDegreeId(value)
-      setEditFormData((prev) => ({ ...prev, courseCode: "" }))
+      setEditFormData((prev) => ({ ...prev, departmentCode: "" }))
     } else {
       setEditFormData((prev) => ({ ...prev, [name]: value }))
     }
   }
 
   const handleEditBatch = async () => {
-    if (!editFormData.courseCode) {
-      setError("Course code is required")
+    if (!editFormData.departmentCode) {
+      setError("Department code is required")
       return
     }
 
@@ -299,8 +299,8 @@ export default function BatchDetailPage({ params }) {
         <>
           <div className={styles.batchHeader}>
             <div className={styles.batchInfo}>
-              <h2>{batch?.course?.degree?.name || "Unknown Degree"}</h2>
-              <h3>{batch?.course?.name || "Unknown Course"}</h3>
+              <h2>{batch?.department?.degree?.name || "Unknown Degree"}</h2>
+              <h3>{batch?.department?.name || "Unknown Department"}</h3>
           <div className={styles.batchMeta}>
             <span className={styles.batchYears}>
               {batch?.startYear} - {batch?.endYear}
@@ -308,8 +308,8 @@ export default function BatchDetailPage({ params }) {
             <span className={styles.studentCount}>{batch?.students?.length || 0} Students</span>
           </div>
           <div className={styles.batchCodes}>
-            <span className={styles.degreeCode}>Degree: {batch?.course?.degree?.code || "Unknown"}</span>
-            <span className={styles.courseCode}>Course: {batch?.courseCode || "Unknown"}</span>
+            <span className={styles.degreeCode}>Degree: {batch?.department?.degree?.code || "Unknown"}</span>
+            <span className={styles.departmentCode}>Department: {batch?.departmentCode || "Unknown"}</span>
           </div>
         </div>
       </div>
@@ -439,11 +439,11 @@ export default function BatchDetailPage({ params }) {
           setShowEditModal(false)
           // Reset form to current batch values
           setEditFormData({
-            courseCode: batch.courseCode,
+            departmentCode: batch.departmentCode,
             startYear: batch.startYear,
             endYear: batch.endYear,
           })
-          setSelectedDegreeId(batch.course?.degree?.code || "")
+          setSelectedDegreeId(batch.department?.degree?.code || "")
         }}
         title="Edit Batch"
         size="medium"
@@ -454,11 +454,11 @@ export default function BatchDetailPage({ params }) {
               setShowEditModal(false)
               // Reset form to current batch values
               setEditFormData({
-                courseCode: batch.courseCode,
+                departmentCode: batch.departmentCode,
                 startYear: batch.startYear,
                 endYear: batch.endYear,
               })
-              setSelectedDegreeId(batch.course?.degree?.code || "")
+              setSelectedDegreeId(batch.department?.degree?.code || "")
             },
           },
           confirm: {
@@ -482,12 +482,12 @@ export default function BatchDetailPage({ params }) {
         </div>
 
         <div className={styles.formGroup}>
-          <label htmlFor="courseCode">Course</label>
-          <select id="courseCode" name="courseCode" value={editFormData.courseCode} onChange={handleEditChange} required disabled={!selectedDegreeId || courses.length === 0} className={styles.select}>
-            <option value="">Select Course</option>
-            {courses.map((course) => (
-              <option key={course.code} value={course.code}>
-                {course.name} ({course.code})
+          <label htmlFor="departmentCode">Department</label>
+          <select id="departmentCode" name="departmentCode" value={editFormData.departmentCode} onChange={handleEditChange} required disabled={!selectedDegreeId || departments.length === 0} className={styles.select}>
+            <option value="">Select Department</option>
+            {departments.map((department) => (
+              <option key={department.code} value={department.code}>
+                {department.name} ({department.code})
               </option>
             ))}
           </select>

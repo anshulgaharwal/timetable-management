@@ -34,7 +34,7 @@ export default function TimetableGrid({ entries }) {
                   <td key={day + slot} className={entry ? 'has-entry' : 'empty'}>
                     {entry ? (
                       <>
-                        <div><strong>{entry.course.name}</strong></div>
+                        <div><strong>{entry.department.name}</strong></div>
                         <div>{entry.classroom}</div>
                         <div style={{ fontSize: '0.8em', color: '#444' }}>{entry.professor?.name}</div>
                       </>

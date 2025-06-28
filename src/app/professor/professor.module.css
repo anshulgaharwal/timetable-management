@@ -192,7 +192,7 @@
   font-style: italic;
 }
 
-.courseEntry {
+.departmentEntry {
   display: flex;
   flex-direction: column;
   gap: 4px;
@@ -202,7 +202,7 @@
   padding: 8px;
 }
 
-.courseName {
+.departmentName {
   font-weight: 600;
   font-size: 13px;
   color: var(--text-primary);
@@ -210,7 +210,7 @@
   line-height: 1.2;
 }
 
-.courseClassroom {
+.departmentClassroom {
   font-size: 11px;
   color: var(--text-secondary);
   background: var(--surface-secondary);
@@ -218,7 +218,7 @@
   border-radius: 4px;
 }
 
-.courseProfessor {
+.departmentProfessor {
   font-size: 11px;
   color: var(--text-secondary);
   font-style: italic;
@@ -302,12 +302,12 @@
     font-size: 12px;
   }
 
-  .courseName {
+  .departmentName {
     font-size: 11px;
   }
 
-  .courseClassroom,
-  .courseProfessor {
+  .departmentClassroom,
+  .departmentProfessor {
     font-size: 10px;
   }
 }

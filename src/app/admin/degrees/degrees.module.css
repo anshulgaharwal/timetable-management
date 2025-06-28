@@ -58,7 +58,7 @@
   margin-top: 5px;
 }
 
-.courseCount {
+.departmentCount {
   margin-top: 10px;
   color: #0070f3;
   font-weight: 500;
@@ -230,11 +230,11 @@
   cursor: pointer;
 }
 
-.coursesList {
+.departmentsList {
   margin-top: 15px;
 }
 
-.courseItem {
+.departmentItem {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -242,16 +242,16 @@
   border-bottom: 1px solid #eee;
 }
 
-.courseItem:last-child {
+.departmentItem:last-child {
   border-bottom: none;
 }
 
-.courseDetails h3 {
+.departmentDetails h3 {
   margin: 0;
   font-size: 1rem;
 }
 
-.courseCode {
+.departmentCode {
   font-size: 0.8rem;
   color: #666;
 }

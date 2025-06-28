@@ -66,13 +66,13 @@ model Response {
 }
 
 model Batch {
-  id         Int       @id @default(autoincrement())
-  courseCode String
-  startYear  Int
-  endYear    Int
-  course     Course    @relation(fields: [courseCode], references: [code])
-  polls      Poll[]
-  students   Student[]
+  id             Int       @id @default(autoincrement())
+  departmentCode String
+  startYear      Int
+  endYear        Int
+  department     Department @relation(fields: [departmentCode], references: [code])
+  polls          Poll[]
+  students       Student[]
   timetableEntries TimetableEntry[]
 }
 
@@ -86,36 +86,36 @@ model Student {
 }
 
 model Degree {
-  code    String   @id
-  name    String   @unique
-  courses Course[]
+  code        String       @id
+  name        String       @unique
+  departments Department[]
 }
 
-model Course {
-  code     String  @id
-  name     String  @unique
-  degreeId String
-  batches  Batch[]
-  degree   Degree  @relation(fields: [degreeId], references: [code])
+model Department {
+  code             String             @id
+  name             String             @unique
+  degreeId         String
+  batches          Batch[]
+  degree           Degree             @relation(fields: [degreeId], references: [code])
   timetableEntries TimetableEntry[]
 }
 
 model TimetableEntry {
-  id          String   @id @default(cuid())
-  day         String   // e.g., "Monday"
-  timeSlot    String   // e.g., "09:00-10:00"
-  classroom   String
+  id              String     @id @default(cuid())
+  day             String     // e.g., "Monday"
+  timeSlot        String     // e.g., "09:00-10:00"
+  classroom       String
 
-  courseCode  String
-  course      Course   @relation(fields: [courseCode], references: [code])
+  departmentCode  String
+  department      Department @relation(fields: [departmentCode], references: [code])
 
-  professorId String
-  professor   User     @relation("UserToTimetable", fields: [professorId], references: [id])
+  professorId     String
+  professor       User       @relation("UserToTimetable", fields: [professorId], references: [id])
 
-  batchId     Int
-  batch       Batch    @relation(fields: [batchId], references: [id])
+  batchId         Int
+  batch           Batch      @relation(fields: [batchId], references: [id])
 
-  createdAt   DateTime @default(now())
+  createdAt       DateTime   @default(now())
 }
 
 

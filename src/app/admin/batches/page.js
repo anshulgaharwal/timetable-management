@@ -16,12 +16,12 @@ export default function AdminBatchesPage() {
   const [viewMode, setViewMode] = useState("grid") // grid or list
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [degrees, setDegrees] = useState([])
-  const [courses, setCourses] = useState([])
+  const [departments, setDepartments] = useState([])
   const [loading, setLoading] = useState(true)
   const [degreesLoading, setDegreesLoading] = useState(false)
   const [formData, setFormData] = useState({
     degreeId: "",
-    courseCode: "",
+    departmentCode: "",
     startYear: new Date().getFullYear(),
     endYear: new Date().getFullYear() + 4,
   })
@@ -91,17 +91,17 @@ export default function AdminBatchesPage() {
     }
   }
 
-  // Update courses when degree changes
+  // Update departments when degree changes
   useEffect(() => {
     if (formData.degreeId) {
       const selectedDegree = degrees.find((d) => d.code === formData.degreeId)
-      if (selectedDegree && selectedDegree.courses) {
-        setCourses(selectedDegree.courses)
+      if (selectedDegree && selectedDegree.departments) {
+        setDepartments(selectedDegree.departments)
       } else {
-        setCourses([])
+        setDepartments([])
       }
     } else {
-      setCourses([])
+      setDepartments([])
     }
   }, [formData.degreeId, degrees])
 
@@ -157,9 +157,9 @@ export default function AdminBatchesPage() {
     const { name, value } = e.target
 
     setFormData((prev) => {
-      // If changing degree, reset course
+      // If changing degree, reset department
       if (name === "degreeId") {
-        return { ...prev, [name]: value, courseCode: "" }
+        return { ...prev, [name]: value, departmentCode: "" }
       }
 
       // If changing startYear, update endYear based on typical program duration
@@ -188,8 +188,8 @@ export default function AdminBatchesPage() {
   }
 
   const handleCreateBatch = async () => {
-    if (!formData.degreeId || !formData.courseCode) {
-      setError("Please select both degree and course")
+    if (!formData.degreeId || !formData.departmentCode) {
+      setError("Please select both degree and department")
       return
     }
 
@@ -224,7 +224,7 @@ export default function AdminBatchesPage() {
       // Reset form and close modal
       setFormData({
         degreeId: "",
-        courseCode: "",
+        departmentCode: "",
         startYear: new Date().getFullYear(),
         endYear: new Date().getFullYear() + 4,
       })
@@ -274,7 +274,7 @@ export default function AdminBatchesPage() {
                   {degree.batches.map((batch) => (
                     <div key={batch.id} className={styles.batchCard}>
                       <div className={styles.batchCardHeader}>
-                        <h4>{batch.courseName}</h4>
+                        <h4>{batch.departmentName}</h4>
                         <span className={styles.batchYears}>
                           {batch.startYear} - {batch.endYear}
                         </span>
@@ -284,7 +284,7 @@ export default function AdminBatchesPage() {
                           <span className={styles.statLabel}>Students</span>
                           <span className={styles.statValue}>{batch.studentCount || 0}</span>
                         </div>
-                        <div className={styles.courseCode}>{batch.courseCode}</div>
+                        <div className={styles.departmentCode}>{batch.departmentCode}</div>
                         <div className={styles.batchCardActions}>
                           <button className={styles.viewButton} onClick={() => navigateToBatch(batch.id)}>
                             View Details
@@ -308,8 +308,8 @@ export default function AdminBatchesPage() {
                   <table>
                     <thead>
                       <tr>
-                        <th>Course Name</th>
-                        <th>Course Code</th>
+                        <th>Department Name</th>
+                        <th>Department Code</th>
                         <th>Years</th>
                         <th>Students</th>
                         <th>Actions</th>
@@ -318,8 +318,8 @@ export default function AdminBatchesPage() {
                     <tbody>
                       {degree.batches.map((batch) => (
                         <tr key={batch.id}>
-                          <td>{batch.courseName}</td>
-                          <td>{batch.courseCode}</td>
+                          <td>{batch.departmentName}</td>
+                          <td>{batch.departmentCode}</td>
                           <td>
                             {batch.startYear} - {batch.endYear}
                           </td>
@@ -367,7 +367,7 @@ export default function AdminBatchesPage() {
         }}
       >
         <p>
-          Are you sure you want to delete batch <strong>{batchToDelete?.courseName}</strong>? This action cannot be undone and will remove all associated data.
+          Are you sure you want to delete batch <strong>{batchToDelete?.departmentName}</strong>? This action cannot be undone and will remove all associated data.
         </p>
       </Modal>
 
@@ -378,7 +378,7 @@ export default function AdminBatchesPage() {
           setShowCreateModal(false)
           setFormData({
             degreeId: "",
-            courseCode: "",
+            departmentCode: "",
             startYear: new Date().getFullYear(),
             endYear: new Date().getFullYear() + 4,
           })
@@ -393,7 +393,7 @@ export default function AdminBatchesPage() {
               setShowCreateModal(false)
               setFormData({
                 degreeId: "",
-                courseCode: "",
+                departmentCode: "",
                 startYear: new Date().getFullYear(),
                 endYear: new Date().getFullYear() + 4,
               })
@@ -403,7 +403,7 @@ export default function AdminBatchesPage() {
           confirm: {
             text: isSubmitting ? "Creating..." : "Create Batch",
             onClick: handleCreateBatch,
-            disabled: isSubmitting || degreesLoading || !formData.degreeId || !formData.courseCode,
+            disabled: isSubmitting || degreesLoading || !formData.degreeId || !formData.departmentCode,
           },
         }}
       >
@@ -428,15 +428,14 @@ export default function AdminBatchesPage() {
               </select>
             </div>
 
-            <div className={styles.formGroup}>
-              <label htmlFor="courseCode">Course</label>
-              <select id="courseCode" name="courseCode" value={formData.courseCode} onChange={handleFormChange} required disabled={!formData.degreeId || courses.length === 0} className={styles.select}>
-                <option value="">{!formData.degreeId ? "Select degree first" : courses.length === 0 ? "No courses available" : "Select Course"}</option>
-                {courses.map((course) => (
-                  <option key={course.code} value={course.code}>
-                    {course.name} ({course.code})
-                  </option>
-                ))}
+            <div className={styles.formGroup}>            <label htmlFor="departmentCode">Department</label>
+            <select id="departmentCode" name="departmentCode" value={formData.departmentCode} onChange={handleFormChange} required disabled={!formData.degreeId || departments.length === 0} className={styles.select}>
+              <option value="">{!formData.degreeId ? "Select degree first" : departments.length === 0 ? "No departments available" : "Select Department"}</option>
+              {departments.map((department) => (
+                <option key={department.code} value={department.code}>
+                  {department.name} ({department.code})
+                </option>
+              ))}
               </select>
             </div>
 

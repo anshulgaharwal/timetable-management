@@ -30,7 +30,7 @@ function AdminLayoutContent({ children }) {
     if (pathname.match(/\/admin\/batches\/\d+/)) return "Batch Details"
     if (pathname === "/admin/settings") return "Settings"
     if (pathname === "/admin/degrees") return "Manage Degrees"
-    if (pathname.match(/\/admin\/degrees\/[A-Za-z0-9]+/)) return "Degree Courses"
+    if (pathname.match(/\/admin\/degrees\/[A-Za-z0-9]+/)) return "Degree Departments"
     return "Admin"
   }
 

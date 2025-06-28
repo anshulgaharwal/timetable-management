@@ -22,7 +22,7 @@ export async function POST(req) {
       day: data.day,
       timeSlot: data.timeSlot,
       classroom: data.classroom,
-      courseCode: data.courseCode,
+      departmentCode: data.departmentCode,
       professorId: data.professorId,
       batchId: parseInt(data.batchId),
     },

@@ -278,7 +278,7 @@ export default function AdminCreatePollPage() {
                   <option value="">All Batches</option>
                   {batches.map(batch => (
                     <option key={batch.id} value={batch.id}>
-                      {batch.courseName} ({batch.startYear}-{batch.endYear})
+                      {batch.departmentName} ({batch.startYear}-{batch.endYear})
                     </option>
                   ))}
                 </select>

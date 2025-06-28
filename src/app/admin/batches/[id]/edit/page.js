@@ -14,7 +14,7 @@ export default function EditBatchPage({ params }) {
 
   const [batch, setBatch] = useState(null)
   const [formData, setFormData] = useState({
-    courseCode: "",
+    departmentCode: "",
     startYear: new Date().getFullYear(),
     endYear: new Date().getFullYear() + 4,
   })
@@ -22,7 +22,7 @@ export default function EditBatchPage({ params }) {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState(null)
   const [degrees, setDegrees] = useState([])
-  const [courses, setCourses] = useState([])
+  const [departments, setDepartments] = useState([])
   const [selectedDegreeId, setSelectedDegreeId] = useState("")
 
   const fetchData = async () => {
@@ -40,14 +40,14 @@ export default function EditBatchPage({ params }) {
 
       // Set initial form data
       setFormData({
-        courseCode: batchData.batch.courseCode,
+        departmentCode: batchData.batch.departmentCode,
         startYear: batchData.batch.startYear,
         endYear: batchData.batch.endYear,
       })
 
       // Set selected degree
-      if (batchData.batch.course?.degree) {
-        setSelectedDegreeId(batchData.batch.course.degree.code)
+      if (batchData.batch.department?.degree) {
+        setSelectedDegreeId(batchData.batch.department.degree.code)
       }
 
       // Fetch all degrees
@@ -85,17 +85,17 @@ export default function EditBatchPage({ params }) {
     return () => setActionButtons([])
   }, [id, router, setActionButtons])
 
-  // Update courses when selected degree changes
+  // Update departments when selected degree changes
   useEffect(() => {
     if (selectedDegreeId) {
       const selectedDegree = degrees.find((d) => d.code === selectedDegreeId)
-      if (selectedDegree && selectedDegree.courses) {
-        setCourses(selectedDegree.courses)
+      if (selectedDegree && selectedDegree.departments) {
+        setDepartments(selectedDegree.departments)
       } else {
-        setCourses([])
+        setDepartments([])
       }
     } else {
-      setCourses([])
+      setDepartments([])
     }
   }, [selectedDegreeId, degrees])
 
@@ -104,7 +104,7 @@ export default function EditBatchPage({ params }) {
 
     if (name === "degreeId") {
       setSelectedDegreeId(value)
-      setFormData((prev) => ({ ...prev, courseCode: "" }))
+      setFormData((prev) => ({ ...prev, departmentCode: "" }))
     } else {
       setFormData((prev) => ({ ...prev, [name]: value }))
     }
@@ -174,12 +174,12 @@ export default function EditBatchPage({ params }) {
           </div>
 
           <div className={styles.formGroup}>
-            <label htmlFor="courseCode">Course</label>
-            <select id="courseCode" name="courseCode" value={formData.courseCode} onChange={handleChange} required disabled={!selectedDegreeId || courses.length === 0} className={styles.select}>
-              <option value="">Select Course</option>
-              {courses.map((course) => (
-                <option key={course.code} value={course.code}>
-                  {course.name} ({course.code})
+            <label htmlFor="departmentCode">Department</label>
+            <select id="departmentCode" name="departmentCode" value={formData.departmentCode} onChange={handleChange} required disabled={!selectedDegreeId || departments.length === 0} className={styles.select}>
+              <option value="">Select Department</option>
+              {departments.map((department) => (
+                <option key={department.code} value={department.code}>
+                  {department.name} ({department.code})
                 </option>
               ))}
             </select>

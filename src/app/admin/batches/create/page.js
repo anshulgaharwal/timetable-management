@@ -12,14 +12,14 @@ export default function CreateBatchPage() {
   const { setActionButtons } = useLayout()
   const [formData, setFormData] = useState({
     degreeId: "",
-    courseCode: "",
+    departmentCode: "",
     startYear: new Date().getFullYear(),
     endYear: new Date().getFullYear() + 4,
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState(null)
   const [degrees, setDegrees] = useState([])
-  const [courses, setCourses] = useState([])
+  const [departments, setDepartments] = useState([])
   const [loading, setLoading] = useState(true)
 
   // Set action buttons immediately
@@ -59,28 +59,26 @@ export default function CreateBatchPage() {
       setLoading(false)
     }
   }
-
-  // Update courses when degree changes
+  // Update departments when degree changes
   useEffect(() => {
     if (formData.degreeId) {
       const selectedDegree = degrees.find((d) => d.code === formData.degreeId)
-      if (selectedDegree && selectedDegree.courses) {
-        setCourses(selectedDegree.courses)
+      if (selectedDegree && selectedDegree.departments) {
+        setDepartments(selectedDegree.departments)
       } else {
-        setCourses([])
+        setDepartments([])
       }
     } else {
-      setCourses([])
+      setDepartments([])
     }
   }, [formData.degreeId, degrees])
 
   const handleChange = (e) => {
     const { name, value } = e.target
-
     setFormData((prev) => {
-      // If changing degree, reset course
+      // If changing degree, reset department
       if (name === "degreeId") {
-        return { ...prev, [name]: value, courseCode: "" }
+        return { ...prev, [name]: value, departmentCode: "" }
       }
 
       // If changing startYear, update endYear based on typical program duration
@@ -111,8 +109,8 @@ export default function CreateBatchPage() {
   const handleSubmit = async (e) => {
     e.preventDefault()
     
-    if (!formData.degreeId || !formData.courseCode) {
-      setError("Please select both degree and course")
+    if (!formData.degreeId || !formData.departmentCode) {
+      setError("Please select both degree and department")
       return
     }
 
@@ -183,12 +181,12 @@ export default function CreateBatchPage() {
           </div>
 
           <div className={styles.formGroup}>
-            <label htmlFor="courseCode">Course</label>
-            <select id="courseCode" name="courseCode" value={formData.courseCode} onChange={handleChange} required disabled={!formData.degreeId || courses.length === 0} className={styles.select}>
-              <option value="">Select Course</option>
-              {courses.map((course) => (
-                <option key={course.code} value={course.code}>
-                  {course.name} ({course.code})
+            <label htmlFor="departmentCode">Department</label>
+            <select id="departmentCode" name="departmentCode" value={formData.departmentCode} onChange={handleChange} required disabled={!formData.degreeId || departments.length === 0} className={styles.select}>
+              <option value="">Select Department</option>
+              {departments.map((department) => (
+                <option key={department.code} value={department.code}>
+                  {department.name} ({department.code})
                 </option>
               ))}
             </select>
