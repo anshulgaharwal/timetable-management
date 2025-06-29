@@ -6,9 +6,10 @@ import styles from "./professors.module.css"
 import ProfessorTable from "./components/ProfessorTable"
 import ProfessorForm from "./components/ProfessorForm"
 import Modal from "../../../components/Modal"
+import { useAdmin } from "../../../contexts/AdminContext"
 
 export default function ProfessorsPage() {
-  const [professors, setProfessors] = useState([])
+  const { professors, setProfessors } = useAdmin()
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
   const [showAddForm, setShowAddForm] = useState(false)

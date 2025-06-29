@@ -8,16 +8,16 @@ const AdminContext = createContext({
 })
 
 export function AdminProvider({ children }) {
-  // Remove global loading and action buttons - these are now in LayoutContext
-  // Keep this context for future admin-specific state
+  const [professors, setProfessors] = useState([])
 
   return (
     <AdminContext.Provider
-      value={
-        {
-          // Future admin-specific functionality
-        }
-      }
+      value={{
+        professors,
+        setProfessors,
+        // Future admin-specific functionality can be added here
+        // For example, managing batches, polls, settings, etc.
+      }}
     >
       {children}
     </AdminContext.Provider>
