@@ -1,5 +1,6 @@
 "use client"
 
+import React from "react"
 import { useState, useEffect, useTransition } from "react"
 import { useRouter } from "next/navigation"
 import { useLayout } from "../../../../contexts/LayoutContext"
@@ -8,7 +9,7 @@ import Modal from "../../../../components/Modal"
 import styles from "./batchDetail.module.css"
 
 export default function BatchDetailPage({ params }) {
-  const { id } = params
+  const { id } = React.use(params)
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
   const { setActionButtons } = useLayout()
@@ -42,41 +43,6 @@ export default function BatchDetailPage({ params }) {
   const [departments, setDepartments] = useState([])
   const [selectedDegreeId, setSelectedDegreeId] = useState("")
   const [dataLoaded, setDataLoaded] = useState(false)
-
-  useEffect(() => {
-    // Set action buttons immediately
-    setActionButtons([
-      {
-        label: "Add Student",
-        icon: "👨‍🎓",
-        onClick: () => setShowAddModal(true),
-        variant: "primary",
-      },
-      {
-        label: "Edit Batch",
-        icon: "✏️",
-        onClick: () => setShowEditModal(true),
-        variant: "secondary",
-      },
-      {
-        label: "Back to Batches",
-        icon: "←",
-        onClick: () => {
-          startTransition(() => {
-            router.push("/admin/batches")
-          })
-        },
-        variant: "secondary",
-      },
-    ])
-
-    // Fetch batch data immediately
-    fetchBatchData()
-
-    return () => {
-      setActionButtons([])
-    }
-  }, [id, router, setActionButtons, fetchBatchData])
 
   const fetchBatchData = async () => {
     try {
@@ -145,6 +111,41 @@ export default function BatchDetailPage({ params }) {
       setDepartments([])
     }
   }, [selectedDegreeId, degrees])
+
+  useEffect(() => {
+    // Set action buttons immediately
+    setActionButtons([
+      {
+        label: "Add Student",
+        icon: "👨‍🎓",
+        onClick: () => setShowAddModal(true),
+        variant: "primary",
+      },
+      {
+        label: "Edit Batch",
+        icon: "✏️",
+        onClick: () => setShowEditModal(true),
+        variant: "secondary",
+      },
+      {
+        label: "Back to Batches",
+        icon: "←",
+        onClick: () => {
+          startTransition(() => {
+            router.push("/admin/batches")
+          })
+        },
+        variant: "secondary",
+      },
+    ])
+
+    // Fetch batch data immediately
+    fetchBatchData()
+
+    return () => {
+      setActionButtons([])
+    }
+  }, [id, router, setActionButtons])
 
   const handleAddStudentChange = (e) => {
     const { name, value } = e.target
