@@ -19,7 +19,7 @@ export default function RespondSuccess() {
         <div className={styles.successIcon}>✅</div>
         <h1>Response Submitted Successfully!</h1>
         <p>Thank you for participating in the poll. Your response has been recorded.</p>
-        
+
         <div className={styles.actionButtons}>
           <button onClick={goToPolls} className={styles.primaryButton}>
             View More Polls
@@ -28,7 +28,7 @@ export default function RespondSuccess() {
             Go to Dashboard
           </button>
         </div>
-        
+
         <div className={styles.links}>
           <button onClick={goToPolls} className={styles.link}>
             🗳️ Browse all polls

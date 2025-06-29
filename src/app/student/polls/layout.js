@@ -1,9 +1,9 @@
 "use client"
 
 import { usePathname } from "next/navigation"
-import DashboardLayout from "../../components/DashboardLayout"
+import DashboardLayout from "../../../components/DashboardLayout"
 
-export default function StudentLayout({ children }) {
+export default function StudentPollsLayout({ children }) {
   const pathname = usePathname()
 
   const sidebarTabs = [
