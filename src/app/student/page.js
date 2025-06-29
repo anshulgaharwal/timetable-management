@@ -91,10 +91,10 @@ export default function StudentDashboard() {
       href: "/student/timetable",
     },
     {
-      title: "Participate in Polls",
-      description: "Vote and provide feedback",
+      title: "Available Polls",
+      description: "View and participate in polls",
       icon: "🗳️",
-      href: "/respond",
+      href: "/student/polls",
     },
     {
       title: "Poll Results",
