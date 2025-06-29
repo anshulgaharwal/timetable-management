@@ -1,6 +1,7 @@
 .professorsContainer {
   width: 100%;
   padding: 0;
+  height: 100%;
 }
 
 .loadingContainer {
@@ -8,154 +9,255 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 60px 20px;
+  padding: 80px 20px;
   color: var(--text-secondary);
+  min-height: 400px;
 }
 
 .loadingContainer p {
-  margin-top: 16px;
-  font-size: 14px;
+  margin-top: 20px;
+  font-size: 16px;
+  font-weight: 500;
 }
 
 .errorMessage {
-  background: rgba(244, 67, 54, 0.1);
+  background: rgba(244, 67, 54, 0.08);
   color: #d32f2f;
-  padding: 12px 16px;
+  padding: 16px 20px;
   border-radius: var(--border-radius);
-  margin-bottom: 20px;
-  border: 1px solid rgba(244, 67, 54, 0.2);
+  margin-bottom: 24px;
+  border: 1px solid rgba(244, 67, 54, 0.15);
   font-size: 14px;
+  font-weight: 500;
+  backdrop-filter: blur(8px);
 }
 
 .tableContainer {
-  background: rgba(255, 255, 255, 0.7);
+  background: transparent;
   border-radius: var(--border-radius);
-  padding: 24px;
-  box-shadow: var(--glass-shadow);
-  border: 1px solid var(--glass-border);
+  padding: 32px;
+  border: none;
   overflow: hidden;
 }
 
 .professorsTable {
   width: 100%;
   border-collapse: collapse;
-  font-size: 14px;
+  font-size: 15px;
+  background: transparent;
 }
 
 .professorsTable th {
-  background: rgba(72, 118, 178, 0.1);
+  background: rgba(72, 118, 178, 0.08);
   color: var(--text-primary);
   font-weight: 600;
-  padding: 16px 12px;
+  padding: 18px 16px;
   text-align: left;
-  border-bottom: 2px solid var(--glass-border);
+  border-bottom: 2px solid rgba(72, 118, 178, 0.15);
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  position: sticky;
+  top: 0;
+  backdrop-filter: blur(8px);
 }
 
 .professorsTable td {
-  padding: 16px 12px;
-  border-bottom: 1px solid var(--glass-border);
+  padding: 20px 16px;
+  border-bottom: 1px solid rgba(72, 118, 178, 0.08);
   color: var(--text-primary);
+  font-size: 15px;
+  vertical-align: middle;
+}
+
+.professorsTable tr {
+  transition: all 0.2s ease;
 }
 
 .professorsTable tr:hover {
-  background: rgba(72, 118, 178, 0.05);
+  background: rgba(72, 118, 178, 0.04);
+  transform: translateY(-1px);
 }
 
 .professorsTable tr:last-child td {
   border-bottom: none;
 }
 
-.actionsCell {
-  display: flex;
-  gap: 8px;
-}
-
 .actionButton {
-  padding: 6px 12px;
-  border: none;
-  border-radius: 6px;
-  font-size: 12px;
-  font-weight: 500;
+  padding: 8px 16px;
+  border: 2px solid;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 80px;
+  justify-content: center;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  background: transparent;
+  margin-right: 8px;
+}
+
+.actionButton:last-child {
+  margin-right: 0;
 }
 
 .editButton {
-  background: var(--accent-primary);
-  color: white;
+  border-color: var(--accent-primary);
+  color: var(--accent-primary);
 }
 
 .editButton:hover {
-  background: #3a5f99;
+  background: var(--accent-primary);
+  color: white;
   transform: translateY(-1px);
+}
+
+.editButton:active {
+  transform: translateY(0);
 }
 
 .deleteButton {
-  background: #f44336;
-  color: white;
+  border-color: #f44336;
+  color: #f44336;
 }
 
 .deleteButton:hover {
-  background: #d32f2f;
+  background: #f44336;
+  color: white;
   transform: translateY(-1px);
 }
 
-.emptyState {
-  text-align: center;
-  padding: 60px 20px;
-  color: var(--text-secondary);
+.deleteButton:active {
+  transform: translateY(0);
 }
 
-.emptyState h3 {
-  color: var(--text-primary);
-  margin-bottom: 8px;
+.emptyMessage {
+  text-align: center;
+  padding: 80px 20px;
+  color: var(--text-secondary);
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.emptyMessage::before {
+  content: "👨‍🏫";
+  display: block;
+  font-size: 64px;
+  margin-bottom: 16px;
+  opacity: 0.3;
 }
 
 .formContainer {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 24px;
+  padding: 8px 0;
 }
 
 .formGroup {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
 }
 
 .formGroup label {
-  font-weight: 500;
+  font-weight: 600;
   color: var(--text-primary);
   font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .formGroup input {
-  padding: 12px;
-  border: 1px solid var(--glass-border);
+  padding: 14px 16px;
+  border: 1px solid rgba(72, 118, 178, 0.2);
   border-radius: var(--border-radius);
-  font-size: 14px;
-  background: rgba(255, 255, 255, 0.8);
+  font-size: 15px;
+  background: rgba(255, 255, 255, 0.9);
   transition: all 0.2s ease;
+  backdrop-filter: blur(8px);
 }
 
 .formGroup input:focus {
   outline: none;
   border-color: var(--accent-primary);
   box-shadow: 0 0 0 3px rgba(72, 118, 178, 0.1);
+  background: rgba(255, 255, 255, 1);
+  transform: translateY(-1px);
+}
+
+.formGroup input::placeholder {
+  color: var(--text-secondary);
+  opacity: 0.7;
+}
+
+/* Responsive Design */
+@media (max-width: 992px) {
+  .tableContainer {
+    padding: 24px;
+  }
+
+  .professorsTable th,
+  .professorsTable td {
+    padding: 16px 12px;
+  }
 }
 
 @media (max-width: 768px) {
   .tableContainer {
-    padding: 16px;
+    padding: 20px;
     overflow-x: auto;
+    border-radius: 8px;
+  }
+
+  .professorsTable {
+    min-width: 600px;
+    font-size: 14px;
+  }
+
+  .professorsTable th {
+    padding: 14px 10px;
+    font-size: 12px;
+  }
+
+  .professorsTable td {
+    padding: 16px 10px;
+    font-size: 14px;
+  }
+
+  .actionButton {
+    font-size: 12px;
+    padding: 6px 12px;
+    min-width: 70px;
+    margin-right: 6px;
+  }
+
+  .formContainer {
+    gap: 20px;
+  }
+
+  .loadingContainer {
+    padding: 60px 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .tableContainer {
+    padding: 16px;
+    margin: 0 -4px;
   }
 
   .professorsTable {
     min-width: 500px;
   }
 
-  .actionsCell {
-    flex-direction: column;
-    gap: 4px;
+  .actionButton {
+    font-size: 11px;
+    padding: 5px 10px;
   }
 }
