@@ -25,7 +25,7 @@ export default function AdminCreatePollPage() {
     expiresAt: "",
     allowMultiple: false,
     batchId: "",
-    options: ["", ""]
+    options: ["", ""],
   })
 
   useEffect(() => {
@@ -68,29 +68,29 @@ export default function AdminCreatePollPage() {
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: type === "checkbox" ? checked : value
+      [name]: type === "checkbox" ? checked : value,
     }))
   }
 
   const handleOptionChange = (index, value) => {
     const newOptions = [...formData.options]
     newOptions[index] = value
-    setFormData(prev => ({ ...prev, options: newOptions }))
+    setFormData((prev) => ({ ...prev, options: newOptions }))
   }
 
   const addOption = () => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      options: [...prev.options, ""]
+      options: [...prev.options, ""],
     }))
   }
 
   const removeOption = (index) => {
     if (formData.options.length > 2) {
       const newOptions = formData.options.filter((_, i) => i !== index)
-      setFormData(prev => ({ ...prev, options: newOptions }))
+      setFormData((prev) => ({ ...prev, options: newOptions }))
     }
   }
 
@@ -107,7 +107,7 @@ export default function AdminCreatePollPage() {
       setError("At least 2 options are required")
       return false
     }
-    const emptyOptions = formData.options.filter(opt => !opt.trim()).length
+    const emptyOptions = formData.options.filter((opt) => !opt.trim()).length
     if (emptyOptions > 0) {
       setError("All options must have content")
       return false
@@ -137,12 +137,12 @@ export default function AdminCreatePollPage() {
       const pollData = {
         title: formData.title.trim(),
         question: formData.question.trim(),
-        options: formData.options.filter(opt => opt.trim()),
+        options: formData.options.filter((opt) => opt.trim()),
         description: formData.description.trim() || null,
         category: formData.category.trim() || null,
         expiresAt: formData.expiresAt || null,
         allowMultiple: formData.allowMultiple,
-        batchId: formData.batchId || null
+        batchId: formData.batchId || null,
       }
 
       const res = await fetch("/api/polls", {
@@ -157,10 +157,10 @@ export default function AdminCreatePollPage() {
       }
 
       const data = await res.json()
-      
+
       // Navigate to the newly created poll
       startTransition(() => {
-        router.push(`/admin/polls/${data.poll.id}`)
+        router.push(`/admin/polls/${data.pollId}`)
       })
     } catch (err) {
       setError(err.message)
@@ -182,80 +182,35 @@ export default function AdminCreatePollPage() {
         <form onSubmit={handleSubmit}>
           <div className={styles.formGroup}>
             <label htmlFor="title">Poll Title</label>
-            <input
-              type="text"
-              id="title"
-              name="title"
-              value={formData.title}
-              onChange={handleInputChange}
-              required
-              placeholder="Enter poll title"
-              className={styles.input}
-            />
+            <input type="text" id="title" name="title" value={formData.title} onChange={handleInputChange} required placeholder="Enter poll title" className={styles.input} />
           </div>
 
           <div className={styles.formGroup}>
             <label htmlFor="question">Question</label>
-            <textarea
-              id="question"
-              name="question"
-              value={formData.question}
-              onChange={handleInputChange}
-              required
-              placeholder="Enter the poll question"
-              className={styles.textarea}
-            />
+            <textarea id="question" name="question" value={formData.question} onChange={handleInputChange} required placeholder="Enter the poll question" className={styles.textarea} />
           </div>
 
           <div className={styles.formGroup}>
             <label htmlFor="description">Description (Optional)</label>
-            <textarea
-              id="description"
-              name="description"
-              value={formData.description}
-              onChange={handleInputChange}
-              placeholder="Additional details about this poll"
-              className={styles.textarea}
-            />
+            <textarea id="description" name="description" value={formData.description} onChange={handleInputChange} placeholder="Additional details about this poll" className={styles.textarea} />
           </div>
 
           <div className={styles.formRow}>
             <div className={styles.formGroup}>
               <label htmlFor="category">Category (Optional)</label>
-              <input
-                type="text"
-                id="category"
-                name="category"
-                value={formData.category}
-                onChange={handleInputChange}
-                placeholder="e.g., Academic, Events, Feedback"
-                className={styles.input}
-              />
+              <input type="text" id="category" name="category" value={formData.category} onChange={handleInputChange} placeholder="e.g., Academic, Events, Feedback" className={styles.input} />
             </div>
 
             <div className={styles.formGroup}>
               <label htmlFor="expiresAt">Expiration Date (Optional)</label>
-              <input
-                type="datetime-local"
-                id="expiresAt"
-                name="expiresAt"
-                value={formData.expiresAt}
-                onChange={handleInputChange}
-                className={styles.input}
-              />
+              <input type="datetime-local" id="expiresAt" name="expiresAt" value={formData.expiresAt} onChange={handleInputChange} className={styles.input} />
             </div>
           </div>
 
           <div className={styles.formRow}>
             <div className={styles.formGroup}>
               <div className={styles.checkboxGroup}>
-                <input
-                  type="checkbox"
-                  id="allowMultiple"
-                  name="allowMultiple"
-                  checked={formData.allowMultiple}
-                  onChange={handleInputChange}
-                />
+                <input type="checkbox" id="allowMultiple" name="allowMultiple" checked={formData.allowMultiple} onChange={handleInputChange} />
                 <label htmlFor="allowMultiple">Allow multiple selections</label>
               </div>
             </div>
@@ -263,20 +218,14 @@ export default function AdminCreatePollPage() {
             <div className={styles.formGroup}>
               <label htmlFor="batchId">Target Batch (Optional)</label>
               {batchesLoading ? (
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '12px' }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "8px", padding: "12px" }}>
                   <LoadingSpinner size="small" />
                   <span>Loading batches...</span>
                 </div>
               ) : (
-                <select
-                  id="batchId"
-                  name="batchId"
-                  value={formData.batchId}
-                  onChange={handleInputChange}
-                  className={styles.select}
-                >
+                <select id="batchId" name="batchId" value={formData.batchId} onChange={handleInputChange} className={styles.select}>
                   <option value="">All Batches</option>
-                  {batches.map(batch => (
+                  {batches.map((batch) => (
                     <option key={batch.id} value={batch.id}>
                       {batch.departmentName} ({batch.startYear}-{batch.endYear})
                     </option>
@@ -290,47 +239,24 @@ export default function AdminCreatePollPage() {
             <label>Options</label>
             {formData.options.map((option, index) => (
               <div key={index} className={styles.optionRow}>
-                <input
-                  type="text"
-                  value={option}
-                  onChange={(e) => handleOptionChange(index, e.target.value)}
-                  placeholder={`Option ${index + 1}`}
-                  className={styles.input}
-                />
+                <input type="text" value={option} onChange={(e) => handleOptionChange(index, e.target.value)} placeholder={`Option ${index + 1}`} className={styles.input} />
                 {formData.options.length > 2 && (
-                  <button
-                    type="button"
-                    onClick={() => removeOption(index)}
-                    className={styles.removeButton}
-                  >
+                  <button type="button" onClick={() => removeOption(index)} className={styles.removeButton}>
                     ✖
                   </button>
                 )}
               </div>
             ))}
-            <button
-              type="button"
-              onClick={addOption}
-              className={styles.addButton}
-            >
+            <button type="button" onClick={addOption} className={styles.addButton}>
               Add Option
             </button>
           </div>
 
           <div className={styles.formActions}>
-            <button
-              type="button"
-              onClick={() => router.push("/admin/polls")}
-              className={styles.cancelButton}
-              disabled={isSubmitting}
-            >
+            <button type="button" onClick={() => router.push("/admin/polls")} className={styles.cancelButton} disabled={isSubmitting}>
               Cancel
             </button>
-            <button
-              type="submit"
-              className={styles.submitButton}
-              disabled={isSubmitting}
-            >
+            <button type="submit" className={styles.submitButton} disabled={isSubmitting}>
               {isSubmitting ? "Creating..." : "Create Poll"}
             </button>
           </div>
