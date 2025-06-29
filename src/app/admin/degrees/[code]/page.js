@@ -63,7 +63,7 @@ export default function DegreeDepartmentsPage() {
     return () => {
       setActionButtons([])
     }
-  }, [degreeCode, viewMode])
+  }, [degreeCode, viewMode, fetchDegree, router, setActionButtons])
 
   const fetchDegree = async () => {
     try {
@@ -231,9 +231,7 @@ export default function DegreeDepartmentsPage() {
   if (!degree) {
     return (
       <div className={styles.errorContainer}>
-        <div className={styles.errorMessage}>
-          {error || "Degree not found"}
-        </div>
+        <div className={styles.errorMessage}>{error || "Degree not found"}</div>
         <button className={styles.backButton} onClick={() => router.push("/admin/degrees")}>
           Back to Degrees
         </button>
@@ -272,16 +270,10 @@ export default function DegreeDepartmentsPage() {
                   </div>
                   <div className={styles.degreeCardBody}>
                     <div className={styles.degreeCardActions}>
-                      <button
-                        className={styles.editButton}
-                        onClick={() => openEditModal(department)}
-                      >
+                      <button className={styles.editButton} onClick={() => openEditModal(department)}>
                         Edit
                       </button>
-                      <button
-                        className={styles.deleteButton}
-                        onClick={() => openDeleteModal(department)}
-                      >
+                      <button className={styles.deleteButton} onClick={() => openDeleteModal(department)}>
                         Delete
                       </button>
                     </div>
@@ -351,30 +343,12 @@ export default function DegreeDepartmentsPage() {
 
         <div className={styles.formGroup}>
           <label htmlFor="departmentCode">Department Code</label>
-          <input
-            type="text"
-            id="departmentCode"
-            name="code"
-            value={departmentFormData.code}
-            onChange={handleDepartmentFormChange}
-            required
-            placeholder="e.g., CSE, ME, EE"
-            className={styles.input}
-          />
+          <input type="text" id="departmentCode" name="code" value={departmentFormData.code} onChange={handleDepartmentFormChange} required placeholder="e.g., CSE, ME, EE" className={styles.input} />
         </div>
 
         <div className={styles.formGroup}>
           <label htmlFor="departmentName">Department Name</label>
-          <input
-            type="text"
-            id="departmentName"
-            name="name"
-            value={departmentFormData.name}
-            onChange={handleDepartmentFormChange}
-            required
-            placeholder="e.g., Computer Science and Engineering"
-            className={styles.input}
-          />
+          <input type="text" id="departmentName" name="name" value={departmentFormData.name} onChange={handleDepartmentFormChange} required placeholder="e.g., Computer Science and Engineering" className={styles.input} />
         </div>
       </Modal>
 
@@ -410,31 +384,13 @@ export default function DegreeDepartmentsPage() {
 
         <div className={styles.formGroup}>
           <label htmlFor="editDepartmentCode">Department Code</label>
-          <input
-            type="text"
-            id="editDepartmentCode"
-            name="code"
-            value={departmentFormData.code}
-            onChange={handleDepartmentFormChange}
-            required
-            disabled
-            className={styles.input}
-          />
+          <input type="text" id="editDepartmentCode" name="code" value={departmentFormData.code} onChange={handleDepartmentFormChange} required disabled className={styles.input} />
           <small className={styles.helpText}>Department code cannot be changed</small>
         </div>
 
         <div className={styles.formGroup}>
           <label htmlFor="editDepartmentName">Department Name</label>
-          <input
-            type="text"
-            id="editDepartmentName"
-            name="name"
-            value={departmentFormData.name}
-            onChange={handleDepartmentFormChange}
-            required
-            placeholder="e.g., Computer Science and Engineering"
-            className={styles.input}
-          />
+          <input type="text" id="editDepartmentName" name="name" value={departmentFormData.name} onChange={handleDepartmentFormChange} required placeholder="e.g., Computer Science and Engineering" className={styles.input} />
         </div>
       </Modal>
 

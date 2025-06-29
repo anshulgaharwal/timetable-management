@@ -58,7 +58,7 @@ export default function AdminBatchesPage() {
     return () => {
       setActionButtons([])
     }
-  }, [viewMode])
+  }, [viewMode, degrees.length, setActionButtons])
 
   const fetchBatches = async () => {
     try {
@@ -428,14 +428,16 @@ export default function AdminBatchesPage() {
               </select>
             </div>
 
-            <div className={styles.formGroup}>            <label htmlFor="departmentCode">Department</label>
-            <select id="departmentCode" name="departmentCode" value={formData.departmentCode} onChange={handleFormChange} required disabled={!formData.degreeId || departments.length === 0} className={styles.select}>
-              <option value="">{!formData.degreeId ? "Select degree first" : departments.length === 0 ? "No departments available" : "Select Department"}</option>
-              {departments.map((department) => (
-                <option key={department.code} value={department.code}>
-                  {department.name} ({department.code})
-                </option>
-              ))}
+            <div className={styles.formGroup}>
+              {" "}
+              <label htmlFor="departmentCode">Department</label>
+              <select id="departmentCode" name="departmentCode" value={formData.departmentCode} onChange={handleFormChange} required disabled={!formData.degreeId || departments.length === 0} className={styles.select}>
+                <option value="">{!formData.degreeId ? "Select degree first" : departments.length === 0 ? "No departments available" : "Select Department"}</option>
+                {departments.map((department) => (
+                  <option key={department.code} value={department.code}>
+                    {department.name} ({department.code})
+                  </option>
+                ))}
               </select>
             </div>
 

@@ -75,7 +75,7 @@ export default function EditBatchPage({ params }) {
             router.push(`/admin/batches/${id}`)
           })
         },
-        variant: "secondary"
+        variant: "secondary",
       },
     ])
 
@@ -83,7 +83,7 @@ export default function EditBatchPage({ params }) {
     fetchData()
 
     return () => setActionButtons([])
-  }, [id, router, setActionButtons])
+  }, [id, router, setActionButtons, fetchData])
 
   // Update departments when selected degree changes
   useEffect(() => {

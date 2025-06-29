@@ -50,13 +50,13 @@ export default function BatchDetailPage({ params }) {
         label: "Add Student",
         icon: "👨‍🎓",
         onClick: () => setShowAddModal(true),
-        variant: "primary"
+        variant: "primary",
       },
       {
         label: "Edit Batch",
         icon: "✏️",
         onClick: () => setShowEditModal(true),
-        variant: "secondary"
+        variant: "secondary",
       },
       {
         label: "Back to Batches",
@@ -66,7 +66,7 @@ export default function BatchDetailPage({ params }) {
             router.push("/admin/batches")
           })
         },
-        variant: "secondary"
+        variant: "secondary",
       },
     ])
 
@@ -76,7 +76,7 @@ export default function BatchDetailPage({ params }) {
     return () => {
       setActionButtons([])
     }
-  }, [id, router, setActionButtons])
+  }, [id, router, setActionButtons, fetchBatchData])
 
   const fetchBatchData = async () => {
     try {
@@ -153,7 +153,7 @@ export default function BatchDetailPage({ params }) {
 
   const handleAddStudent = async (e) => {
     if (e) e.preventDefault()
-    
+
     if (!newStudent.name || !newStudent.rollNo || !newStudent.email || !newStudent.password) {
       setAddStudentError("All fields are required")
       return
@@ -284,11 +284,7 @@ export default function BatchDetailPage({ params }) {
 
   return (
     <div className={styles.batchDetailContainer}>
-      {error && (
-        <div className={styles.errorMessage}>
-          {error}
-        </div>
-      )}
+      {error && <div className={styles.errorMessage}>{error}</div>}
 
       {loading ? (
         <div className={styles.loadingContainer}>
@@ -301,156 +297,141 @@ export default function BatchDetailPage({ params }) {
             <div className={styles.batchInfo}>
               <h2>{batch?.department?.degree?.name || "Unknown Degree"}</h2>
               <h3>{batch?.department?.name || "Unknown Department"}</h3>
-          <div className={styles.batchMeta}>
-            <span className={styles.batchYears}>
-              {batch?.startYear} - {batch?.endYear}
-            </span>
-            <span className={styles.studentCount}>{batch?.students?.length || 0} Students</span>
+              <div className={styles.batchMeta}>
+                <span className={styles.batchYears}>
+                  {batch?.startYear} - {batch?.endYear}
+                </span>
+                <span className={styles.studentCount}>{batch?.students?.length || 0} Students</span>
+              </div>
+              <div className={styles.batchCodes}>
+                <span className={styles.degreeCode}>Degree: {batch?.department?.degree?.code || "Unknown"}</span>
+                <span className={styles.departmentCode}>Department: {batch?.departmentCode || "Unknown"}</span>
+              </div>
+            </div>
           </div>
-          <div className={styles.batchCodes}>
-            <span className={styles.degreeCode}>Degree: {batch?.department?.degree?.code || "Unknown"}</span>
-            <span className={styles.departmentCode}>Department: {batch?.departmentCode || "Unknown"}</span>
-          </div>
-        </div>
-      </div>
 
-      <div className={styles.studentsSection}>
-        <h3 className={styles.sectionTitle}>Enrolled Students</h3>
+          <div className={styles.studentsSection}>
+            <h3 className={styles.sectionTitle}>Enrolled Students</h3>
 
-        {!batch?.students || batch.students.length === 0 ? (
-          <div className={styles.emptyState}>
-            <p>No students enrolled in this batch yet.</p>
-            <button className={styles.addButton} onClick={() => setShowAddModal(true)}>
-              Add First Student
-            </button>
-          </div>
-        ) : (
-          <div className={styles.tableContainer}>
-            <table className={styles.studentsTable}>
-              <thead>
-                <tr>
-                  <th>Roll No</th>
-                  <th>Name</th>
-                  <th>Email</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {batch.students
-                  .sort((a, b) => a.rollNo - b.rollNo)
-                  .map((student) => (
-                    <tr key={student.id}>
-                      <td>{student.rollNo}</td>
-                      <td>{student.user?.name}</td>
-                      <td>{student.user?.email}</td>
-                      <td className={styles.actionsCell}>
-                        <button className={styles.deleteButton} onClick={() => openDeleteModal(student)}>
-                          Delete
-                        </button>
-                      </td>
+            {!batch?.students || batch.students.length === 0 ? (
+              <div className={styles.emptyState}>
+                <p>No students enrolled in this batch yet.</p>
+                <button className={styles.addButton} onClick={() => setShowAddModal(true)}>
+                  Add First Student
+                </button>
+              </div>
+            ) : (
+              <div className={styles.tableContainer}>
+                <table className={styles.studentsTable}>
+                  <thead>
+                    <tr>
+                      <th>Roll No</th>
+                      <th>Name</th>
+                      <th>Email</th>
+                      <th>Actions</th>
                     </tr>
-                  ))}
-              </tbody>
-            </table>
+                  </thead>
+                  <tbody>
+                    {batch.students
+                      .sort((a, b) => a.rollNo - b.rollNo)
+                      .map((student) => (
+                        <tr key={student.id}>
+                          <td>{student.rollNo}</td>
+                          <td>{student.user?.name}</td>
+                          <td>{student.user?.email}</td>
+                          <td className={styles.actionsCell}>
+                            <button className={styles.deleteButton} onClick={() => openDeleteModal(student)}>
+                              Delete
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </div>
-        )}
-      </div>
 
-      {/* Add Student Modal */}
-      <Modal
-        isOpen={showAddModal}
-        onClose={() => {
-          setShowAddModal(false)
-          setAddStudentError(null)
-          setNewStudent({ name: "", rollNo: "", email: "", password: "" })
-        }}
-        title="Add New Student"
-        size="medium"
-        footerButtons={{
-          cancel: {
-            text: "Cancel",
-            onClick: () => {
+          {/* Add Student Modal */}
+          <Modal
+            isOpen={showAddModal}
+            onClose={() => {
               setShowAddModal(false)
               setAddStudentError(null)
               setNewStudent({ name: "", rollNo: "", email: "", password: "" })
-            },
-          },
-          confirm: {
-            text: isAddingStudent ? "Adding..." : "Add Student",
-            onClick: handleAddStudent,
-          },
-        }}
-      >
-        {addStudentError && <div className={styles.errorMessage}>{addStudentError}</div>}
+            }}
+            title="Add New Student"
+            size="medium"
+            footerButtons={{
+              cancel: {
+                text: "Cancel",
+                onClick: () => {
+                  setShowAddModal(false)
+                  setAddStudentError(null)
+                  setNewStudent({ name: "", rollNo: "", email: "", password: "" })
+                },
+              },
+              confirm: {
+                text: isAddingStudent ? "Adding..." : "Add Student",
+                onClick: handleAddStudent,
+              },
+            }}
+          >
+            {addStudentError && <div className={styles.errorMessage}>{addStudentError}</div>}
 
-        <div className={styles.formGroup}>
-          <label htmlFor="name">Student Name</label>
-          <input type="text" id="name" name="name" value={newStudent.name} onChange={handleAddStudentChange} required className={styles.input} placeholder="Enter student's full name" />
-        </div>
+            <div className={styles.formGroup}>
+              <label htmlFor="name">Student Name</label>
+              <input type="text" id="name" name="name" value={newStudent.name} onChange={handleAddStudentChange} required className={styles.input} placeholder="Enter student's full name" />
+            </div>
 
-        <div className={styles.formGroup}>
-          <label htmlFor="rollNo">Roll Number</label>
-          <input type="number" id="rollNo" name="rollNo" value={newStudent.rollNo} onChange={handleAddStudentChange} required className={styles.input} placeholder="Enter roll number" />
-        </div>
+            <div className={styles.formGroup}>
+              <label htmlFor="rollNo">Roll Number</label>
+              <input type="number" id="rollNo" name="rollNo" value={newStudent.rollNo} onChange={handleAddStudentChange} required className={styles.input} placeholder="Enter roll number" />
+            </div>
 
-        <div className={styles.formGroup}>
-          <label htmlFor="email">Email Address</label>
-          <input type="email" id="email" name="email" value={newStudent.email} onChange={handleAddStudentChange} required className={styles.input} placeholder="Enter student's email address" />
-        </div>
+            <div className={styles.formGroup}>
+              <label htmlFor="email">Email Address</label>
+              <input type="email" id="email" name="email" value={newStudent.email} onChange={handleAddStudentChange} required className={styles.input} placeholder="Enter student's email address" />
+            </div>
 
-        <div className={styles.formGroup}>
-          <label htmlFor="password">Password</label>
-          <input type="password" id="password" name="password" value={newStudent.password} onChange={handleAddStudentChange} required className={styles.input} placeholder="Create a password" />
-        </div>
-      </Modal>
+            <div className={styles.formGroup}>
+              <label htmlFor="password">Password</label>
+              <input type="password" id="password" name="password" value={newStudent.password} onChange={handleAddStudentChange} required className={styles.input} placeholder="Create a password" />
+            </div>
+          </Modal>
 
-      {/* Delete Student Modal */}
-      <Modal
-        isOpen={showDeleteModal}
-        onClose={() => {
-          setShowDeleteModal(false)
-          setStudentToDelete(null)
-        }}
-        title="Confirm Deletion"
-        size="small"
-        footerButtons={{
-          cancel: {
-            text: "Cancel",
-            onClick: () => {
+          {/* Delete Student Modal */}
+          <Modal
+            isOpen={showDeleteModal}
+            onClose={() => {
               setShowDeleteModal(false)
               setStudentToDelete(null)
-            },
-          },
-          confirm: {
-            text: "Delete Student",
-            onClick: handleDeleteStudent,
-          },
-        }}
-      >
-        <p>
-          Are you sure you want to delete student <strong>{studentToDelete?.user?.name}</strong> with roll number <strong>{studentToDelete?.rollNo}</strong>? This action cannot be undone.
-        </p>
-      </Modal>
+            }}
+            title="Confirm Deletion"
+            size="small"
+            footerButtons={{
+              cancel: {
+                text: "Cancel",
+                onClick: () => {
+                  setShowDeleteModal(false)
+                  setStudentToDelete(null)
+                },
+              },
+              confirm: {
+                text: "Delete Student",
+                onClick: handleDeleteStudent,
+              },
+            }}
+          >
+            <p>
+              Are you sure you want to delete student <strong>{studentToDelete?.user?.name}</strong> with roll number <strong>{studentToDelete?.rollNo}</strong>? This action cannot be undone.
+            </p>
+          </Modal>
 
-      {/* Edit Batch Modal */}
-      <Modal
-        isOpen={showEditModal}
-        onClose={() => {
-          setShowEditModal(false)
-          // Reset form to current batch values
-          setEditFormData({
-            departmentCode: batch.departmentCode,
-            startYear: batch.startYear,
-            endYear: batch.endYear,
-          })
-          setSelectedDegreeId(batch.department?.degree?.code || "")
-        }}
-        title="Edit Batch"
-        size="medium"
-        footerButtons={{
-          cancel: {
-            text: "Cancel",
-            onClick: () => {
+          {/* Edit Batch Modal */}
+          <Modal
+            isOpen={showEditModal}
+            onClose={() => {
               setShowEditModal(false)
               // Reset form to current batch values
               setEditFormData({
@@ -459,64 +440,79 @@ export default function BatchDetailPage({ params }) {
                 endYear: batch.endYear,
               })
               setSelectedDegreeId(batch.department?.degree?.code || "")
-            },
-          },
-          confirm: {
-            text: isSubmitting ? "Saving..." : "Save Changes",
-            onClick: handleEditBatch,
-          },
-        }}
-      >
-        {error && <div className={styles.errorMessage}>{error}</div>}
+            }}
+            title="Edit Batch"
+            size="medium"
+            footerButtons={{
+              cancel: {
+                text: "Cancel",
+                onClick: () => {
+                  setShowEditModal(false)
+                  // Reset form to current batch values
+                  setEditFormData({
+                    departmentCode: batch.departmentCode,
+                    startYear: batch.startYear,
+                    endYear: batch.endYear,
+                  })
+                  setSelectedDegreeId(batch.department?.degree?.code || "")
+                },
+              },
+              confirm: {
+                text: isSubmitting ? "Saving..." : "Save Changes",
+                onClick: handleEditBatch,
+              },
+            }}
+          >
+            {error && <div className={styles.errorMessage}>{error}</div>}
 
-        <div className={styles.formGroup}>
-          <label htmlFor="degreeId">Degree Program</label>
-          <select id="degreeId" name="degreeId" value={selectedDegreeId} onChange={handleEditChange} required className={styles.select}>
-            <option value="">Select Degree</option>
-            {degrees.map((degree) => (
-              <option key={degree.code} value={degree.code}>
-                {degree.name} ({degree.code})
-              </option>
-            ))}
-          </select>
-        </div>
+            <div className={styles.formGroup}>
+              <label htmlFor="degreeId">Degree Program</label>
+              <select id="degreeId" name="degreeId" value={selectedDegreeId} onChange={handleEditChange} required className={styles.select}>
+                <option value="">Select Degree</option>
+                {degrees.map((degree) => (
+                  <option key={degree.code} value={degree.code}>
+                    {degree.name} ({degree.code})
+                  </option>
+                ))}
+              </select>
+            </div>
 
-        <div className={styles.formGroup}>
-          <label htmlFor="departmentCode">Department</label>
-          <select id="departmentCode" name="departmentCode" value={editFormData.departmentCode} onChange={handleEditChange} required disabled={!selectedDegreeId || departments.length === 0} className={styles.select}>
-            <option value="">Select Department</option>
-            {departments.map((department) => (
-              <option key={department.code} value={department.code}>
-                {department.name} ({department.code})
-              </option>
-            ))}
-          </select>
-        </div>
+            <div className={styles.formGroup}>
+              <label htmlFor="departmentCode">Department</label>
+              <select id="departmentCode" name="departmentCode" value={editFormData.departmentCode} onChange={handleEditChange} required disabled={!selectedDegreeId || departments.length === 0} className={styles.select}>
+                <option value="">Select Department</option>
+                {departments.map((department) => (
+                  <option key={department.code} value={department.code}>
+                    {department.name} ({department.code})
+                  </option>
+                ))}
+              </select>
+            </div>
 
-        <div className={styles.formRow}>
-          <div className={styles.formGroup}>
-            <label htmlFor="startYear">Start Year</label>
-            <select id="startYear" name="startYear" value={editFormData.startYear} onChange={handleEditChange} required className={styles.select}>
-              {yearOptions.map((year) => (
-                <option key={year} value={year}>
-                  {year}
-                </option>
-              ))}
-            </select>
-          </div>
+            <div className={styles.formRow}>
+              <div className={styles.formGroup}>
+                <label htmlFor="startYear">Start Year</label>
+                <select id="startYear" name="startYear" value={editFormData.startYear} onChange={handleEditChange} required className={styles.select}>
+                  {yearOptions.map((year) => (
+                    <option key={year} value={year}>
+                      {year}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
-          <div className={styles.formGroup}>
-            <label htmlFor="endYear">End Year</label>
-            <select id="endYear" name="endYear" value={editFormData.endYear} onChange={handleEditChange} required className={styles.select}>
-              {yearOptions.map((year) => (
-                <option key={year} value={year} disabled={year < editFormData.startYear}>
-                  {year}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
-      </Modal>
+              <div className={styles.formGroup}>
+                <label htmlFor="endYear">End Year</label>
+                <select id="endYear" name="endYear" value={editFormData.endYear} onChange={handleEditChange} required className={styles.select}>
+                  {yearOptions.map((year) => (
+                    <option key={year} value={year} disabled={year < editFormData.startYear}>
+                      {year}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+          </Modal>
         </>
       ) : (
         <div className={styles.emptyState}>

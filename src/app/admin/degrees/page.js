@@ -50,7 +50,7 @@ export default function DegreesPage() {
     return () => {
       setActionButtons([])
     }
-  }, [viewMode])
+  }, [viewMode, setActionButtons])
 
   const fetchDegrees = async () => {
     try {
@@ -320,30 +320,12 @@ export default function DegreesPage() {
 
         <div className={styles.formGroup}>
           <label htmlFor="code">Degree Code</label>
-          <input
-            type="text"
-            id="code"
-            name="code"
-            value={formData.code}
-            onChange={handleFormChange}
-            required
-            placeholder="e.g., BTECH, MTECH, PhD"
-            className={styles.input}
-          />
+          <input type="text" id="code" name="code" value={formData.code} onChange={handleFormChange} required placeholder="e.g., BTECH, MTECH, PhD" className={styles.input} />
         </div>
 
         <div className={styles.formGroup}>
           <label htmlFor="name">Degree Name</label>
-          <input
-            type="text"
-            id="name"
-            name="name"
-            value={formData.name}
-            onChange={handleFormChange}
-            required
-            placeholder="e.g., Bachelor of Technology"
-            className={styles.input}
-          />
+          <input type="text" id="name" name="name" value={formData.name} onChange={handleFormChange} required placeholder="e.g., Bachelor of Technology" className={styles.input} />
         </div>
       </Modal>
 
@@ -379,31 +361,13 @@ export default function DegreesPage() {
 
         <div className={styles.formGroup}>
           <label htmlFor="editCode">Degree Code</label>
-          <input
-            type="text"
-            id="editCode"
-            name="code"
-            value={formData.code}
-            onChange={handleFormChange}
-            required
-            disabled
-            className={styles.input}
-          />
+          <input type="text" id="editCode" name="code" value={formData.code} onChange={handleFormChange} required disabled className={styles.input} />
           <small className={styles.helpText}>Degree code cannot be changed</small>
         </div>
 
         <div className={styles.formGroup}>
           <label htmlFor="editName">Degree Name</label>
-          <input
-            type="text"
-            id="editName"
-            name="name"
-            value={formData.name}
-            onChange={handleFormChange}
-            required
-            placeholder="e.g., Bachelor of Technology"
-            className={styles.input}
-          />
+          <input type="text" id="editName" name="name" value={formData.name} onChange={handleFormChange} required placeholder="e.g., Bachelor of Technology" className={styles.input} />
         </div>
       </Modal>
 
