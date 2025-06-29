@@ -153,7 +153,7 @@ export default function RespondToPoll() {
     return (
       <div className={styles.errorContainer}>
         <h1>❌ Poll Not Found</h1>
-        <p>The poll you're looking for doesn't exist or has been removed.</p>
+        <p>The poll you&apos;re looking for doesn&apos;t exist or has been removed.</p>
         <button onClick={goBack} className={styles.backButton}>
           ← Go Back
         </button>
