@@ -25,8 +25,8 @@ export default function AddProfessorModal({ isOpen, onClose }) {
     setError("")
     try {
       const data = await addProfessor(formData)
-      setProfessors([...professors, data.professor])
-      setShowAddForm(false)
+      setProfessors([...professors, data])
+      onClose()
       setFormData({ name: "", email: "", password: "" })
     } catch (err) {
       setError(err.message)
