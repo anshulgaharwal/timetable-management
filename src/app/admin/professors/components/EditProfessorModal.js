@@ -24,7 +24,7 @@ export default function EditProfessorModal({ isOpen, onClose, professor }) {
     try {
       setSubmitLoading(true)
       const data = await updateProfessor(professor.id, formData)
-      setProfessors(professors.map((p) => (p.id === professor.id ? data.professor : p)))
+      setProfessors(professors.map((p) => (p.id === professor.id ? data : p)))
       onClose()
       setFormData({ name: "", email: "", password: "" })
       setError("")
@@ -42,32 +42,12 @@ export default function EditProfessorModal({ isOpen, onClose, professor }) {
     }
   }, [professor])
 
-  const handleDeleteProfessor = async (id) => {
-    if (!confirm("Are you sure you want to delete this professor?")) return
-    try {
-      const res = await fetch(`/api/professors/${id}`, {
-        method: "DELETE",
-      })
-
-      if (!res.ok) throw new Error("Failed to delete professor")
-      setProfessors(professors.filter((p) => p.id !== id))
-      setError("")
-    } catch (err) {
-      setError(err.message)
-    }
-  }
-
   return (
     <Modal
       isOpen={isOpen}
       onClose={onClose}
       title="Edit Professor"
       footerButtons={{
-        delete: {
-          text: "Delete Professor",
-          onClick: () => handleDeleteProfessor(professor.id),
-          variant: "danger",
-        },
         cancel: {
           text: "Cancel",
           onClick: onClose,
