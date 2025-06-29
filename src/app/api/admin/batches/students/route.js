@@ -1,5 +1,4 @@
 import { prisma } from "@/lib/prisma"
-import { departmentCodeMap } from "@/app/utils/departmentCodeMap"
 import { NextResponse } from "next/server"
 import { getServerSession } from "next-auth/next"
 import { authOptions } from "@/app/api/auth/[...nextauth]/route"
