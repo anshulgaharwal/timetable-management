@@ -7,7 +7,7 @@ export default function Loading() {
   return (
     <div className={styles.loadingContainer}>
       <LoadingSpinner size="large" />
-      <p>Loading batches data...</p>
+      <p>Loading...</p>
     </div>
   )
 }
