@@ -65,11 +65,11 @@ export default function StudentDashboard() {
     try {
       setLoading(true)
       setError(null)
-      
+
       // Fetch student statistics (this would need to be implemented in the API)
       // For now, we'll use mock data
-      await new Promise(resolve => setTimeout(resolve, 1000)) // Simulate API call
-      
+      await new Promise((resolve) => setTimeout(resolve, 1000)) // Simulate API call
+
       setStats({
         totalDepartments: 6,
         currentSemester: 4,
@@ -125,14 +125,10 @@ export default function StudentDashboard() {
       {error && <div className={styles.errorMessage}>{error}</div>}
 
       <div className={styles.welcomeSection}>
-        <h1 className={styles.welcomeTitle}>
-          Welcome back, {session?.user?.name || 'Student'}!
-        </h1>
-        <p className={styles.welcomeSubtitle}>
-          Here&apos;s your student dashboard overview
-        </p>
+        <h1 className={styles.welcomeTitle}>Welcome back, {session?.user?.name || "Student"}!</h1>
+        <p className={styles.welcomeSubtitle}>Here&apos;s your student dashboard overview</p>
 
-        {loading ? (
+        {/* {loading ? (
           <div className={styles.loadingContainer}>
             <LoadingSpinner size="medium" />
             <p>Loading your dashboard...</p>
@@ -156,16 +152,12 @@ export default function StudentDashboard() {
               <div className={styles.statLabel}>Upcoming Exams</div>
             </div>
           </div>
-        )}
+        )} */}
       </div>
 
       <div className={styles.featureGrid}>
         {quickActions.map((action, index) => (
-          <div
-            key={index}
-            className={styles.featureCard}
-            onClick={() => navigateTo(action.href)}
-          >
+          <div key={index} className={styles.featureCard} onClick={() => navigateTo(action.href)}>
             <span className={styles.featureIcon}>{action.icon}</span>
             <h3 className={styles.featureTitle}>{action.title}</h3>
             <p className={styles.featureDescription}>{action.description}</p>

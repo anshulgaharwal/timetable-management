@@ -144,16 +144,16 @@ export default function StudentPolls() {
       {error && <div className={styles.errorMessage}>{error}</div>}
 
       <div className={styles.pollsHeader}>
-        <div className={styles.headerContent}>
+        {/* <div className={styles.headerContent}>
           <h1 className={styles.pageTitle}>Available Polls</h1>
           <p className={styles.pageSubtitle}>Participate in polls and share your feedback</p>
-        </div>
+        </div> */}
 
         <div className={styles.controls}>
-          <div className={styles.searchContainer}>
+          {/* <div className={styles.searchContainer}>
             <input type="text" placeholder="Search polls..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className={styles.searchInput} />
             <span className={styles.searchIcon}>🔍</span>
-          </div>
+          </div> */}
 
           <div className={styles.filterTabs}>
             <button className={`${styles.filterTab} ${filter === "active" ? styles.active : ""}`} onClick={() => setFilter("active")}>

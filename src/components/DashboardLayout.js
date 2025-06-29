@@ -56,6 +56,9 @@ export default function DashboardLayout({ children }) {
     if (href === "/admin") {
       return pathname === "/admin"
     }
+    if (href === "/student") {
+      return pathname === "/student"
+    }
     return pathname.startsWith(href)
   }
 

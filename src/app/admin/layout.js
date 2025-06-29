@@ -16,7 +16,7 @@ const adminSidebarTabs = [
   { label: "Timetable", href: "/admin/timetable", icon: "📅" },
 ]
 
-function AdminLayoutContent({ children }) {
+export default function AdminLayoutContent({ children }) {
   const pathname = usePathname()
   const { setPageTitle, setSidebarTabs } = useLayout()
 
@@ -40,13 +40,9 @@ function AdminLayoutContent({ children }) {
     setSidebarTabs(adminSidebarTabs)
   }, [pathname, setPageTitle, setSidebarTabs])
 
-  return <DashboardLayout>{children}</DashboardLayout>
-}
-
-export default function AdminLayout({ children }) {
   return (
     <AdminProvider>
-      <AdminLayoutContent>{children}</AdminLayoutContent>
+      <DashboardLayout>{children}</DashboardLayout>
     </AdminProvider>
   )
 }

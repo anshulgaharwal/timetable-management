@@ -16,15 +16,7 @@ export default function StudentTimetablePage() {
   const [error, setError] = useState(null)
 
   const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]
-  const slots = [
-    "09:00-10:00",
-    "10:00-11:00",
-    "11:00-12:00",
-    "12:00-13:00",
-    "14:00-15:00",
-    "15:00-16:00",
-    "16:00-17:00",
-  ]
+  const slots = ["09:00-10:00", "10:00-11:00", "11:00-12:00", "12:00-13:00", "14:00-15:00", "15:00-16:00", "16:00-17:00"]
 
   useEffect(() => {
     // Set action buttons immediately
@@ -65,12 +57,12 @@ export default function StudentTimetablePage() {
     try {
       setLoading(true)
       setError(null)
-      
+
       const res = await fetch("/api/timetable/student")
       if (!res.ok) {
         throw new Error("Failed to fetch timetable")
       }
-      
+
       const data = await res.json()
       setEntries(data || [])
     } catch (err) {
@@ -84,14 +76,13 @@ export default function StudentTimetablePage() {
     window.print()
   }
 
-  const getEntry = (day, slot) =>
-    entries.find((e) => e.day === day && e.timeSlot === slot)
+  const getEntry = (day, slot) => entries.find((e) => e.day === day && e.timeSlot === slot)
 
   const getWeeklyStats = () => {
     const totalClasses = entries.length
-    const uniqueCourses = new Set(entries.map(e => e.course)).size
+    const uniqueCourses = new Set(entries.map((e) => e.course)).size
     const totalHours = entries.length // Assuming each slot is 1 hour
-    
+
     return { totalClasses, uniqueCourses, totalHours }
   }
 
@@ -101,11 +92,6 @@ export default function StudentTimetablePage() {
     <div className={styles.timetableContainer}>
       {error && <div className={styles.errorMessage}>{error}</div>}
 
-      <div className={styles.timetableHeader}>
-        <h2>My Weekly Timetable</h2>
-        <p>Your complete class schedule for this week</p>
-      </div>
-
       {loading ? (
         <div className={styles.loadingContainer}>
           <LoadingSpinner size="large" />
@@ -114,7 +100,7 @@ export default function StudentTimetablePage() {
       ) : (
         <>
           {/* Quick stats */}
-          <div className={styles.quickStats}>
+          {/* <div className={styles.quickStats}>
             <div className={styles.statCard}>
               <div className={styles.statValue}>{totalClasses}</div>
               <div className={styles.statLabel}>Total Classes</div>
@@ -127,7 +113,7 @@ export default function StudentTimetablePage() {
               <div className={styles.statValue}>{totalHours}</div>
               <div className={styles.statLabel}>Weekly Hours</div>
             </div>
-          </div>
+          </div> */}
 
           {entries.length === 0 ? (
             <div className={styles.emptyState}>
@@ -154,23 +140,12 @@ export default function StudentTimetablePage() {
                       {days.map((day) => {
                         const entry = getEntry(day, slot)
                         return (
-                          <td
-                            key={day + slot}
-                            className={`${styles.timetableCell} ${
-                              entry ? styles.hasEntry : styles.empty
-                            }`}
-                          >
+                          <td key={day + slot} className={`${styles.timetableCell} ${entry ? styles.hasEntry : styles.empty}`}>
                             {entry ? (
                               <div className={styles.departmentEntry}>
-                                <div className={styles.departmentName}>
-                                  {entry.course || "Unknown Course"}
-                                </div>
-                                <div className={styles.departmentClassroom}>
-                                  {entry.classroom || "TBA"}
-                                </div>
-                                <div className={styles.departmentProfessor}>
-                                  {entry.professor?.name || "TBA"}
-                                </div>
+                                <div className={styles.departmentName}>{entry.course || "Unknown Course"}</div>
+                                <div className={styles.departmentClassroom}>{entry.classroom || "TBA"}</div>
+                                <div className={styles.departmentProfessor}>{entry.professor?.name || "TBA"}</div>
                               </div>
                             ) : (
                               <span style={{ color: "var(--text-secondary)" }}>Free</span>
