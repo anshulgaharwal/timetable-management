@@ -5,7 +5,7 @@ import bcrypt from "bcrypt"
 import { authOptions } from "../../auth/[...nextauth]/route"
 
 // GET a specific professor
-export async function GET(req, { params }) {
+export async function GET(req, context) {
   try {
     const session = await getServerSession(authOptions)
 
@@ -14,7 +14,9 @@ export async function GET(req, { params }) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 })
     }
 
-    const { id } = params
+    const { params } = context
+    const awaitedParams = await params
+    const { id } = awaitedParams
 
     const professor = await prisma.user.findUnique({
       where: { id, role: "professor" },
@@ -32,7 +34,7 @@ export async function GET(req, { params }) {
 }
 
 // PUT - Update a professor
-export async function PUT(req, { params }) {
+export async function PUT(req, context) {
   try {
     const session = await getServerSession(authOptions)
 
@@ -41,7 +43,9 @@ export async function PUT(req, { params }) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 })
     }
 
-    const { id } = params
+    const { params } = context
+    const awaitedParams = await params
+    const { id } = awaitedParams
     const { name, email, password } = await req.json()
 
     // Check if professor exists
@@ -82,7 +86,7 @@ export async function PUT(req, { params }) {
 }
 
 // DELETE - Delete a professor
-export async function DELETE(req, { params }) {
+export async function DELETE(req, context) {
   try {
     const session = await getServerSession(authOptions)
 
@@ -91,7 +95,9 @@ export async function DELETE(req, { params }) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 })
     }
 
-    const { id } = params
+    const { params } = context
+    const awaitedParams = await params
+    const { id } = awaitedParams
 
     // Check if professor exists
     const existingProfessor = await prisma.user.findUnique({
@@ -107,9 +113,9 @@ export async function DELETE(req, { params }) {
       where: { id },
     })
 
-    return NextResponse.json({ message: "Professor deleted successfully" })
+    return NextResponse.json({ message: "Professor deleted successfully", success: true, id }, { status: 200 })
   } catch (error) {
     console.error("Error deleting professor:", error)
-    return NextResponse.json({ message: "An internal server error occurred" }, { status: 500 })
+    return NextResponse.json({ message: "An internal server error occurred", success: false }, { status: 500 })
   }
 }
