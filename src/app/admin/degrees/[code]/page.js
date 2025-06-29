@@ -26,6 +26,37 @@ export default function DegreeDepartmentsPage() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [viewMode, setViewMode] = useState("grid") // grid or list
 
+  // Move fetchDegree definition above useEffect to avoid initialization error
+  const fetchDegree = async () => {
+    try {
+      setLoading(true)
+      setError(null)
+      const response = await fetch("/api/degree")
+      if (!response.ok) {
+        throw new Error("Failed to fetch degrees")
+      }
+      const data = await response.json()
+      const foundDegree = data.find((d) => d.code === degreeCode)
+
+      if (foundDegree) {
+        setDegree(foundDegree)
+        setDepartments(foundDegree.departments || [])
+      } else {
+        setError("Degree not found")
+        // Redirect to degrees list after a short delay
+        setTimeout(() => {
+          startTransition(() => {
+            router.push("/admin/degrees")
+          })
+        }, 2000)
+      }
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setLoading(false)
+    }
+  }
+
   useEffect(() => {
     // Set action buttons immediately
     setActionButtons([
@@ -63,37 +94,7 @@ export default function DegreeDepartmentsPage() {
     return () => {
       setActionButtons([])
     }
-  }, [degreeCode, viewMode, fetchDegree, router, setActionButtons])
-
-  const fetchDegree = async () => {
-    try {
-      setLoading(true)
-      setError(null)
-      const response = await fetch("/api/degree")
-      if (!response.ok) {
-        throw new Error("Failed to fetch degrees")
-      }
-      const data = await response.json()
-      const foundDegree = data.find((d) => d.code === degreeCode)
-
-      if (foundDegree) {
-        setDegree(foundDegree)
-        setDepartments(foundDegree.departments || [])
-      } else {
-        setError("Degree not found")
-        // Redirect to degrees list after a short delay
-        setTimeout(() => {
-          startTransition(() => {
-            router.push("/admin/degrees")
-          })
-        }, 2000)
-      }
-    } catch (err) {
-      setError(err.message)
-    } finally {
-      setLoading(false)
-    }
-  }
+  }, [degreeCode, viewMode, router, setActionButtons])
 
   const handleDepartmentFormChange = (e) => {
     const { name, value } = e.target
