@@ -11,7 +11,7 @@ const adminSidebarTabs = [
   { label: "Professors", href: "/admin/professors", icon: "👨‍🏫" },
   { label: "Batches", href: "/admin/batches", icon: "👥" },
   { label: "Polls", href: "/admin/polls", icon: "📊" },
-  { label: "Settings", href: "/admin/settings", icon: "⚙️" },
+  // { label: "Settings", href: "/admin/settings", icon: "⚙️" },
   { label: "Degrees", href: "/admin/degrees", icon: "🎓" },
   { label: "Timetable", href: "/admin/timetable", icon: "📅" },
 ]

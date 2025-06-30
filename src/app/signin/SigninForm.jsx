@@ -71,9 +71,9 @@ export default function SigninForm() {
         <button type="submit" disabled={isLoading}>
           {isLoading ? "Signing in..." : "Sign In"}
         </button>
-        <p>
+        {/* <p>
           Don't have an account? <Link href="/signup">Sign Up</Link>
-        </p>
+        </p> */}
         <button type="button" className="google-btn" onClick={() => signIn("google")} disabled={isLoading}>
           <img src="/google-logo.png" alt="Google" /> Sign in with Google
         </button>
